@@ -528,8 +528,6 @@
     <ResourceCompile Include="emule.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="res\FileImportParts.ico" />
-    <Image Include="res\FileInfo.gif" />
     <Image Include="res\Preferences.gif" />
     <Image Include="res\all.ico">
       <Filter>Resources</Filter>
@@ -1294,6 +1292,12 @@
       <Filter>Resources</Filter>
     </Image>
     <Image Include="res\Wizard.ico">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="res\FileImportParts.ico">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="res\FileInfo.gif">
       <Filter>Resources</Filter>
     </Image>
   </ItemGroup>

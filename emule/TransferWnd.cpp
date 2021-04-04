@@ -324,8 +324,8 @@ void CTransferWnd::OnSplitterMoved(LPNMHDR pNMHDR, LRESULT* /*pResult*/)
 
 BOOL CTransferWnd::PreTranslateMessage(MSG *pMsg)
 {
-	if (theApp.emuledlg->m_pSplashWnd)
-		return FALSE;
+	//if (theApp.emuledlg->m_pSplashWnd)
+	//	return FALSE;
 	if (pMsg->message == WM_KEYDOWN) {
 		// Don't handle Ctrl+Tab in this window. It will be handled by main window.
 		if (pMsg->wParam == VK_TAB && GetKeyState(VK_CONTROL) < 0)

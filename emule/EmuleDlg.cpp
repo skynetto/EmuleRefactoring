@@ -50,7 +50,7 @@
 #include "Opcodes.h"
 #include "SharedFileList.h"
 #include "ED2KLink.h"
-#include "Splashscreen.h"
+#include <Splashscreen.h>
 #include "PartFileConvert.h"
 #include "EnBitmap.h"
 #include "Exceptions.h"
@@ -787,9 +787,7 @@ void CemuleDlg::OnSysCommand(UINT nID, LPARAM lParam)
 	case MP_ABOUTBOX:
 		{
 			CCreditsDlg dlgAbout;
-			m_pSplashWnd = (CSplashScreen*)&dlgAbout;
 			dlgAbout.DoModal();
-			m_pSplashWnd = NULL;
 			break;
 		}
 	case MP_VERSIONCHECK:
@@ -2816,33 +2814,28 @@ LRESULT CemuleDlg::OnVersionCheckResponse(WPARAM, LPARAM lParam)
 
 void CemuleDlg::ShowSplash()
 {
-	ASSERT(m_pSplashWnd == NULL);
-	if (m_pSplashWnd == NULL) {
-		try {
-			m_pSplashWnd = new CSplashScreen(this);
-		} catch (...) {
-			return;
-		}
-		ASSERT(m_hWnd);
-		if (m_pSplashWnd->Create(CSplashScreen::IDD, this)) {
-			m_pSplashWnd->SetVersion(_T("eMule ") + theApp.m_strCurVersionLong);
-			m_pSplashWnd->ShowWindow(SW_SHOW);
-			m_pSplashWnd->UpdateWindow();
+	ASSERT(m_hWnd);
+	if (m_pSplashWnd.Create(CSplashScreen::IDD, this)) 
+	{
+			m_pSplashWnd.SetVersion(_T("eMule ") + theApp.m_strCurVersionLong);
+			m_pSplashWnd.ShowWindow(SW_SHOW);
+			m_pSplashWnd.UpdateWindow();
 			m_dwSplashTime = ::GetTickCount();
-		} else {
-			delete m_pSplashWnd;
-			m_pSplashWnd = NULL;
-		}
+	} 
+	else 
+	{
+			/*delete m_pSplashWnd;
+			m_pSplashWnd = NULL;*/
 	}
 }
 
 void CemuleDlg::DestroySplash()
 {
-	if (m_pSplashWnd != NULL) {
-		m_pSplashWnd->EndDialog(IDOK); //deletes the dialog
-		delete m_pSplashWnd;
-		m_pSplashWnd = NULL;
-	}
+	//if (m_pSplashWnd != NULL) {
+		m_pSplashWnd.EndDialog(IDOK); //deletes the dialog
+	//	delete m_pSplashWnd;
+	//	m_pSplashWnd = NULL;
+	//}
 #ifdef _BETA
 	// only do it once to not be annoying given that the beta phases are expected to last longer these days
 	if (!thePrefs.IsFirstStart() && thePrefs.ShouldBetaNag()) {
@@ -3028,7 +3021,7 @@ BOOL CemuleDlg::PreTranslateMessage(MSG *pMsg)
 {
 	BOOL bResult = CTrayDialog::PreTranslateMessage(pMsg);
 
-	if (m_pSplashWnd && m_pSplashWnd->m_hWnd != NULL)
+	if (m_pSplashWnd.m_hWnd != NULL)
 		switch (pMsg->message) {
 		case WM_SYSCOMMAND:
 			if (pMsg->wParam != SC_CLOSE)

@@ -19,6 +19,7 @@
 #include "TaskbarNotifier.h"
 #include "TitleMenu.h"
 #include "TrayDialog.h"
+#include <SplashScreen.h>
 
 namespace Kademlia
 {
@@ -41,7 +42,7 @@ class CPreferencesDlg;
 class CSearchDlg;
 class CServerWnd;
 class CSharedFilesWnd;
-class CSplashScreen;
+
 class CStatisticsDlg;
 class CTaskbarNotifier;
 class CTransferDlg;
@@ -149,9 +150,11 @@ public:
 	CReBarCtrl		m_ctlMainTopReBar;
 	CMuleToolbarCtrl *toolbar;
 	CKademliaWnd	*kademliawnd;
-	CSplashScreen	*m_pSplashWnd;
+	
 	CWnd			*activewnd;
 	uint8			status;
+private:
+	CSplashScreen	m_pSplashWnd;
 
 protected:
 	HICON			m_hIcon;

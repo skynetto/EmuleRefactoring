@@ -226,8 +226,8 @@ void CKademliaWnd::DoDataExchange(CDataExchange *pDX)
 
 BOOL CKademliaWnd::PreTranslateMessage(MSG *pMsg)
 {
-	if (theApp.emuledlg->m_pSplashWnd)
-		return FALSE;
+	//if (theApp.emuledlg->m_pSplashWnd)
+	//	return FALSE;
 	if (m_btnsetsize) {
 		m_btnsetsize = false;
 		if (m_pbtnWnd && m_pbtnWnd->m_hWnd && m_pbtnWnd->GetBtnWidth(IDC_KADICO1) != WND1_BUTTON_WIDTH)

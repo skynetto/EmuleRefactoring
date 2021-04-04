@@ -33,6 +33,7 @@ END_MESSAGE_MAP()
 
 CSplashScreen::CSplashScreen(CWnd *pParent /*=NULL*/)
 	: CDialog(CSplashScreen::IDD, pParent)
+	, m_emuleVersion{ _T("") }
 {
 }
 
