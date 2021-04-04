@@ -15,9 +15,8 @@
 //along with this program; if not, write to the Free Software
 //Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #include "stdafx.h"
-#include "emule.h"
-#include "SplashScreen.h"
-#include "OtherFunctions.h"
+#include <SplashScreen.h>
+#include <EnBitmap.h>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -42,20 +41,29 @@ CSplashScreen::~CSplashScreen()
 	m_imgSplash.DeleteObject();
 }
 
+void CSplashScreen::SetVersion(const CString& version)
+{
+	m_emuleVersion = version;
+}
+
 BOOL CSplashScreen::OnInitDialog()
 {
 	CDialog::OnInitDialog();
-	InitWindowStyles(this);
 
-	VERIFY(m_imgSplash.Attach(theApp.LoadImage(_T("ABOUT"), _T("JPG"))));
-	if (m_imgSplash.GetSafeHandle()) {
-		BITMAP bmp;
-		if (m_imgSplash.GetBitmap(&bmp)) {
-			WINDOWPLACEMENT wp;
-			GetWindowPlacement(&wp);
-			wp.rcNormalPosition.right = wp.rcNormalPosition.left + bmp.bmWidth;
-			wp.rcNormalPosition.bottom = wp.rcNormalPosition.top + bmp.bmHeight;
-			SetWindowPlacement(&wp);
+	CEnBitmap bmp;
+	if (bmp.LoadImage(_T("ABOUT"), _T("JPG")))
+	{
+		VERIFY(m_imgSplash.Attach((HBITMAP)bmp.Detach()));
+
+		if (m_imgSplash.GetSafeHandle()) {
+			BITMAP bmp;
+			if (m_imgSplash.GetBitmap(&bmp)) {
+				WINDOWPLACEMENT wp;
+				GetWindowPlacement(&wp);
+				wp.rcNormalPosition.right = wp.rcNormalPosition.left + bmp.bmWidth;
+				wp.rcNormalPosition.bottom = wp.rcNormalPosition.top + bmp.bmHeight;
+				SetWindowPlacement(&wp);
+			}
 		}
 	}
 
@@ -111,8 +119,7 @@ void CSplashScreen::OnPaint()
 			CFont font;
 			font.CreateFontIndirect(&lf);
 			CFont *pOldFont = dc.SelectObject(&font);
-			CString strAppVersion(_T("eMule ") + theApp.m_strCurVersionLong);
-			rc.top += dc.DrawText(strAppVersion, &rc, DT_CENTER | DT_NOPREFIX);
+			rc.top += dc.DrawText(m_emuleVersion, &rc, DT_CENTER | DT_NOPREFIX);
 			if (pOldFont)
 				dc.SelectObject(pOldFont);
 			font.DeleteObject();

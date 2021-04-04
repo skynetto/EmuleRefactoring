@@ -2819,12 +2819,13 @@ void CemuleDlg::ShowSplash()
 	ASSERT(m_pSplashWnd == NULL);
 	if (m_pSplashWnd == NULL) {
 		try {
-			m_pSplashWnd = new CSplashScreen;
+			m_pSplashWnd = new CSplashScreen(this);
 		} catch (...) {
 			return;
 		}
 		ASSERT(m_hWnd);
 		if (m_pSplashWnd->Create(CSplashScreen::IDD, this)) {
+			m_pSplashWnd->SetVersion(_T("eMule ") + theApp.m_strCurVersionLong);
 			m_pSplashWnd->ShowWindow(SW_SHOW);
 			m_pSplashWnd->UpdateWindow();
 			m_dwSplashTime = ::GetTickCount();
