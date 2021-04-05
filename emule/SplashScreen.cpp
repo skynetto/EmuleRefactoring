@@ -33,7 +33,13 @@ END_MESSAGE_MAP()
 
 CSplashScreen::CSplashScreen(CWnd *pParent /*=NULL*/)
 	: CDialog(CSplashScreen::IDD, pParent)
-	, m_emuleVersion{ _T("") }
+{
+}
+
+CSplashScreen::CSplashScreen(CWnd* pParent, uint32 timeToLive, const CString& version)
+	: CDialog(CSplashScreen::IDD, pParent)
+	, m_emuleVersion{ version }
+	, m_timeToLive{ timeToLive }
 {
 }
 

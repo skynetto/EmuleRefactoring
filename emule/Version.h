@@ -43,4 +43,13 @@
 // NOTE: This version string is also used by the language DLLs!
 #define	SZ_VERSION_NAME		chSTR(VERSION_MJR) _T(".") chSTR(VERSION_MIN) _T(".") chSTR(VERSION_UPDATE)
 
+
+
+static const UINT m_nVersionMjr = VERSION_MJR;
+static const UINT m_nVersionMin = VERSION_MIN;
+static const UINT m_nVersionUpd = VERSION_UPDATE;
+static const UINT m_nVersionBld = VERSION_BUILD;
+static const TCHAR* m_sPlatform = VERSION_X64;
+
+
 #endif /* !__VERSION_H__ */

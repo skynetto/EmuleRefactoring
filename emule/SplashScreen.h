@@ -11,7 +11,8 @@ class CSplashScreen : public CDialog
 	};
 
 public:
-	explicit CSplashScreen(CWnd *pParent = NULL);   // standard constructor
+	explicit CSplashScreen(CWnd* pParent = NULL); // standard constructor
+	CSplashScreen(CWnd *pParent , uint32 timetoLive, const CString & version);   
 	virtual	~CSplashScreen();
 
 	void SetVersion(const CString& version);
@@ -24,6 +25,6 @@ protected:
 	BOOL PreTranslateMessage(MSG *pMsg);
 private:
 	CString m_emuleVersion;
-
+	uint32 m_timeToLive;
 	DECLARE_MESSAGE_MAP()
 };

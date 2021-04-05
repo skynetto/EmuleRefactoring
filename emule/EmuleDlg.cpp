@@ -216,7 +216,7 @@ END_MESSAGE_MAP()
 
 CemuleDlg::CemuleDlg(CWnd *pParent /*=NULL*/)
 	: CTrayDialog(CemuleDlg::IDD, pParent)
-	, m_pSplashWnd()
+	, m_pSplashWnd(this)
 	, activewnd()
 	, status()
 	, m_hIcon()
@@ -2784,7 +2784,7 @@ LRESULT CemuleDlg::OnVersionCheckResponse(WPARAM, LPARAM lParam)
 				uint32 dwResult = ((LPIN_ADDR)(pHost->h_addr_list[0]))->s_addr;
 				// last byte contains informations about mirror urls, to avoid effects of future DDoS Attacks against eMules Homepage
 				thePrefs.SetWebMirrorAlertLevel((uint8)(dwResult >> 24));
-				uint8 abyCurVer[4] = {(uint8)(CemuleApp::m_nVersionBld + 1), (uint8)(CemuleApp::m_nVersionUpd), (uint8)(CemuleApp::m_nVersionMin), (uint8)0};
+				uint8 abyCurVer[4] = {(uint8)(m_nVersionBld + 1), (uint8)(m_nVersionUpd), (uint8)(m_nVersionMin), (uint8)0};
 				dwResult &= 0x00FFFFFF;
 				if (dwResult > *(uint32*)abyCurVer) {
 					SetActiveWindow();

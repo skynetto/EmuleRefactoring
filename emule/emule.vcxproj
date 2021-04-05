@@ -471,7 +471,6 @@
     <ClCompile Include="UPnPImplWinServ.cpp" />
     <ClCompile Include="UPnPImplWrapper.cpp" />
     <ClCompile Include="URLClient.cpp" />
-    <ClCompile Include="Version.cpp" />
     <ClCompile Include="VisualStylesXP.cpp" />
     <ClCompile Include="WebServer.cpp" />
     <ClCompile Include="WebSocket.cpp" />

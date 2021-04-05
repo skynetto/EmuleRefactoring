@@ -18,7 +18,8 @@
 #ifndef __AFXWIN_H__
 #error include 'stdafx.h' before including this file for PCH
 #endif
-#include "resource.h"
+#include <resource.h>
+#include <Version.h>
 
 #define	DEFAULT_NICK		thePrefs.GetHomepageBaseURL()
 #define	DEFAULT_TCP_PORT_OLD	4662
@@ -94,11 +95,11 @@ public:
 	CUPnPImplWrapper	*m_pUPnPFinder;
 	CUploadDiskIOThread	*m_pUploadDiskIOThread;
 
-	static const UINT	m_nVersionMjr;
+	/*static const UINT	m_nVersionMjr;
 	static const UINT	m_nVersionMin;
 	static const UINT	m_nVersionUpd;
 	static const UINT	m_nVersionBld;
-	static const TCHAR	*m_sPlatform;
+	static const TCHAR	*m_sPlatform;*/
 
 	HANDLE		m_hMutexOneInstance;
 	int			m_iDfltImageListColorFlags;

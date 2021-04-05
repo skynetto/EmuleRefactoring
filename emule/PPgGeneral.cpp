@@ -325,8 +325,8 @@ void CPPgGeneral::OnLangChange()
 				CString strUrl;
 				strUrl.Format(MIRRORS_URL _T("%s")
 					, nRand
-					, CemuleApp::m_nVersionMjr, CemuleApp::m_nVersionMin
-					, CemuleApp::m_nVersionUpd, CemuleApp::m_nVersionBld
+					, m_nVersionMjr, m_nVersionMin
+					,m_nVersionUpd, m_nVersionBld
 					, (LPCTSTR)strFilename);
 
 				// start download

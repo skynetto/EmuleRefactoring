@@ -580,7 +580,7 @@ bool CPCValidateThread::Valdite()
 				}
 			}
 			///////***** Own version check
-			if (!m_pOwner->IsClientPCCompatible(CClientVersionInfo(CemuleApp::m_nVersionMjr, CemuleApp::m_nVersionMin, CemuleApp::m_nVersionUpd, CemuleApp::m_nVersionBld, SO_EMULE))) {
+			if (!m_pOwner->IsClientPCCompatible(CClientVersionInfo(m_nVersionMjr, m_nVersionMin, m_nVersionUpd, m_nVersionBld, SO_EMULE))) {
 				bContentCheckFailed = true;
 				DEBUG_ONLY(theApp.QueueDebugLogLine(false, _T("PeerCache: Current Version not allowed to use this PC-Server, please update")));
 			}

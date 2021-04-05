@@ -317,18 +317,18 @@ CemuleApp::CemuleApp(LPCTSTR lpszAppName)
 // MOD Note: Do not change this part - Merkur
 
 	// this is the "base" version number <major>.<minor>.<update>.<build>
-	m_dwProductVersionMS = MAKELONG(CemuleApp::m_nVersionMin, CemuleApp::m_nVersionMjr);
-	m_dwProductVersionLS = MAKELONG(CemuleApp::m_nVersionBld, CemuleApp::m_nVersionUpd);
+	m_dwProductVersionMS = MAKELONG(m_nVersionMin, m_nVersionMjr);
+	m_dwProductVersionLS = MAKELONG(m_nVersionBld, m_nVersionUpd);
 
 	// create a string version (e.g. "0.30a")
-	ASSERT(CemuleApp::m_nVersionUpd + 'a' <= 'f');
-	m_strCurVersionLongDbg.Format(_T("%u.%u%c.%u"), CemuleApp::m_nVersionMjr, CemuleApp::m_nVersionMin, _T('a') + CemuleApp::m_nVersionUpd, CemuleApp::m_nVersionBld);
+	ASSERT(m_nVersionUpd + 'a' <= 'f');
+	m_strCurVersionLongDbg.Format(_T("%u.%u%c.%u"), m_nVersionMjr, m_nVersionMin, _T('a') +m_nVersionUpd, m_nVersionBld);
 #if defined( _DEBUG) || defined(_DEVBUILD)
 	m_strCurVersionLong = m_strCurVersionLongDbg;
 #else
 	m_strCurVersionLong.Format(_T("%u.%u%c"), CemuleApp::m_nVersionMjr, CemuleApp::m_nVersionMin, _T('a') + CemuleApp::m_nVersionUpd);
 #endif
-	m_strCurVersionLong += CemuleApp::m_sPlatform;
+	m_strCurVersionLong += m_sPlatform;
 
 #if defined( _DEBUG) && !defined(_BOOTSTRAPNODESDAT)
 	m_strCurVersionLong += _T(" DEBUG");
@@ -350,7 +350,7 @@ CemuleApp::CemuleApp(LPCTSTR lpszAppName)
 	ASSERT(m_uCurVersionShort < 0x99);
 
 	// create the version check number
-	strTmp.Format(_T("0x%u%c"), m_dwProductVersionMS, _T('A') + CemuleApp::m_nVersionUpd);
+	strTmp.Format(_T("0x%u%c"), m_dwProductVersionMS, _T('A') + m_nVersionUpd);
 	VERIFY(_stscanf(strTmp, _T("0x%x"), &m_uCurVersionCheck) == 1);
 	ASSERT(m_uCurVersionCheck < 0x999);
 // MOD Note: end
