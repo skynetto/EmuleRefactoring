@@ -71,6 +71,7 @@ void CClientUDPSocket::OnReceive(int nErrorCode)
 		if (thePrefs.GetVerbose())
 			DebugLogError(_T("Error: Client UDP socket, error on receive event: %s"), (LPCTSTR)GetErrorMessage(nErrorCode, 1));
 	}
+	CStatistics& theStats = CStatistics::Instance();
 
 	BYTE buffer[8192]; //5000 was too low sometimes
 	SOCKADDR_IN sockAddr = {};
@@ -198,6 +199,7 @@ void CClientUDPSocket::OnReceive(int nErrorCode)
 
 bool CClientUDPSocket::ProcessPacket(const BYTE *packet, UINT size, uint8 opcode, uint32 ip, uint16 port)
 {
+	CStatistics& theStats = CStatistics::Instance();
 	switch (opcode) {
 	case OP_REASKCALLBACKUDP:
 		{

@@ -518,6 +518,7 @@
     <ClInclude Include="WebSocket.h" />
     <ClInclude Include="Wizard.h" />
     <ClInclude Include="ZIPFile.h" />
+    <ClInclude Include="Singletons.h" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="Parser.y" />
@@ -527,7 +528,6 @@
     <ResourceCompile Include="emule.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="res\Preferences.gif" />
     <Image Include="res\all.ico">
       <Filter>Resources</Filter>
     </Image>
@@ -1297,6 +1297,9 @@
       <Filter>Resources</Filter>
     </Image>
     <Image Include="res\FileInfo.gif">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="res\Preferences.gif">
       <Filter>Resources</Filter>
     </Image>
   </ItemGroup>

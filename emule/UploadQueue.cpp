@@ -182,6 +182,8 @@ void CUploadQueue::InsertInUploadingList(UploadingToClient_Struct *pNewClientUpl
 bool CUploadQueue::AddUpNextClient(LPCTSTR pszReason, CUpDownClient *directadd)
 {
 	CUpDownClient *newclient;
+	CStatistics& theStats = CStatistics::Instance();
+
 	// select next client or use given client
 	if (directadd)
 		newclient = directadd;
@@ -371,6 +373,8 @@ void CUploadQueue::Process()
 	m_average_dr_sum += sentBytes;
 
 	(void)theApp.uploadBandwidthThrottler->GetNumberOfSentBytesOverheadSinceLastCallAndReset();
+
+	CStatistics& theStats = CStatistics::Instance();
 
 	average_friend_dr_list.AddTail(theStats.sessionSentBytesToFriend);
 
@@ -668,6 +672,8 @@ void CUploadQueue::AddClientToQueue(CUpDownClient *client, bool bIgnoreTimelimit
 		// block client from getting on queue
 		return;
 	}
+	CStatistics& theStats = CStatistics::Instance();
+
 	if (client->IsDownloading()) {
 		// he's already downloading and probably only wants another file
 		if (thePrefs.GetDebugClientTCPLevel() > 0)
@@ -879,6 +885,8 @@ UINT CUploadQueue::GetWaitingPosition(CUpDownClient *client)
 
 VOID CALLBACK CUploadQueue::UploadTimer(HWND /*hwnd*/, UINT /*uMsg*/, UINT_PTR /*idEvent*/, DWORD /*dwTime*/) noexcept
 {
+	CStatistics& theStats = CStatistics::Instance();
+
 	// NOTE: Always handle all type of MFC exceptions in TimerProcs - otherwise we'll get mem leaks
 	try {
 		// Barry - Don't do anything if the app is shutting down - can cause unhandled exceptions

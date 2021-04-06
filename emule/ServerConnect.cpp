@@ -161,6 +161,8 @@ void CServerConnect::ConnectionEstablished(CServerSocket *sender)
 		return;
 	}
 
+	CStatistics& theStats = CStatistics::Instance();
+
 	InitLocalIP();
 	if (sender->GetConnectionState() == CS_WAITFORLOGIN) {
 		const CServer *cserver = sender->cur_server;
@@ -306,6 +308,8 @@ void CServerConnect::ConnectionFailed(CServerSocket *sender)
 	// because it will delete itself after this function!
 	sender->m_bIsDeleting = true;
 
+	CStatistics& theStats = CStatistics::Instance();
+
 	switch (sender->GetConnectionState()) {
 	case CS_FATALERROR:
 		{
@@ -432,6 +436,8 @@ void CServerConnect::CheckForTimeout()
 
 bool CServerConnect::Disconnect()
 {
+	CStatistics& theStats = CStatistics::Instance();
+
 	if (connected && connectedsocket) {
 		theApp.sharedfiles->ClearED2KPublishInfo();
 		connected = false;
@@ -564,6 +570,8 @@ void CServerConnect::InitLocalIP()
 void CServerConnect::KeepConnectionAlive()
 {
 	DWORD dwServerKeepAliveTimeout = thePrefs.GetServerKeepAliveTimeout();
+	CStatistics& theStats = CStatistics::Instance();
+
 	if (dwServerKeepAliveTimeout && connected && connectedsocket && connectedsocket->connectionstate == CS_CONNECTED
 		&& ::GetTickCount() >= connectedsocket->GetLastTransmission() + dwServerKeepAliveTimeout)
 	{

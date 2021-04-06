@@ -35,70 +35,6 @@ extern _CRT_ALLOC_HOOK g_pfnPrevCrtAllocHook;
 ///////////////////////////////////////////////////////////////////////////////
 // CStatistics
 
-CStatistics theStats;
-
-float	CStatistics::maxDown;
-float	CStatistics::maxDownavg;
-float	CStatistics::cumDownavg;
-float	CStatistics::maxcumDownavg;
-float	CStatistics::maxcumDown;
-float	CStatistics::cumUpavg;
-float	CStatistics::maxcumUpavg;
-float	CStatistics::maxcumUp;
-float	CStatistics::maxUp;
-float	CStatistics::maxUpavg;
-float	CStatistics::rateDown;
-float	CStatistics::rateUp;
-uint32	CStatistics::timeTransfers;
-uint32	CStatistics::timeDownloads;
-uint32	CStatistics::timeUploads;
-uint32	CStatistics::start_timeTransfers;
-uint32	CStatistics::start_timeDownloads;
-uint32	CStatistics::start_timeUploads;
-uint32	CStatistics::time_thisTransfer;
-uint32	CStatistics::time_thisDownload;
-uint32	CStatistics::time_thisUpload;
-uint32	CStatistics::timeServerDuration;
-uint32	CStatistics::time_thisServerDuration;
-uint32	CStatistics::m_nDownDatarateOverhead;
-uint32	CStatistics::m_nDownDataRateMSOverhead;
-uint64	CStatistics::m_nDownDataOverheadSourceExchange;
-uint64	CStatistics::m_nDownDataOverheadSourceExchangePackets;
-uint64	CStatistics::m_nDownDataOverheadFileRequest;
-uint64	CStatistics::m_nDownDataOverheadFileRequestPackets;
-uint64	CStatistics::m_nDownDataOverheadServer;
-uint64	CStatistics::m_nDownDataOverheadServerPackets;
-uint64	CStatistics::m_nDownDataOverheadKad;
-uint64	CStatistics::m_nDownDataOverheadKadPackets;
-uint64	CStatistics::m_nDownDataOverheadOther;
-uint64	CStatistics::m_nDownDataOverheadOtherPackets;
-uint32	CStatistics::m_nUpDatarateOverhead;
-uint32	CStatistics::m_nUpDataRateMSOverhead;
-uint64	CStatistics::m_nUpDataOverheadSourceExchange;
-uint64	CStatistics::m_nUpDataOverheadSourceExchangePackets;
-uint64	CStatistics::m_nUpDataOverheadFileRequest;
-uint64	CStatistics::m_nUpDataOverheadFileRequestPackets;
-uint64	CStatistics::m_nUpDataOverheadServer;
-uint64	CStatistics::m_nUpDataOverheadServerPackets;
-uint64	CStatistics::m_nUpDataOverheadKad;
-uint64	CStatistics::m_nUpDataOverheadKadPackets;
-uint64	CStatistics::m_nUpDataOverheadOther;
-uint64	CStatistics::m_nUpDataOverheadOtherPackets;
-uint32	CStatistics::m_sumavgDDRO;
-uint32	CStatistics::m_sumavgUDRO;
-
-float	CStatistics::m_fGlobalDone;
-float	CStatistics::m_fGlobalSize;
-DWORD	CStatistics::m_dwOverallStatus;
-
-uint64	CStatistics::sessionReceivedBytes;
-uint64	CStatistics::sessionSentBytes;
-uint64	CStatistics::sessionSentBytesToFriend;
-uint16	CStatistics::reconnects;
-DWORD	CStatistics::transferStarttime;
-DWORD	CStatistics::serverConnectTime;
-uint32	CStatistics::filteredclients;
-DWORD	CStatistics::starttime;
 
 
 CStatistics::CStatistics()
@@ -253,21 +189,21 @@ void CStatistics::UpdateConnectionStats(float uploadrate, float downloadrate)
 	}
 
 	// Server Durations
-	if (theStats.serverConnectTime == 0)
+	if (serverConnectTime == 0)
 		time_thisServerDuration = 0;
 	else
-		time_thisServerDuration = (::GetTickCount() - theStats.serverConnectTime) / SEC2MS(1);
+		time_thisServerDuration = (::GetTickCount() - serverConnectTime) / SEC2MS(1);
 }
 
 void CStatistics::RecordRate()
 {
-	if (theStats.transferStarttime == 0)
+	if (transferStarttime == 0)
 		return;
 
 	// Accurate data rate Calculation
 	const DWORD tick = ::GetTickCount();
-	downrateHistory.push_front(TransferredData{(uint32)theStats.sessionReceivedBytes, tick});
-	uprateHistory.push_front(TransferredData{(uint32)theStats.sessionSentBytes, tick});
+	downrateHistory.push_front(TransferredData{(uint32)sessionReceivedBytes, tick});
+	uprateHistory.push_front(TransferredData{(uint32)sessionSentBytes, tick});
 
 	// limit to maxmins
 	UINT uAverageMilliseconds = MIN2MS(thePrefs.GetStatsAverageMinutes());
@@ -284,18 +220,18 @@ float CStatistics::GetAvgDownloadRate(int averageType)
 
 	switch (averageType) {
 	case AVG_SESSION:
-		if (theStats.transferStarttime > 0) {
-			running = (::GetTickCount() - theStats.transferStarttime) / SEC2MS(1);
+		if (transferStarttime > 0) {
+			running = (::GetTickCount() - transferStarttime) / SEC2MS(1);
 			if (running >= 5)
-				return theStats.sessionReceivedBytes / 1024.0f / running;
+				return sessionReceivedBytes / 1024.0f / running;
 		}
 		return 0.0F;
 
 	case AVG_TOTAL:
-		if (theStats.transferStarttime > 0) {
-			running = (::GetTickCount() - theStats.transferStarttime) / SEC2MS(1);
+		if (transferStarttime > 0) {
+			running = (::GetTickCount() - transferStarttime) / SEC2MS(1);
 			if (running >= 5)
-				return (theStats.sessionReceivedBytes / 1024.0f / running + thePrefs.GetConnAvgDownRate()) / 2.0F;
+				return (sessionReceivedBytes / 1024.0f / running + thePrefs.GetConnAvgDownRate()) / 2.0F;
 		}
 		return thePrefs.GetConnAvgDownRate();
 
@@ -316,18 +252,18 @@ float CStatistics::GetAvgUploadRate(int averageType)
 
 	switch (averageType) {
 	case AVG_SESSION:
-		if (theStats.transferStarttime) {
-			running = (::GetTickCount() - theStats.transferStarttime) / SEC2MS(1);
+		if (transferStarttime) {
+			running = (::GetTickCount() - transferStarttime) / SEC2MS(1);
 			if (running >= 5)
-				return theStats.sessionSentBytes / 1024.0f / running;
+				return sessionSentBytes / 1024.0f / running;
 		}
 		return 0.0F;
 
 	case AVG_TOTAL:
-		if (theStats.transferStarttime > 0) {
-			running = (::GetTickCount() - theStats.transferStarttime) / SEC2MS(1);
+		if (transferStarttime > 0) {
+			running = (::GetTickCount() - transferStarttime) / SEC2MS(1);
 			if (running >= 5)
-				return (theStats.sessionSentBytes / 1024.0f / running + thePrefs.GetConnAvgUpRate()) / 2.0F;
+				return (sessionSentBytes / 1024.0f / running + thePrefs.GetConnAvgUpRate()) / 2.0F;
 		}
 		return thePrefs.GetConnAvgUpRate();
 

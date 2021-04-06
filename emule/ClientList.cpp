@@ -459,6 +459,8 @@ void CClientList::Process()
 		}
 	}
 
+	CStatistics& theStats = CStatistics::Instance();
+
 	///////////////////////////////////////////////////////////////////////////
 	// Cleanup tracked client list
 	//

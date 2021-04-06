@@ -372,6 +372,7 @@ void CDownloadQueue::Process()
 
 	uint32 datarateX = 0;
 	++udcounter;
+	CStatistics& theStats = CStatistics::Instance();
 
 	theStats.m_fGlobalDone = 0;
 	theStats.m_fGlobalSize = 0;
@@ -729,7 +730,7 @@ bool CDownloadQueue::IsMaxFilesPerUDPServerPacketReached(uint32 nFiles, uint32 n
 bool CDownloadQueue::SendGlobGetSourcesUDPPacket(CSafeMemFile *data, bool bExt2Packet, uint32 nFiles, uint32 nIncludedLargeFiles)
 {
 	bool bSentPacket = false;
-
+	CStatistics& theStats = CStatistics::Instance();
 	if (cur_udpserver) {
 #ifdef _DEBUG
 		int iPacketSize = (int)data->GetLength();
@@ -1396,6 +1397,7 @@ void CDownloadQueue::ProcessLocalRequests()
 		}
 
 		int iSize = (int)dataTcpFrame.GetLength();
+		CStatistics& theStats = CStatistics::Instance();
 		if (iSize > 0) {
 			// create one 'packet' which contains all buffered OP_GETSOURCES eD2K packets to be sent with one TCP frame
 			// server credits: 16*iMaxFilesPerTcpFrame+1 = 241

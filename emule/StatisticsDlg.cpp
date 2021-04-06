@@ -573,6 +573,8 @@ void CStatisticsDlg::SetCurrentRate(float uploadrate, float downloadrate)
 	if (theApp.IsClosing())
 		return;
 
+	CStatistics& theStats = CStatistics::Instance();
+
 	// Download
 	double m_dPlotDataDown[3];
 	m_dPlotDataDown[0] = theStats.GetAvgDownloadRate(AVG_SESSION);
@@ -614,6 +616,8 @@ void CStatisticsDlg::ShowStatistics(bool forceUpdate)
 {
 	m_stattree.SetRedraw(false);
 	CString cbuffer;
+	CStatistics& theStats = CStatistics::Instance();
+
 	// Set Tree Values
 
 	// TRANSFER SECTION

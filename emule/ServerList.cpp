@@ -257,6 +257,8 @@ bool CServerList::GiveServersForTraceRoute()
 
 void CServerList::ServerStats()
 {
+	CStatistics& theStats = CStatistics::Instance();
+
 	// Update the server list even if we are connected to Kademlia only.
 	// The idea is for both networks to keep each other up to date.
 	// Kad network can get you back into the ED2K network. And the ED2K network can get

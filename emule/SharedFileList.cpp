@@ -888,6 +888,8 @@ void CSharedFileList::SendListToServer()
 	} else if (thePrefs.GetDebugServerTCPLevel() > 0)
 		Debug(_T(">>> Sending OP_OfferFiles; size=%u  files=%u\n"), packet->size, limit);
 
+	CStatistics& theStats = CStatistics::Instance();
+
 	theStats.AddUpDataOverheadServer(packet->size);
 	if (thePrefs.GetVerbose())
 		AddDebugLogLine(false, _T("Server, Sendlist: Packet size:%u"), packet->size);

@@ -273,6 +273,7 @@ int CEncryptedDatagramSocket::DecryptReceivedClient(BYTE *pbyBufIn, int nBufLen,
 		}
 		*ppbyBufOut = &pbyBufIn[nBufLen - nResult];
 		RC4Crypt((uchar*)*ppbyBufOut, nResult, &keyReceiveKey);
+		CStatistics& theStats = CStatistics::Instance();
 		theStats.AddDownDataOverheadCrypt(nBufLen - nResult);
 		//DEBUG_ONLY( DebugLog(_T("Received obfuscated UDP packet from clientIP: %s, Key: %s, RKey: %u, SKey: %u"), (LPCTSTR)ipstr(dwIP), bKad ? (bKadRecvKeyUsed ? _T("ReceiverKey") : _T("NodeID")) : _T("UserHash")
 		//	, nReceiverVerifyKey != 0 ? *nReceiverVerifyKey : 0, nSenderVerifyKey != 0 ? *nSenderVerifyKey : 0) );
@@ -368,6 +369,7 @@ uint32 CEncryptedDatagramSocket::EncryptSendClient(uchar *pbyBuf, uint32 nBufLen
 	nBufLen += nCryptHeaderLen;
 	RC4Crypt((uchar*)&crypt.dwMagic, nBufLen - 3, &keySendKey);
 
+	CStatistics& theStats = CStatistics::Instance();
 	theStats.AddUpDataOverheadCrypt(nCryptHeaderLen);
 	return nBufLen;
 }
@@ -412,6 +414,7 @@ int CEncryptedDatagramSocket::DecryptReceivedServer(BYTE *pbyBufIn, int nBufLen,
 		*ppbyBufOut = &pbyBufIn[nBufLen - nResult];
 		RC4Crypt((uchar*)*ppbyBufOut, nResult, &keyReceiveKey);
 
+		CStatistics& theStats = CStatistics::Instance();
 		theStats.AddDownDataOverheadCrypt(nBufLen - nResult);
 	} else // pass through, let the Receive function do the error handling on this junk
 		DebugLogWarning(_T("Obfuscated packet expected but magicvalue mismatch on UDP packet from ServerIP: %s"), (LPCTSTR)ipstr(dbgIP));
@@ -458,6 +461,7 @@ uint32 CEncryptedDatagramSocket::EncryptSendServer(uchar *pbyBuf, uint32 nBufLen
 	nBufLen += nCryptHeaderLen;
 	RC4Crypt((uchar*)&crypt.dwMagic, nBufLen - 3, &keySendKey);
 
+	CStatistics& theStats = CStatistics::Instance();
 	theStats.AddUpDataOverheadCrypt(nCryptHeaderLen);
 	return nBufLen;
 }

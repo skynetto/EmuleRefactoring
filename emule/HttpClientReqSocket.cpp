@@ -124,11 +124,14 @@ void CHttpClientReqSocket::DataReceived(const BYTE *pucData, UINT uSize)
 
 bool CHttpClientReqSocket::ProcessHttpPacket(const BYTE *pucData, UINT uSize)
 {
+	CStatistics& theStats = CStatistics::Instance();
+
 	if (GetHttpState() == HttpStateRecvExpected || GetHttpState() == HttpStateRecvHeaders) {
 		// search for EOH
 		LPBYTE pBody = NULL;
 		int iSizeBody = 0;
 		ProcessHttpHeaderPacket((char*)pucData, uSize, pBody, iSizeBody);
+
 
 		if (pBody) { // EOH found, packet may contain partial body
 			if (thePrefs.GetDebugClientTCPLevel() > 0) {

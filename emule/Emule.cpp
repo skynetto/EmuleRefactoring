@@ -93,6 +93,8 @@ static char THIS_FILE[] = __FILE__;
 
 CLogFile theLog;
 CLogFile theVerboseLog;
+
+
 bool g_bLowColorDesktop = false;
 bool g_bGdiPlusInstalled = false;
 
@@ -514,6 +516,7 @@ BOOL CemuleApp::InitInstance()
 
 	// create & initialize all the important stuff
 	thePrefs.Init();
+	CStatistics& theStats = CStatistics::Instance();
 	theStats.Init();
 
 	// check if we have to restart eMule as Secure user
@@ -808,12 +811,14 @@ BOOL CALLBACK CemuleApp::SearchEmuleWindow(HWND hWnd, LPARAM lParam) noexcept
 void CemuleApp::UpdateReceivedBytes(uint32 bytesToAdd)
 {
 	SetTimeOnTransfer();
+	CStatistics& theStats = CStatistics::Instance();
 	theStats.sessionReceivedBytes += bytesToAdd;
 }
 
 void CemuleApp::UpdateSentBytes(uint32 bytesToAdd, bool sentToFriend)
 {
 	SetTimeOnTransfer();
+	CStatistics& theStats = CStatistics::Instance();
 	theStats.sessionSentBytes += bytesToAdd;
 
 	if (sentToFriend)
@@ -822,6 +827,7 @@ void CemuleApp::UpdateSentBytes(uint32 bytesToAdd, bool sentToFriend)
 
 void CemuleApp::SetTimeOnTransfer()
 {
+	CStatistics& theStats = CStatistics::Instance();
 	if (theStats.transferStarttime <= 0)
 		theStats.transferStarttime = ::GetTickCount();
 }

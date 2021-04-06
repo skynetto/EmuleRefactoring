@@ -274,6 +274,8 @@ bool CPeerCacheUpSocket::ProcessHttpResponseBody(const BYTE* /*pucData*/, UINT /
 
 bool CPeerCacheUpSocket::ProcessHttpRequest()
 {
+	CStatistics& theStats = CStatistics::Instance();
+
 	if (GetClient() == NULL)
 		throw CString(__FUNCTION__ " - No client attached to HTTP socket");
 
@@ -403,6 +405,8 @@ bool CUpDownClient::ProcessPeerCacheDownHttpResponse(const CStringAArray &astrHe
 		}
 
 		Packet *pEd2kPacket = new Packet(&dataAck, OP_EMULEPROT, OP_PEERCACHE_ACK);
+		CStatistics& theStats = CStatistics::Instance();
+
 		theStats.AddUpDataOverheadFileRequest(pEd2kPacket->size);
 		socket->SendPacket(pEd2kPacket);
 	}
@@ -615,6 +619,8 @@ bool CUpDownClient::SendHttpBlockRequests()
 		Debug(_T("  %hs\n"), (LPCSTR)strPCRequest);
 	}
 	CRawPacket *pHttpPacket = new CRawPacket(strPCRequest);
+	CStatistics& theStats = CStatistics::Instance();
+
 	theStats.AddUpDataOverheadFileRequest(pHttpPacket->size);
 	m_pPCDownSocket->SendPacket(pHttpPacket);
 	m_pPCDownSocket->SetHttpState(HttpStateRecvExpected);
@@ -661,6 +667,8 @@ bool CUpDownClient::SendPeerCacheFileRequest()
 	}
 
 	Packet *pEd2kPacket = new Packet(&data, OP_EMULEPROT, OP_PEERCACHE_QUERY);
+	CStatistics& theStats = CStatistics::Instance();
+
 	theStats.AddUpDataOverheadFileRequest(pEd2kPacket->size);
 	socket->SendPacket(pEd2kPacket);
 	SetDownloadState(DS_DOWNLOADING);
@@ -776,6 +784,8 @@ bool CUpDownClient::ProcessPeerCacheQuery(const uchar *packet, UINT size)
 	}
 
 	CRawPacket *pHttpPacket = new CRawPacket(strPCRequest);
+	CStatistics& theStats = CStatistics::Instance();
+
 	theStats.AddUpDataOverheadFileRequest(pHttpPacket->size);
 	m_pPCUpSocket->SendPacket(pHttpPacket);
 	m_pPCUpSocket->SetHttpState(HttpStateRecvExpected);

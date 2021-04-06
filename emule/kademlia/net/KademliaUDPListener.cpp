@@ -1801,6 +1801,8 @@ void CKademliaUDPListener::Process_KADEMLIA_CALLBACK_REQ(const byte *pbyPacketDa
 		Packet *pPacket = new Packet(&fileIO2, OP_EMULEPROT, OP_CALLBACK);
 		if (thePrefs.GetDebugClientKadUDPLevel() > 0 || thePrefs.GetDebugClientTCPLevel() > 0)
 			DebugSend("OP_CALLBACK", pBuddy);
+
+		CStatistics& theStats = CStatistics::Instance();
 		theStats.AddUpDataOverheadFileRequest(pPacket->size);
 		pBuddy->socket->SendPacket(pPacket);
 	}
@@ -1883,6 +1885,8 @@ void CKademliaUDPListener::SendPacket(const byte *pbyData, uint32 uLenData, uint
 		ASSERT(0);
 		return;
 	}
+	CStatistics& theStats = CStatistics::Instance();
+
 	Packet *pPacket = new Packet(OP_KADEMLIAHEADER);
 	pPacket->opcode = pbyData[1];
 	pPacket->pBuffer = new char[uLenData + 8];
@@ -1906,6 +1910,8 @@ void CKademliaUDPListener::SendPacket(const byte *pbyData, uint32 uLenData, byte
 	pPacket->size = uLenData;
 	if (uLenData > 200)
 		pPacket->PackPacket();
+
+	CStatistics& theStats = CStatistics::Instance();
 	theStats.AddUpDataOverheadKad(pPacket->size);
 	AddTrackedOutPacket(uDestinationHost, byOpcode);
 	theApp.clientudp->SendPacket(pPacket, ntohl(uDestinationHost), uDestinationPort, true
@@ -1919,6 +1925,9 @@ void CKademliaUDPListener::SendPacket(CSafeMemFile *pbyData, byte byOpcode, uint
 	pPacket->opcode = byOpcode;
 	if (pPacket->size > 200)
 		pPacket->PackPacket();
+
+	CStatistics& theStats = CStatistics::Instance();
+
 	theStats.AddUpDataOverheadKad(pPacket->size);
 	AddTrackedOutPacket(uDestinationHost, byOpcode);
 	theApp.clientudp->SendPacket(pPacket, htonl(uDestinationHost), uDestinationPort, true

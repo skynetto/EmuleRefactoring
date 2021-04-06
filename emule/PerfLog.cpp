@@ -145,6 +145,8 @@ void CPerfLog::LogSamples()
 	DWORD dwNow = ::GetTickCount();
 	if (dwNow < m_dwLastSampled + m_dwInterval)
 		return;
+	CStatistics& theStats = CStatistics::Instance();
+
 
 	// 'data counters' amount of transferred file data
 	UINT nCurDn = (UINT)(theStats.sessionReceivedBytes - m_nLastSessionRecvBytes);

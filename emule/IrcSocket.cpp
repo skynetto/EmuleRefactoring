@@ -93,6 +93,8 @@ void CIrcSocket::OnReceive(int iErrorCode)
 		return;
 	}
 
+	CStatistics& theStats = CStatistics::Instance();
+
 #define RCVBUFSIZE (1024)
 	TRACE("CIrcSocket::OnReceive\n");
 	try {
@@ -151,6 +153,8 @@ int CIrcSocket::SendString(const CString &sMessage)
 	const CStringA &sMessageA(thePrefs.GetIRCEnableUTF8() ? StrToUtf8(sMessage) : (CStringA)sMessage);
 	TRACE("CIrcSocket::SendString: %s\n", (LPCSTR)sMessageA);
 	int iSize = sMessageA.GetLength() + 2;
+
+	CStatistics& theStats = CStatistics::Instance();
 	theStats.AddUpDataOverheadOther(iSize);
 	return Send(sMessageA + "\r\n", iSize);
 	//int iResult = Send(sMessageA + "\r\n", iSize);

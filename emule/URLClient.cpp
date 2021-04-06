@@ -162,6 +162,7 @@ bool CUrlClient::SendHttpBlockRequests()
 	}
 
 	m_nUrlStartPos = m_uReqStart;
+	CStatistics& theStats = CStatistics::Instance();
 
 	CStringA strHttpRequest;
 	strHttpRequest.Format("GET %s HTTP/1.0\r\n"

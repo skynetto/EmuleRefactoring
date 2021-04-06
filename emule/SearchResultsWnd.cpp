@@ -239,6 +239,7 @@ void CSearchResultsWnd::StartSearch(SSearchParams *pParams)
 void CSearchResultsWnd::OnTimer(UINT_PTR nIDEvent)
 {
 	CResizableFormView::OnTimer(nIDEvent);
+	CStatistics& theStats = CStatistics::Instance();
 
 	if (m_uTimerLocalServer != 0 && nIDEvent == m_uTimerLocalServer) {
 		if (thePrefs.GetDebugServerSearchesLevel() > 0)
@@ -1253,6 +1254,9 @@ bool CSearchResultsWnd::DoNewEd2kSearch(SSearchParams *pParams)
 	packet->opcode = OP_SEARCHREQUEST;
 	if (thePrefs.GetDebugServerTCPLevel() > 0)
 		Debug(_T(">>> Sending OP_SearchRequest\n"));
+
+	CStatistics& theStats = CStatistics::Instance();
+
 	theStats.AddUpDataOverheadServer(packet->size);
 	m_globsearch = pParams->eType == SearchTypeEd2kGlobal && theApp.serverconnect->IsUDPSocketAvailable();
 	if (m_globsearch)
@@ -1287,6 +1291,9 @@ bool CSearchResultsWnd::SearchMore()
 	packet->opcode = OP_QUERY_MORE_RESULT;
 	if (thePrefs.GetDebugServerTCPLevel() > 0)
 		Debug(_T(">>> Sending OP_QueryMoreResults\n"));
+
+	CStatistics& theStats = CStatistics::Instance();
+
 	theStats.AddUpDataOverheadServer(packet->size);
 	theApp.serverconnect->SendPacket(packet);
 	++m_iSentMoreReq;

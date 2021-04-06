@@ -29,10 +29,15 @@ IMPLEMENT_DYNAMIC(CSplashScreen, CDialog)
 
 BEGIN_MESSAGE_MAP(CSplashScreen, CDialog)
 	ON_WM_PAINT()
+	ON_WM_TIMER()
+	ON_WM_CLOSE()
 END_MESSAGE_MAP()
 
-CSplashScreen::CSplashScreen(CWnd *pParent /*=NULL*/)
+CSplashScreen::CSplashScreen(CWnd* pParent /*=NULL*/)
 	: CDialog(CSplashScreen::IDD, pParent)
+	, m_timeToLive{ _UI32_MAX }
+	, m_timeEvent{0}
+	, m_emuleVersion{}
 {
 }
 
@@ -40,6 +45,7 @@ CSplashScreen::CSplashScreen(CWnd* pParent, uint32 timeToLive, const CString& ve
 	: CDialog(CSplashScreen::IDD, pParent)
 	, m_emuleVersion{ version }
 	, m_timeToLive{ timeToLive }
+	, m_timeEvent{timeToLive}
 {
 }
 
@@ -53,9 +59,15 @@ void CSplashScreen::SetVersion(const CString& version)
 	m_emuleVersion = version;
 }
 
+void CSplashScreen::SetTimeout(uint32 timeToLive)
+{
+	m_timeToLive = timeToLive;
+}
+
 BOOL CSplashScreen::OnInitDialog()
 {
 	CDialog::OnInitDialog();
+	SetTimer(m_timeEvent, m_timeToLive, NULL);
 
 	CEnBitmap bmp;
 	if (bmp.LoadImage(_T("ABOUT"), _T("JPG")))
@@ -88,7 +100,7 @@ BOOL CSplashScreen::PreTranslateMessage(MSG *pMsg)
 	case WM_NCLBUTTONDOWN:
 	case WM_NCRBUTTONDOWN:
 	case WM_NCMBUTTONDOWN:
-		EndDialog(IDOK);
+		OnClose();
 	}
 	return CDialog::PreTranslateMessage(pMsg);
 }
@@ -145,4 +157,18 @@ void CSplashScreen::OnPaint()
 			font.DeleteObject();
 		}
 	}
+}
+
+void CSplashScreen::OnTimer(UINT_PTR nIDEvent)
+{
+	PostMessage(WM_CLOSE);
+	CDialog::OnTimer(nIDEvent);
+}
+
+
+void CSplashScreen::OnClose()
+{	
+	KillTimer(m_timeEvent);
+	EndDialog(IDOK);
+	CDialog::OnClose();
 }

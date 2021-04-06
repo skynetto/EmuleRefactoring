@@ -216,7 +216,7 @@ END_MESSAGE_MAP()
 
 CemuleDlg::CemuleDlg(CWnd *pParent /*=NULL*/)
 	: CTrayDialog(CemuleDlg::IDD, pParent)
-	, m_pSplashWnd(this)
+	, m_pSplashWnd(this, SEC2MS(2.5), _T("eMule ") + theApp.m_strCurVersionLong)
 	, activewnd()
 	, status()
 	, m_hIcon()
@@ -254,7 +254,6 @@ CemuleDlg::CemuleDlg(CWnd *pParent /*=NULL*/)
 	, m_currentTBP_state(TBPF_NOPROGRESS)
 	, m_prevProgress()
 	, m_ovlIcon()
-	, m_dwSplashTime(_UI32_MAX)
 	, m_pMiniMule()
 	, m_hTimer()
 	, m_hUPnPTimeOutTimer()
@@ -610,6 +609,7 @@ BOOL CemuleDlg::OnInitDialog()
 	if (thePrefs.GetVerbose() && !m_hTimer)
 		AddDebugLogLine(true, _T("Failed to create 'startup' timer - %s"), (LPCTSTR)GetErrorMessage(::GetLastError()));
 
+	CStatistics& theStats = CStatistics::Instance();
 	theStats.starttime = ::GetTickCount();
 
 	// Start UPnP port forwarding
@@ -1083,6 +1083,8 @@ CString CemuleDlg::GetUpDatarateString(UINT uUpDatarate)
 {
 	m_uUpDatarate = (uUpDatarate != UINT_MAX) ? uUpDatarate : theApp.uploadqueue->GetDatarate();
 	CString szBuff;
+	CStatistics& theStats = CStatistics::Instance();
+
 	if (thePrefs.ShowOverhead())
 		szBuff.Format(_T("%.1f (%.1f)"), m_uUpDatarate / 1024.0, theStats.GetUpDatarateOverhead() / 1024.0);
 	else
@@ -1094,6 +1096,7 @@ CString CemuleDlg::GetDownDatarateString(UINT uDownDatarate)
 {
 	m_uDownDatarate = uDownDatarate != UINT_MAX ? uDownDatarate : theApp.downloadqueue->GetDatarate();
 	CString szBuff;
+	CStatistics& theStats = CStatistics::Instance();
 	if (thePrefs.ShowOverhead())
 		szBuff.Format(_T("%.1f (%.1f)"), m_uDownDatarate / 1024.0, theStats.GetDownDatarateOverhead() / 1024.0);
 	else
@@ -1104,6 +1107,7 @@ CString CemuleDlg::GetDownDatarateString(UINT uDownDatarate)
 CString CemuleDlg::GetTransferRateString()
 {
 	CString szBuff;
+	CStatistics& theStats = CStatistics::Instance();
 	if (thePrefs.ShowOverhead())
 		szBuff.Format(GetResString(IDS_UPDOWN)
 			, m_uUpDatarate / 1024.0, theStats.GetUpDatarateOverhead() / 1024.0
@@ -2817,25 +2821,14 @@ void CemuleDlg::ShowSplash()
 	ASSERT(m_hWnd);
 	if (m_pSplashWnd.Create(CSplashScreen::IDD, this)) 
 	{
-			m_pSplashWnd.SetVersion(_T("eMule ") + theApp.m_strCurVersionLong);
 			m_pSplashWnd.ShowWindow(SW_SHOW);
 			m_pSplashWnd.UpdateWindow();
-			m_dwSplashTime = ::GetTickCount();
 	} 
-	else 
-	{
-			/*delete m_pSplashWnd;
-			m_pSplashWnd = NULL;*/
-	}
 }
 
 void CemuleDlg::DestroySplash()
 {
-	//if (m_pSplashWnd != NULL) {
-		m_pSplashWnd.EndDialog(IDOK); //deletes the dialog
-	//	delete m_pSplashWnd;
-	//	m_pSplashWnd = NULL;
-	//}
+	m_pSplashWnd.EndDialog(IDOK); 
 #ifdef _BETA
 	// only do it once to not be annoying given that the beta phases are expected to last longer these days
 	if (!thePrefs.IsFirstStart() && thePrefs.ShouldBetaNag()) {
@@ -2887,17 +2880,6 @@ BOOL CemuleApp::IsIdleMessage(MSG *pMsg)
 LRESULT CemuleDlg::OnKickIdle(WPARAM, LPARAM lIdleCount)
 {
 	LRESULT lResult = 0;
-
-	if (m_pSplashWnd) {
-		if (::GetTickCount() >= m_dwSplashTime + (DWORD)SEC2MS(2.5)) {
-			// timeout expired, destroy the splash window
-			DestroySplash();
-			UpdateWindow();
-		} else {
-			// check again later...
-			lResult = 1;
-		}
-	}
 
 	if (m_bStartMinimized)
 		PostStartupMinimized();
@@ -3713,6 +3695,7 @@ void CemuleDlg::EnableTaskbarGoodies(bool enable)
 
 void CemuleDlg::UpdateStatusBarProgress()
 {
+	CStatistics& theStats = CStatistics::Instance();
 	if (m_pTaskbarList && thePrefs.IsWin7TaskbarGoodiesEnabled()) {
 		// calc global progress & status
 		float finishedsize = theApp.emuledlg->transferwnd->GetDownloadList()->GetFinishedSize();

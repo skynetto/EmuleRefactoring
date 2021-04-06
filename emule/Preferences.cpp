@@ -756,6 +756,8 @@ void CPreferences::SaveStats(int bBackUp)
 	// We do NOT SET the values in prefs struct here.
 
 	// Save Cum Down Data
+	CStatistics& theStats = CStatistics::Instance();
+
 	ini.WriteUInt64(_T("TotalDownloadedBytes"), theStats.sessionReceivedBytes + GetTotalDownloaded());
 	ini.WriteInt(_T("DownSuccessfulSessions"), cumDownSuccessfulSessions);
 	ini.WriteInt(_T("DownFailedSessions"), cumDownFailedSessions);

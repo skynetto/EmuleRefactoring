@@ -212,6 +212,8 @@ void CUDPSocket::OnReceive(int nErrorCode)
 
 bool CUDPSocket::ProcessPacket(const BYTE *packet, UINT size, UINT opcode, uint32 nIP, uint16 nUDPPort)
 {
+	CStatistics& theStats = CStatistics::Instance();
+
 	try {
 		theStats.AddDownDataOverheadServer(size);
 		CServer *pServer = theApp.serverlist->GetServerByIPUDP(nIP, nUDPPort, true);

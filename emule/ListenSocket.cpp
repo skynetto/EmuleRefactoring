@@ -233,6 +233,8 @@ void CClientReqSocket::Safe_Delete()
 
 bool CClientReqSocket::ProcessPacket(const BYTE *packet, uint32 size, UINT opcode)
 {
+	CStatistics& theStats = CStatistics::Instance();
+
 	try {
 		try {
 			if (client) {
@@ -918,6 +920,8 @@ bool CClientReqSocket::ProcessPacket(const BYTE *packet, uint32 size, UINT opcod
 
 bool CClientReqSocket::ProcessExtPacket(const BYTE *packet, uint32 size, UINT opcode, UINT uRawSize)
 {
+	CStatistics& theStats = CStatistics::Instance();
+
 	try {
 		try {
 			if (!client && opcode != OP_PORTTEST) {
@@ -1916,6 +1920,8 @@ void CClientReqSocket::OnError(int nErrorCode)
 
 bool CClientReqSocket::PacketReceived(Packet *packet)
 {
+	CStatistics& theStats = CStatistics::Instance();
+
 	UINT uRawSize = packet->size;
 	switch (packet->prot) {
 	case OP_EDONKEYPROT:
@@ -1976,6 +1982,8 @@ void CClientReqSocket::SendPacket(Packet *packet, bool controlpacket, uint32 act
 
 bool CListenSocket::SendPortTestReply(char result, bool disconnect)
 {
+	CStatistics& theStats = CStatistics::Instance();
+
 	for (POSITION pos = socket_list.GetHeadPosition(); pos != NULL;) {
 		CClientReqSocket *cur_sock = socket_list.GetNext(pos);
 		if (cur_sock->m_bPortTestCon) {
@@ -2134,6 +2142,8 @@ int CALLBACK AcceptConnectionCond(LPWSABUF lpCallerId, LPWSABUF /*lpCallerData*/
 
 void CListenSocket::OnAccept(int nErrorCode)
 {
+	CStatistics& theStats = CStatistics::Instance();
+
 	if (!nErrorCode) {
 		if (++m_nPendingConnections < 1) {
 			ASSERT(0);

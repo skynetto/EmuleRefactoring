@@ -708,7 +708,7 @@ void CUpDownClient::SendHelloPacket()
 		ASSERT(0);
 		return;
 	}
-
+	CStatistics& theStats = CStatistics::Instance();
 	CSafeMemFile data(128);
 	data.WriteUInt8(16); // size of userhash
 	SendHelloTypePacket(&data);
@@ -728,7 +728,7 @@ void CUpDownClient::SendMuleInfoPacket(bool bAnswer)
 		ASSERT(0);
 		return;
 	}
-
+	CStatistics& theStats = CStatistics::Instance();
 	CSafeMemFile data(128);
 	data.WriteUInt8((uint8)theApp.m_uCurVersionShort);
 	data.WriteUInt8(EMULE_PROTOCOL);
@@ -922,7 +922,7 @@ void CUpDownClient::SendHelloAnswer()
 		ASSERT(0);
 		return;
 	}
-
+	CStatistics& theStats = CStatistics::Instance();
 	CSafeMemFile data(128);
 	SendHelloTypePacket(&data);
 	Packet *packet = new Packet(&data);
@@ -1282,6 +1282,7 @@ bool CUpDownClient::Disconnected(LPCTSTR pszReason, bool bFromSocket)
 //true means the client was not deleted!
 bool CUpDownClient::TryToConnect(bool bIgnoreMaxCon, bool bNoCallbacks, CRuntimeClass *pClassSocket)
 {
+	CStatistics& theStats = CStatistics::Instance();
 	// There are 7 possible ways how we are going to connect in this function, sorted by priority:
 	// 1) Already Connected/Connecting
 	//		We are already connected or try to connect right now. Abort, no additional Disconnect() call will be done
@@ -1545,6 +1546,7 @@ void CUpDownClient::Connect()
 
 void CUpDownClient::ConnectionEstablished()
 {
+	CStatistics& theStats = CStatistics::Instance();
 	// OK we have a connection, lets see if we want anything from this client
 
 	/*// was this a direct callback?
@@ -1872,7 +1874,7 @@ void CUpDownClient::SendPublicKeyPacket()
 	}
 	if (!theApp.clientcredits->CryptoAvailable())
 		return;
-
+	CStatistics& theStats = CStatistics::Instance();
 	Packet *packet = new Packet(OP_PUBLICKEY, theApp.clientcredits->GetPubKeyLen() + 1, OP_EMULEPROT);
 	theStats.AddUpDataOverheadOther(packet->size);
 	memcpy(packet->pBuffer + 1, theApp.clientcredits->GetPublicKey(), theApp.clientcredits->GetPubKeyLen());
@@ -1901,6 +1903,7 @@ void CUpDownClient::SendSignaturePacket()
 			AddDebugLogLine(false, _T("Want to send signature but challenge value is invalid ('%s')"), GetUserName());
 		return;
 	}
+	CStatistics& theStats = CStatistics::Instance();
 	// v2
 	// we will use v1 as default, except if only v2 is supported
 	bool bUseV2 = !(m_bySupportSecIdent & 1);
@@ -2024,6 +2027,7 @@ void CUpDownClient::ProcessSignaturePacket(const uchar *pachPacket, uint32 nSize
 
 void CUpDownClient::SendSecIdentStatePacket()
 {
+	CStatistics& theStats = CStatistics::Instance();
 	// check if we need public key and signature
 	if (credits) {
 		uint8 nValue = 0;
@@ -2105,6 +2109,7 @@ bool CUpDownClient::IsBanned() const
 
 void CUpDownClient::SendPreviewRequest(const CAbstractFile *pForFile)
 {
+	CStatistics& theStats = CStatistics::Instance();
 	if (m_fPreviewReqPending == 0) {
 		m_fPreviewReqPending = 1;
 		if (thePrefs.GetDebugClientTCPLevel() > 0)
@@ -2119,6 +2124,7 @@ void CUpDownClient::SendPreviewRequest(const CAbstractFile *pForFile)
 
 void CUpDownClient::SendPreviewAnswer(const CKnownFile *pForFile, CxImage **imgFrames, uint8 nCount)
 {
+	CStatistics& theStats = CStatistics::Instance();
 	m_fPreviewAnsPending = 0;
 	CSafeMemFile data(1024);
 	if (pForFile)
@@ -2599,6 +2605,7 @@ CString CUpDownClient::GetUploadStateDisplayString() const
 
 void CUpDownClient::SendPublicIPRequest()
 {
+	CStatistics& theStats = CStatistics::Instance();
 	if (socket && socket->IsConnected()) {
 		if (thePrefs.GetDebugClientTCPLevel() > 0)
 			DebugSend("OP_PublicIPReq", this);
@@ -2710,6 +2717,7 @@ void CUpDownClient::GetDisplayImage(int &iImage, UINT &uOverlayImage) const
 
 void CUpDownClient::ProcessChatMessage(CSafeMemFile *data, uint32 nLength)
 {
+	CStatistics& theStats = CStatistics::Instance();
 	//filter me?
 	if ((thePrefs.MsgOnlyFriends() && !IsFriend()) || (thePrefs.MsgOnlySecure() && GetUserName() == NULL)) {
 		if (!GetMessageFiltered())
@@ -2906,6 +2914,7 @@ CFriend* CUpDownClient::GetFriend() const
 
 void CUpDownClient::SendChatMessage(const CString &strMessage)
 {
+	CStatistics& theStats = CStatistics::Instance();
 	CSafeMemFile data;
 	data.WriteString(strMessage, GetUnicodeSupport());
 	Packet *packet = new Packet(&data, OP_EDONKEYPROT, OP_MESSAGE);
@@ -2934,6 +2943,7 @@ void CUpDownClient::SendFirewallCheckUDPRequest()
 		SetKadState(KS_NONE);
 		return;
 	}
+	CStatistics& theStats = CStatistics::Instance();
 	CSafeMemFile data;
 	data.WriteUInt16(Kademlia::CKademlia::GetPrefs()->GetInternKadPort());
 	data.WriteUInt16(Kademlia::CKademlia::GetPrefs()->GetExternalKadPort());
@@ -3027,6 +3037,7 @@ void CUpDownClient::SendSharedDirectories()
 		DebugSend("OP_AskSharedDirsAnswer", this);
 	Packet *replypacket = new Packet(&tempfile);
 	replypacket->opcode = OP_ASKSHAREDDIRSANS;
+	CStatistics& theStats = CStatistics::Instance();
 	theStats.AddUpDataOverheadOther(replypacket->size);
 	VERIFY(SendPacket(replypacket, true));
 }

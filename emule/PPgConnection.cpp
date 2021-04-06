@@ -212,6 +212,8 @@ void CPPgConnection::LoadSettings()
 
 BOOL CPPgConnection::OnApply()
 {
+	CStatistics& theStats = CStatistics::Instance();
+
 	UINT v = GetDlgItemInt(IDC_DOWNLOAD_CAP, NULL, FALSE);
 	if (v >= UNLIMITED) {
 		GetDlgItem(IDC_DOWNLOAD_CAP)->SetFocus();

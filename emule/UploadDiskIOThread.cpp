@@ -456,6 +456,8 @@ void CUploadDiskIOThread::CreateStandardPackets(byte *pbyData, uint64 uStartOffs
 	uint32 togo = (uint32)(uEndOffset - uStartOffset);
 	CMemFile memfile((BYTE*)pbyData, togo);
 	uint32 nPacketSize = (togo > 10240u) ? togo / (togo / 10240u) : togo;
+	CStatistics& theStats = CStatistics::Instance();
+
 
 	while (togo) {
 		if (togo < nPacketSize * 2)
@@ -508,6 +510,8 @@ void CUploadDiskIOThread::CreatePackedPackets(byte *pbyData, uint64 uStartOffset
 	uint32 nPacketSize = (togo > 10240u) ? togo / (togo / 10240u) : togo;
 
 	uint32 totalPayloadSize = 0;
+	CStatistics& theStats = CStatistics::Instance();
+
 
 	while (togo) {
 		if (togo < nPacketSize * 2)
@@ -554,6 +558,8 @@ void CUploadDiskIOThread::CreatePeerCachePackets(byte *pbyData, uint64 uStartOff
 {
 	uint32 togo = (uint32)(uEndOffset - uStartOffset);
 	uint32 nPacketSize = (togo > 10240) ? togo / (togo / 10240u) : togo;
+	CStatistics& theStats = CStatistics::Instance();
+
 
 	while (togo) {
 		if (togo < nPacketSize * 2)

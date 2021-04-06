@@ -27,6 +27,7 @@
 
 #define PORTTESTURL			_T("http://porttest.emule-project.net/connectiontest.php?tcpport=%i&udpport=%i&lang=%i")
 
+
 class CSearchList;
 class CUploadQueue;
 class CListenSocket;
@@ -94,12 +95,6 @@ public:
 	CFirewallOpener		*m_pFirewallOpener;
 	CUPnPImplWrapper	*m_pUPnPFinder;
 	CUploadDiskIOThread	*m_pUploadDiskIOThread;
-
-	/*static const UINT	m_nVersionMjr;
-	static const UINT	m_nVersionMin;
-	static const UINT	m_nVersionUpd;
-	static const UINT	m_nVersionBld;
-	static const TCHAR	*m_sPlatform;*/
 
 	HANDLE		m_hMutexOneInstance;
 	int			m_iDfltImageListColorFlags;

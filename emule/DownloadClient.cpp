@@ -276,6 +276,8 @@ void CUpDownClient::SendFileRequest()
 		return;
 	AddAskedCountDown();
 
+	CStatistics& theStats = CStatistics::Instance();
+
 	if (SupportMultiPacket() || SupportsFileIdentifiers()) {
 		CSafeMemFile dataFileReq(96);
 		if (SupportsFileIdentifiers()) {
@@ -434,6 +436,7 @@ void CUpDownClient::SendStartupLoadReq()
 		ASSERT(0);
 		return;
 	}
+	CStatistics& theStats = CStatistics::Instance();
 	m_fQueueRankPending = 1;
 	m_fUnaskQueueRankRecv = 0;
 	if (thePrefs.GetDebugClientTCPLevel() > 0)
@@ -963,6 +966,7 @@ void CUpDownClient::SendBlockRequests()
 			}
 		}
 	}
+	CStatistics& theStats = CStatistics::Instance();
 
 	theStats.AddUpDataOverheadFileRequest(packet->size);
 	if (thePrefs.GetDebugClientTCPLevel() > 0)
@@ -1413,6 +1417,7 @@ void CUpDownClient::UDPReaskForDownload()
 	//TODO: This should be changed to determine if the last 4 UDP packets failed, not the total one.
 	if (m_nTotalUDPPackets > 3 && (m_nFailedUDPPackets / (float)m_nTotalUDPPackets > .3))
 		return;
+	CStatistics& theStats = CStatistics::Instance();
 
 	if (GetUDPPort() != 0 && GetUDPVersion() != 0 && thePrefs.GetUDPPort() != 0 &&
 		!theApp.IsFirewalled() && !(socket && socket->IsConnected()) && !thePrefs.GetProxySettings().bUseProxy) {
@@ -2009,6 +2014,7 @@ void CUpDownClient::SendCancelTransfer()
 		if (thePrefs.GetDebugClientTCPLevel() > 0)
 			DebugSend("OP_CancelTransfer", this);
 
+		CStatistics& theStats = CStatistics::Instance();
 		Packet *pCancelTransferPacket = new Packet(OP_CANCELTRANSFER, 0);
 		theStats.AddUpDataOverheadFileRequest(pCancelTransferPacket->size);
 		socket->SendPacket(pCancelTransferPacket);
@@ -2128,6 +2134,7 @@ void CUpDownClient::SendAICHRequest(CPartFile *pForFile, uint16 nPart)
 	Packet *packet = new Packet(&data, OP_EMULEPROT, OP_AICHREQUEST);
 	if (thePrefs.GetDebugClientTCPLevel() > 0)
 		DebugSend("OP_AichRequest", this, (uchar*)packet->pBuffer);
+	CStatistics& theStats = CStatistics::Instance();
 	theStats.AddUpDataOverheadFileRequest(packet->size);
 	SafeConnectAndSendPacket(packet);
 }
@@ -2182,6 +2189,7 @@ void CUpDownClient::ProcessAICHRequest(const uchar *packet, UINT size)
 	uint16 nPart = data.ReadUInt16();
 	CAICHHash ahMasterHash(&data);
 	CKnownFile *pKnownFile = theApp.sharedfiles->GetFileByID(abyHash);
+	CStatistics& theStats = CStatistics::Instance();
 	if (pKnownFile != NULL) {
 		const CFileIdentifier &fileid = pKnownFile->GetFileIdentifier();
 		if (pKnownFile->IsAICHRecoverHashSetAvailable()
@@ -2312,6 +2320,7 @@ void CUpDownClient::SendHashSetRequest()
 			m_fHashsetRequestingMD4 = 1;
 			m_reqfile->m_bMD4HashsetNeeded = false;
 		}
+		CStatistics& theStats = CStatistics::Instance();
 		theStats.AddUpDataOverheadFileRequest(packet->size);
 		SendPacket(packet);
 		SetDownloadState(DS_REQHASHSET);

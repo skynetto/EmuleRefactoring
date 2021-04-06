@@ -26,6 +26,7 @@
 #include "emule.h"
 #include "Log.h"
 #include "md5sum.h"
+#include <Statistics.h>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -35,6 +36,8 @@ static char THIS_FILE[] = __FILE__;
 
 #define COLLECTION_FILE_VERSION1_INITIAL		0x01
 #define COLLECTION_FILE_VERSION2_LARGEFILES		0x02
+
+SingletonConstruct<CStatistics> CStatistics::m_sc;
 
 CCollection::CCollection()
 	: m_bTextFormat()

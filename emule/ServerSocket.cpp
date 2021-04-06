@@ -148,6 +148,8 @@ void CServerSocket::OnReceive(int nErrorCode)
 
 bool CServerSocket::ProcessPacket(const BYTE *packet, uint32 size, uint8 opcode)
 {
+	CStatistics& theStats = CStatistics::Instance();
+
 	try {
 		switch (opcode) {
 		case OP_SERVERMESSAGE:
@@ -682,6 +684,8 @@ void CServerSocket::OnError(int nErrorCode)
 
 bool CServerSocket::PacketReceived(Packet *packet)
 {
+	CStatistics& theStats = CStatistics::Instance();
+
 #ifndef _DEBUG
 	try {
 #endif

@@ -530,6 +530,8 @@ void CUpDownClient::SendOutOfPartReqsAndAddToWaitingQueue()
 	if (thePrefs.GetDebugClientTCPLevel() > 0)
 		DebugSend("OP_OutOfPartReqs", this);
 	Packet *pPacket = new Packet(OP_OUTOFPARTREQS, 0);
+	CStatistics& theStats = CStatistics::Instance();
+
 	theStats.AddUpDataOverheadFileRequest(pPacket->size);
 	SendPacket(pPacket);
 	m_fSentOutOfPartReqs = 1;
@@ -589,6 +591,8 @@ void CUpDownClient::SendHashsetPacket(const uchar *pData, uint32 nSize, bool bFi
 			DebugSend("OP_HashSetAnswer", this, pData);
 		packet = new Packet(&fileResponse, OP_EDONKEYPROT, OP_HASHSETANSWER);
 	}
+	CStatistics& theStats = CStatistics::Instance();
+
 	theStats.AddUpDataOverheadFileRequest(packet->size);
 	SendPacket(packet);
 }
@@ -605,6 +609,8 @@ void CUpDownClient::SendRankingInfo()
 	memset(packet->pBuffer + 2, 0, 10);
 	if (thePrefs.GetDebugClientTCPLevel() > 0)
 		DebugSend("OP_QueueRank", this);
+	CStatistics& theStats = CStatistics::Instance();
+
 	theStats.AddUpDataOverheadFileRequest(packet->size);
 	SendPacket(packet);
 }
@@ -627,6 +633,8 @@ void CUpDownClient::SendCommentInfo(/*const */CKnownFile *file)
 		DebugSend("OP_FileDesc", this, file->GetFileHash());
 	Packet *packet = new Packet(&data, OP_EMULEPROT);
 	packet->opcode = OP_FILEDESC;
+	CStatistics& theStats = CStatistics::Instance();
+
 	theStats.AddUpDataOverheadFileRequest(packet->size);
 	SendPacket(packet);
 }
