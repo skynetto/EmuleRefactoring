@@ -519,6 +519,7 @@
     <ClInclude Include="Wizard.h" />
     <ClInclude Include="ZIPFile.h" />
     <ClInclude Include="Singletons.h" />
+    <ClInclude Include="SingletonClasses.h" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="Parser.y" />

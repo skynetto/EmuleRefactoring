@@ -721,6 +721,7 @@
     <ClInclude Include="SharedFileList.h" />
     <ClInclude Include="SharedFilesCtrl.h" />
     <ClInclude Include="SharedFilesWnd.h" />
+    <ClInclude Include="SingletonClasses.h" />
     <ClInclude Include="Singletons.h" />
     <ClInclude Include="SmileySelector.h" />
     <ClInclude Include="SMTPdialog.h" />

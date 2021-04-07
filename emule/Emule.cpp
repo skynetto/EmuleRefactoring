@@ -328,7 +328,7 @@ CemuleApp::CemuleApp(LPCTSTR lpszAppName)
 #if defined( _DEBUG) || defined(_DEVBUILD)
 	m_strCurVersionLong = m_strCurVersionLongDbg;
 #else
-	m_strCurVersionLong.Format(_T("%u.%u%c"), CemuleApp::m_nVersionMjr, CemuleApp::m_nVersionMin, _T('a') + CemuleApp::m_nVersionUpd);
+	m_strCurVersionLong.Format(_T("%u.%u%c"), m_nVersionMjr, m_nVersionMin, _T('a') + m_nVersionUpd);
 #endif
 	m_strCurVersionLong += m_sPlatform;
 
