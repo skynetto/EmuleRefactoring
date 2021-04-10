@@ -104,6 +104,7 @@ void CStatisticsTree::OnLButtonUp(UINT nFlags, CPoint point)
 // call GetExpandedMask() upon completion.
 void CStatisticsTree::OnItemExpanded(LPNMHDR, LRESULT*)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (!m_bExpandingAll)
 		thePrefs.SetExpandedTreeItems(GetExpandedMask());
 }
@@ -125,6 +126,7 @@ void CStatisticsTree::DoMenu(CPoint doWhere)
 
 void CStatisticsTree::DoMenu(CPoint doWhere, UINT nFlags)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	int myFlags = PathFileExists(thePrefs.GetMuleDirectory(EMULE_CONFIGDIR) + _T("statbkup.ini")) ? MF_STRING : MF_GRAYED;
 
 	mnuContext.CreatePopupMenu();
@@ -160,12 +162,13 @@ void CStatisticsTree::DoMenu(CPoint doWhere, UINT nFlags)
 // Process context menu items...
 BOOL CStatisticsTree::OnCommand(WPARAM wParam, LPARAM)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	switch (wParam) {
 	case MP_STATTREE_RESET:
 		if (LocMessageBox(IDS_STATS_MBRESET_TXT, MB_YESNO | MB_ICONEXCLAMATION, 0) == IDYES) {
 			thePrefs.ResetCumulativeStatistics();
 			AddLogLine(false, GetResString(IDS_STATS_NFORESET));
-			theApp.emuledlg->statisticswnd->ShowStatistics();
+			theApp.emuledlg->statisticswnd->ShowStatistics(true);
 
 			CString myBuffer;
 			myBuffer.Format(GetResString(IDS_STATS_LASTRESETSTATIC), (LPCTSTR)thePrefs.GetStatsLastResetStr(false));
@@ -177,6 +180,7 @@ BOOL CStatisticsTree::OnCommand(WPARAM wParam, LPARAM)
 			if (!thePrefs.LoadStats(1))
 				LogError(LOG_STATUSBAR, GetResString(IDS_ERR_NOSTATBKUP));
 			else {
+				theApp.emuledlg->statisticswnd->ShowStatistics();
 				AddLogLine(false, GetResString(IDS_STATS_NFOLOADEDBKUP));
 				CString myBuffer;
 				myBuffer.Format(GetResString(IDS_STATS_LASTRESETSTATIC), (LPCTSTR)thePrefs.GetStatsLastResetStr(false));
@@ -299,6 +303,8 @@ CString CStatisticsTree::GetItemText(HTREEITEM theItem, int getPart)
 // It is recursive.
 CString CStatisticsTree::GetHTML(bool onlyVisible, HTREEITEM theItem, int theItemLevel, bool firstItem)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	HTREEITEM hCurrent;
 	if (theItem == NULL) {
 		if (!onlyVisible)
@@ -379,6 +385,8 @@ CString CStatisticsTree::GetText(bool onlyVisible, HTREEITEM theItem, int theIte
 			bPrintHeader = false;
 		hCurrent = theItem;
 	}
+
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	CString strBuffer;
 	if (bPrintHeader)
@@ -517,6 +525,8 @@ void CStatisticsTree::ExportHTML()
 	DWORD dwCurDirLen = GetCurrentDirectory(_countof(szCurDir), szCurDir);
 	if (dwCurDirLen == 0 || dwCurDirLen >= _countof(szCurDir))
 		*szCurDir = _T('\0');
+
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	CFileDialog saveAsDlg(false, _T("html"), _T("eMule Statistics.html"), OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT | OFN_EXPLORER, _T("HTML Files (*.html)|*.html|All Files (*.*)|*.*||"), this, 0);
 	if (saveAsDlg.DoModal() == IDOK) {

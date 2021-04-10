@@ -85,6 +85,7 @@ BOOL CPPgFiles::OnInitDialog()
 
 void CPPgFiles::LoadSettings()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	CheckDlgButton(IDC_ADDNEWFILESPAUSED, static_cast<UINT>(thePrefs.addnewfilespaused));
 	CheckDlgButton(IDC_PF_TIMECALC, static_cast<UINT>(!thePrefs.m_bUseOldTimeRemaining));
 	CheckDlgButton(IDC_PREVIEWPRIO, static_cast<UINT>(thePrefs.m_bpreviewprio));
@@ -117,6 +118,8 @@ void CPPgFiles::LoadSettings()
 
 BOOL CPPgFiles::OnApply()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	bool bOldPreviewPrio = thePrefs.m_bpreviewprio;
 	thePrefs.m_bpreviewprio = IsDlgButtonChecked(IDC_PREVIEWPRIO) != 0;
 	if (bOldPreviewPrio != thePrefs.m_bpreviewprio)
@@ -187,6 +190,8 @@ void CPPgFiles::Localize()
 
 void CPPgFiles::OnSetCleanupFilter()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	InputBox inputbox;
 	inputbox.SetLabels(GetResString(IDS_FNFILTERTITLE), GetResString(IDS_FILTERFILENAMEWORD), thePrefs.GetFilenameCleanups());
 	inputbox.DoModal();

@@ -401,6 +401,7 @@ bool CDirectoryTreeCtrl::IsShared(const CString &strDir)
 void CDirectoryTreeCtrl::AddShare(const CString &strDir)
 {
 	CString sDir(strDir);
+	CPreferences& thePrefs = CPreferences::Instance();
 	slosh(sDir);
 	if (!IsShared(sDir) && sDir.CompareNoCase(thePrefs.GetMuleDirectory(EMULE_CONFIGDIR)) != 0)
 		m_lstShared.AddTail(sDir);

@@ -134,6 +134,7 @@ void CListCtrlX::PreSubclassWindow()
 		ASSERT(m_hAccel);
 	}
 
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (thePrefs.GetUseSystemFontForMainControls())
 		SendMessage(WM_SETFONT, NULL, FALSE);
 }

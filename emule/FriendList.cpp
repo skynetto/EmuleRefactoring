@@ -53,6 +53,7 @@ CFriendList::~CFriendList()
 
 bool CFriendList::LoadList()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	CString strFileName(thePrefs.GetMuleDirectory(EMULE_CONFIGDIR) + EMFRIENDS_MET_FILENAME);
 	CSafeBufferedFile file;
 	CFileException fexp;
@@ -96,6 +97,7 @@ bool CFriendList::LoadList()
 
 void CFriendList::SaveList()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (thePrefs.GetLogFileSaving())
 		AddDebugLogLine(false, _T("Saving friends list file \"%s\""), EMFRIENDS_MET_FILENAME);
 	m_nLastSaved = ::GetTickCount();

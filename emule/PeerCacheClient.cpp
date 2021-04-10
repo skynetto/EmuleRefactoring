@@ -274,6 +274,7 @@ bool CPeerCacheUpSocket::ProcessHttpResponseBody(const BYTE* /*pucData*/, UINT /
 
 bool CPeerCacheUpSocket::ProcessHttpRequest()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	CStatistics& theStats = CStatistics::Instance();
 
 	if (GetClient() == NULL)
@@ -316,6 +317,7 @@ bool CUpDownClient::ProcessPeerCacheDownHttpResponse(const CStringAArray &astrHe
 {
 	ASSERT(GetDownloadState() == DS_DOWNLOADING);
 	ASSERT(m_ePeerCacheDownState == PCDS_WAIT_CACHE_REPLY);
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	if (m_reqfile == NULL)
 		throw CString(_T("Failed to process HTTP response - No 'reqfile' attached"));
@@ -614,6 +616,8 @@ bool CUpDownClient::SendHttpBlockRequests()
 		, m_uReqStart, m_uReqEnd
 		, (LPCTSTR)theApp.m_strCurVersionLong);
 
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (thePrefs.GetDebugClientTCPLevel() > 0) {
 		DebugSend("PeerCache-GET", this, m_reqfile->GetFileHash());
 		Debug(_T("  %hs\n"), (LPCSTR)strPCRequest);
@@ -661,6 +665,8 @@ bool CUpDownClient::SendPeerCacheFileRequest()
 	CTag tagCachePort(PCTAG_CACHEPORT, theApp.m_pPeerCache->GetCachePort());
 	tagCachePort.WriteNewEd2kTag(&data);
 
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (thePrefs.GetDebugClientTCPLevel() > 0) {
 		DebugSend("OP_PeerCacheQuery", this, m_reqfile->GetFileHash());
 		Debug(_T("  CacheIP=%s  PushId=%u  PublicIP=%s  FileId=%s\n"), (LPCTSTR)ipstr(tagCacheIP.GetInt()), tagPushId.GetInt(), (LPCTSTR)ipstr(tagPublicIP.GetInt()), (LPCTSTR)md4str(tagFileId.GetHash()));
@@ -679,6 +685,7 @@ bool CUpDownClient::SendPeerCacheFileRequest()
 
 bool CUpDownClient::ProcessPeerCacheQuery(const uchar *packet, UINT size)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	const bool bDebug = (thePrefs.GetDebugClientTCPLevel() > 0);
 	if (bDebug)
 		DebugRecv("OP_PeerCacheQuery", this);
@@ -817,6 +824,7 @@ bool CUpDownClient::ProcessPeerCacheQuery(const uchar *packet, UINT size)
 
 bool CUpDownClient::ProcessPeerCacheAnswer(const uchar *packet, UINT size)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	const bool bDebug = (thePrefs.GetDebugClientTCPLevel() > 0);
 	ASSERT(GetDownloadState() == DS_DOWNLOADING);
 	ASSERT(m_ePeerCacheDownState == PCDS_WAIT_CLIENT_REPLY);
@@ -907,6 +915,7 @@ bool CUpDownClient::ProcessPeerCacheAnswer(const uchar *packet, UINT size)
 
 bool CUpDownClient::ProcessPeerCacheAcknowledge(const uchar *packet, UINT size)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	const bool bDebug = (thePrefs.GetDebugClientTCPLevel() > 0);
 	if (bDebug)
 		DebugRecv("OP_PeerCacheAck", this);
@@ -971,6 +980,8 @@ void CUpDownClient::OnPeerCacheDownSocketClosed(int nErrorCode)
 	if (nErrorCode)
 		return;
 
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	// restart PC download if cache just closed the connection without obvious reason
 	if (GetDownloadState() == DS_DOWNLOADING
 		&& m_ePeerCacheDownState == PCDS_DOWNLOADING
@@ -993,6 +1004,8 @@ bool CUpDownClient::OnPeerCacheDownSocketTimeout()
 	if (GetDownloadState() != DS_DOWNLOADING || m_ePeerCacheDownState != PCDS_DOWNLOADING
 		|| m_PendingBlocks_list.IsEmpty())
 		return false;
+
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	if (thePrefs.GetVerbose())
 		AddDebugLogLine(DLP_HIGH, false, _T("PeerCache Error: Socket TimeOut, trying to reestablish connection"));

@@ -46,6 +46,7 @@ CIrcSocket::~CIrcSocket()
 
 BOOL CIrcSocket::Create(UINT uSocketPort, int iSocketType, long lEvent, const CString &sSocketAddress)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	const ProxySettings &proxy = thePrefs.GetProxySettings();
 	if (proxy.bUseProxy && proxy.type != PROXYTYPE_NOPROXY) {
 		m_pProxyLayer = new CAsyncProxySocketLayer;
@@ -72,6 +73,7 @@ BOOL CIrcSocket::Create(UINT uSocketPort, int iSocketType, long lEvent, const CS
 
 void CIrcSocket::Connect()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	int iPort;
 	CString strServer = thePrefs.GetIRCServer();
 	int iIndex = strServer.Find(_T(':'));
@@ -87,6 +89,7 @@ void CIrcSocket::Connect()
 
 void CIrcSocket::OnReceive(int iErrorCode)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (iErrorCode) {
 		if (thePrefs.GetVerbose())
 			AddDebugLogLine(false, _T("IRC socket: Failed to read - %s"), (LPCTSTR)GetErrorMessage(iErrorCode, 1));
@@ -122,6 +125,7 @@ void CIrcSocket::OnReceive(int iErrorCode)
 
 void CIrcSocket::OnSend(int iErrorCode)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (iErrorCode) {
 		if (thePrefs.GetVerbose())
 			AddDebugLogLine(false, _T("IRC socket: Failed to send - %s"), (LPCTSTR)GetErrorMessage(iErrorCode, 1));
@@ -143,6 +147,7 @@ void CIrcSocket::OnConnect(int iErrorCode)
 
 void CIrcSocket::OnClose(int iErrorCode)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (iErrorCode && thePrefs.GetVerbose())
 		AddDebugLogLine(false, _T("IRC socket: Failed to close - %s"), (LPCTSTR)GetErrorMessage(iErrorCode, 1));
 	m_pIrcMain->Disconnect();
@@ -150,6 +155,7 @@ void CIrcSocket::OnClose(int iErrorCode)
 
 int CIrcSocket::SendString(const CString &sMessage)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	const CStringA &sMessageA(thePrefs.GetIRCEnableUTF8() ? StrToUtf8(sMessage) : (CStringA)sMessage);
 	TRACE("CIrcSocket::SendString: %s\n", (LPCSTR)sMessageA);
 	int iSize = sMessageA.GetLength() + 2;

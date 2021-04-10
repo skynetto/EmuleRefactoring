@@ -195,6 +195,7 @@ void AddDebugLogLine(EDebugLogPriority Priority, bool bAddToStatusBar, LPCTSTR p
 void AddLogTextV(UINT uFlags, EDebugLogPriority dlpPriority, LPCTSTR pszLine, va_list argptr)
 {
 	ASSERT(pszLine != NULL);
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	if ((uFlags & LOG_DEBUG) && !(thePrefs.GetVerbose() && dlpPriority >= thePrefs.GetVerboseLogPriority()))
 		return;
@@ -381,6 +382,7 @@ bool CLogFile::Logf(LPCTSTR pszFmt, ...)
 	szMsg[_countof(szMsg) - 1] = _T('\0');
 	va_end(argp);
 
+	CPreferences& thePrefs = CPreferences::Instance();
 	TCHAR szFullMsg[1060];
 	int iLen = _sntprintf(szFullMsg, _countof(szFullMsg), _T("%s: %s\r\n"), (LPCTSTR)CTime::GetCurrentTime().Format(thePrefs.GetDateTimeFormat4Log()), szMsg);
 

@@ -186,6 +186,8 @@ LRESULT CTrayDialog::OnTrayNotify(WPARAM wParam, LPARAM lParam)
 	if (wParam != 1u) //check ID
 		return 0;
 
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	CPoint pt;
 	switch (lParam) {
 	case WM_MOUSEMOVE:
@@ -279,6 +281,8 @@ void CTrayDialog::TraySetMinimizeToTray(bool *pbMinimizeToTray)
 
 void CTrayDialog::TrayMinimizeToTrayChange()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (m_pbMinimizeToTray)
 		if (*m_pbMinimizeToTray || thePrefs.IsRunningAeroGlassTheme()) //there is no easy way to draw in caption
 			MinTrayBtnHide();

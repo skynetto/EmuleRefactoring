@@ -155,6 +155,7 @@ void CCollectionViewDialog::OnNmDblClkCollectionList(LPNMHDR, LRESULT *pResult)
 
 void CCollectionViewDialog::DownloadSelected()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	int iNewIndex = 0;
 	for (int iIndex = (int)thePrefs.GetCatCount(); --iIndex > 0;)
 		if (!m_pCollection->m_sCollectionName.CompareNoCase(thePrefs.GetCategory(iIndex)->strTitle)) {

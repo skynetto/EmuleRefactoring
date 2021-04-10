@@ -127,6 +127,8 @@ void CSharedDirsTreeCtrl::OnSysColorChange()
 
 void CSharedDirsTreeCtrl::SetAllIcons()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	// This treeview control contains an image list which contains our own icons and a
 	// couple of icons which are copied from the Windows System image list. To properly
 	// support an update of the control and the image list, we need to 'replace' our own
@@ -317,6 +319,7 @@ void CSharedDirsTreeCtrl::FilterTreeReloadTree()
 	m_bCreatingTree = true;
 	// store current selection
 	CDirectoryItem *pOldSelectedItem = NULL;
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (GetSelectedFilter() != NULL)
 		pOldSelectedItem = GetSelectedFilter()->CloneContent();
 
@@ -416,6 +419,8 @@ void CSharedDirsTreeCtrl::CreateMenus()
 	if (m_ShareDirsMenu)
 		VERIFY(m_ShareDirsMenu.DestroyMenu());
 
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	m_PrioMenu.CreateMenu();
 	m_PrioMenu.AppendMenu(MF_STRING, MP_PRIOVERYLOW, GetResString(IDS_PRIOVERYLOW));
 	m_PrioMenu.AppendMenu(MF_STRING, MP_PRIOLOW, GetResString(IDS_PRIOLOW));
@@ -460,6 +465,9 @@ void CSharedDirsTreeCtrl::OnContextMenu(CWnd*, CPoint point)
 		Default();
 		return;
 	}
+
+	CPreferences& thePrefs = CPreferences::Instance();
+
 
 	CDirectoryItem *pSelectedDir = GetSelectedFilter();
 	if (pSelectedDir != NULL && pSelectedDir->m_eItemType != SDI_UNSHAREDDIRECTORY && pSelectedDir->m_eItemType != SDI_FILESYSTEMPARENT) {
@@ -561,6 +569,8 @@ BOOL CSharedDirsTreeCtrl::OnCommand(WPARAM wParam, LPARAM)
 	const CDirectoryItem *pSelectedDir = GetSelectedFilter();
 	if (pSelectedDir == NULL)
 		return TRUE;
+
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	// folder based
 	switch (wParam) {
@@ -914,6 +924,8 @@ void CSharedDirsTreeCtrl::OnTvnGetdispinfo(LPNMHDR pNMHDR, LRESULT *pResult)
 
 void CSharedDirsTreeCtrl::AddSharedDirectory(const CString &strDir, bool bSubDirectories)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (!FileSystemTreeIsShared(strDir) && thePrefs.IsShareableDirectory(strDir))
 		m_strliSharedDirs.AddTail(strDir);
 
@@ -1001,6 +1013,7 @@ void CSharedDirsTreeCtrl::EditSharedDirectories(const CDirectoryItem *pDir, bool
 	FileSystemTreeUpdateBoldState();
 	FilterTreeReloadTree();
 
+	CPreferences& thePrefs = CPreferences::Instance();
 	// sync with the preferences list
 	thePrefs.shareddir_list.RemoveAll();
 	// copy list
@@ -1019,6 +1032,7 @@ void CSharedDirsTreeCtrl::EditSharedDirectories(const CDirectoryItem *pDir, bool
 
 void CSharedDirsTreeCtrl::Reload(bool bForce)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 //	bool bChanged = false;
 	if (!bForce) {
 		// check for changes in shared dirs
@@ -1076,6 +1090,8 @@ void CSharedDirsTreeCtrl::Reload(bool bForce)
 
 void CSharedDirsTreeCtrl::FetchSharedDirsList()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	m_strliSharedDirs.RemoveAll();
 	// copy list
 	for (POSITION pos = thePrefs.shareddir_list.GetHeadPosition(); pos != NULL;) {

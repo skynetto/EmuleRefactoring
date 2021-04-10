@@ -227,6 +227,7 @@ BOOL CPPgWiz1General::OnInitDialog()
 {
 	CDlgPageWizard::OnInitDialog();
 	InitWindowStyles(this);
+	CPreferences& thePrefs = CPreferences::Instance();
 	static_cast<CEdit*>(GetDlgItem(IDC_NICK))->SetLimitText(thePrefs.GetMaxUserNickLength());
 	SetDlgItemText(IDC_NICK_FRM, GetResString(IDS_ENTERUSERNAME));
 	SetDlgItemText(IDC_AUTOCONNECT, GetResString(IDS_FIRSTAUTOCON));
@@ -381,6 +382,7 @@ void CPPgWiz1Ports::OnStartUPnP()
 
 void CPPgWiz1Ports::OnTimer(UINT_PTR /*nIDEvent*/)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	++m_nUPnPTicks;
 	if (theApp.m_pUPnPFinder && theApp.m_pUPnPFinder->GetImplementation()->ArePortsForwarded() == TRIS_UNKNOWN)
 		if (m_nUPnPTicks < 40) {
@@ -418,6 +420,7 @@ void CPPgWiz1Ports::OnStartConTest()
 	if (tcp == 0)
 		return;
 	uint16 udp = GetUDPPort();
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	if (tcp != theApp.listensocket->GetConnectedPort() || udp != theApp.clientudp->GetConnectedPort()) {
 		if (!theApp.IsPortchangeAllowed()) {
@@ -800,6 +803,8 @@ BOOL FirstTimeWizard()
 	CPPgWiz1End page7(IDD_WIZ1_END, sWiz1);
 	page7.m_psp.dwFlags |= PSP_HIDEHEADER;
 	sheet.AddPage(&page7);
+
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	page2.m_strNick = thePrefs.GetUserNick();
 	if (page2.m_strNick.IsEmpty())

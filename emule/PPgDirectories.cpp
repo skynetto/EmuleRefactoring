@@ -78,6 +78,8 @@ BOOL CPPgDirectories::OnInitDialog()
 	m_ctlUncPaths.InsertColumn(0, GetResString(IDS_UNCFOLDERS), LVCFMT_LEFT, 280);
 	m_ctlUncPaths.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_INFOTIP);
 
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	GetDlgItem(IDC_SELTEMPDIRADD)->ShowWindow(thePrefs.IsExtControlsEnabled() ? SW_SHOW : SW_HIDE);
 
 	LoadSettings();
@@ -89,6 +91,8 @@ BOOL CPPgDirectories::OnInitDialog()
 
 void CPPgDirectories::LoadSettings()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	SetDlgItemText(IDC_INCFILES, thePrefs.m_strIncomingDir);
 
 	CString tempfolders;
@@ -122,7 +126,8 @@ void CPPgDirectories::OnBnClickedSeltempdir()
 BOOL CPPgDirectories::OnApply()
 {
 	bool testtempdirchanged = false;
-	const CString &testincdirchanged = thePrefs.GetMuleDirectory(EMULE_INCOMINGDIR);
+	CPreferences& thePrefs = CPreferences::Instance();
+		const CString &testincdirchanged = thePrefs.GetMuleDirectory(EMULE_INCOMINGDIR);
 
 	CString strIncomingDir;
 	GetDlgItemText(IDC_INCFILES, strIncomingDir);
@@ -294,6 +299,8 @@ void CPPgDirectories::FillUncList()
 {
 	m_ctlUncPaths.DeleteAllItems();
 
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	for (POSITION pos = thePrefs.shareddir_list.GetHeadPosition(); pos != NULL;) {
 		const CString &folder = thePrefs.shareddir_list.GetNext(pos);
 		if (PathIsUNC(folder))
@@ -308,6 +315,7 @@ void CPPgDirectories::OnBnClickedAddUNC()
 	if (inputbox.DoModal() != IDOK)
 		return;
 	CString unc = inputbox.GetInput();
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	// basic UNC check
 	if (!PathIsUNC(unc)) {

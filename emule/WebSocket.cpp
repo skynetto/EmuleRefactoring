@@ -168,6 +168,8 @@ void CWebSocket::OnReceived(void *pData, DWORD dwSize, const in_addr &inad)
 void CWebSocket::SendData(const void *pData, DWORD dwDataSize)
 {
 	ASSERT(pData);
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (m_bValid && m_bCanSend) {
 		if (!m_pHead) {
 			if (thePrefs.GetWebUseHttps()) {
@@ -287,6 +289,8 @@ UINT AFX_CDECL WebSocketAcceptedFunc(LPVOID pD)
 	delete pData;
 
 	ASSERT(INVALID_SOCKET != hSocket);
+
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	HANDLE hEvent = CreateEvent(NULL, FALSE, TRUE, NULL);
 	if (hEvent) {
@@ -435,6 +439,8 @@ UINT AFX_CDECL WebSocketListeningFunc(LPVOID pThis)
 	srand((unsigned)time(NULL));
 	InitThreadLocale();
 
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	SOCKET hSocket = WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, NULL, 0, 0);
 	if (INVALID_SOCKET != hSocket) {
 		SOCKADDR_IN stAddr;
@@ -499,6 +505,7 @@ UINT AFX_CDECL WebSocketListeningFunc(LPVOID pThis)
 
 int StartSSL()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	static const char pers[] = "eMule_WebSrv";
 	if (!thePrefs.GetWebUseHttps())
 		return 0; //success
@@ -538,6 +545,8 @@ int StartSSL()
 
 void StopSSL()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (thePrefs.GetWebUseHttps()) {
 		/*mbedtls_x509_crt_free(&srvcert);
 		mbedtls_pk_free(&pkey);

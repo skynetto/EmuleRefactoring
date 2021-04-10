@@ -262,6 +262,7 @@ void CPartFile::Init()
 	lastSwapForSourceExchangeTick = lastpurgetime = ::GetTickCount();
 	m_lastRefreshedDLDisplay = 0;
 	m_nLastBufferFlushTime = 0;
+	CPreferences& thePrefs = CPreferences::Instance();
 	m_nFlushLimitMs = thePrefs.GetFileBufferTimeLimit() + (DWORD)(rand() / (RAND_MAX / SEC2MS(2)));
 	m_dwFileAttributes = 0;
 	m_random_update_wait = (DWORD)(rand() / (RAND_MAX / SEC2MS(1)));
@@ -395,6 +396,8 @@ void CPartFile::CreatePartFile(UINT cat)
 		SetStatus(PS_ERROR);
 		return;
 	}
+
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	// decide which temp folder to use
 	const CString &tempdirtouse = theApp.downloadqueue->GetOptimalTempDir(cat, GetFileSize());
@@ -1101,6 +1104,8 @@ EPartFileLoadResult CPartFile::LoadPartFile(LPCTSTR in_directory, LPCTSTR in_fil
 	} else
 		AddDebugLogLine(false, _T("Failed to get file date for \"%s\" - %s"), (LPCTSTR)searchpath, _tcserror(errno));
 
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	try {
 		SetFilePath(searchpath);
 		m_dwFileAttributes = GetFileAttributes(GetFilePath());
@@ -1191,6 +1196,8 @@ bool CPartFile::SavePartFile(bool bDontOverrideBak)
 {
 	if (status == PS_WAITINGFORHASH || status == PS_HASHING)
 		return false;
+
+	CPreferences& thePrefs = CPreferences::Instance();
 	// search part file
 	CFileFind ff;
 	const CString &searchpath(RemoveFileExtension(m_fullname));
@@ -1580,6 +1587,7 @@ void CPartFile::PartFileHashFinished(CKnownFile *result)
 	}
 
 	delete result;
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (errorfound) {
 		SetStatus(PS_READY);
 		if (thePrefs.GetVerbose())
@@ -2199,6 +2207,7 @@ void CPartFile::RemoveDownloadingSource(CUpDownClient *client)
 
 uint32 CPartFile::Process(uint32 reducedownload, UINT icounter/*in percent*/)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (thePrefs.m_iDbgHeap >= 2)
 		ASSERT_VALID(this);
 
@@ -2448,6 +2457,8 @@ bool CPartFile::CanAddSource(uint32 userid, uint16 port, uint32 serverip, uint16
 			userid = htonl(userid);
 	}
 
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	// MOD Note: Do not change this part - Merkur
 	if (theApp.serverconnect->IsConnected()) {
 		if (theApp.serverconnect->IsLowID()) {
@@ -2481,6 +2492,7 @@ void CPartFile::AddSources(CSafeMemFile *sources, uint32 serverip, uint16 server
 	UINT debug_possiblesources = 0;
 	uchar achUserHash[16];
 	bool bSkip = false;
+	CPreferences& thePrefs = CPreferences::Instance();
 	for (UINT i = 0; i < ucount; ++i) {
 		uint32 userid = sources->ReadUInt32();
 		uint16 port = sources->ReadUInt16();
@@ -2565,6 +2577,9 @@ void CPartFile::AddSource(LPCTSTR pszURL, uint32 nIP)
 		//	AddDebugLogLine(false, _T("Ignored URL source (IP=%s) \"%s\" - bad IP"), (LPCTSTR)ipstr(nIP), pszURL);
 		return;
 	}
+
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (theApp.ipfilter->IsFiltered(nIP)) {
 		if (thePrefs.GetLogFilteredIPs())
 			AddDebugLogLine(false, _T("Ignored URL source (IP=%s) \"%s\" - IP filter (%s)"), (LPCTSTR)ipstr(nIP), pszURL, (LPCTSTR)theApp.ipfilter->GetLastHit());
@@ -2710,6 +2725,8 @@ void CPartFile::RemoveAllRequestedBlocks()
 
 void CPartFile::CompleteFile(bool bIsHashingDone)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	theApp.downloadqueue->RemoveLocalServerRequest(this);
 	if (GetKadFileSearchID())
 		Kademlia::CSearchManager::StopSearch(GetKadFileSearchID(), false);
@@ -2775,10 +2792,13 @@ void UncompressFile(LPCTSTR pszFilePath, CPartFile *pPartFile)
 	PathRemoveFileSpec(strDir.GetBuffer());
 	strDir.ReleaseBuffer();
 
+
 	// If the directory of the file has the 'Compress' attribute, do not uncompress the file
 	dwAttr = GetFileAttributes(strDir);
 	if (dwAttr == INVALID_FILE_ATTRIBUTES || (dwAttr & FILE_ATTRIBUTE_COMPRESSED) != 0)
 		return;
+
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	HANDLE hFile = ::CreateFile(pszFilePath, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
 	if (hFile == INVALID_HANDLE_VALUE) {
@@ -2820,6 +2840,8 @@ const GUID CLSID_PersistentZoneIdentifier = {0x0968E258, 0x16C7, 0x4DBA, { 0xAA,
 
 void SetZoneIdentifier(LPCTSTR pszFilePath)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (!thePrefs.GetCheckFileOpen())
 		return;
 	CComPtr<IZoneIdentifier> pZoneIdentifier;
@@ -2888,6 +2910,8 @@ BOOL CPartFile::PerformFileComplete()
 	_tcscpy(newfilename, (LPCTSTR)StripInvalidFilenameChars(newfilename));
 
 	CString indir;
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (PathFileExists(thePrefs.GetCategory(GetCategory())->strIncomingPath))
 		indir = thePrefs.GetCategory(GetCategory())->strIncomingPath;
 	else
@@ -3037,6 +3061,8 @@ BOOL CPartFile::PerformFileComplete()
 // this is to be invoked in the main thread only!
 void CPartFile::PerformFileCompleteEnd(DWORD dwResult)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (dwResult & FILE_COMPLETION_THREAD_SUCCESS) {
 		if (!m_nCompleteSourcesCount)
 			m_nCompleteSourcesCountHi = m_nCompleteSourcesCountLo = m_nCompleteSourcesCount = 1;
@@ -3543,6 +3569,7 @@ int CPartFile::getPartfileStatusRank() const
 
 time_t CPartFile::getTimeRemaining() const
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	uint64 completesize = (uint64)GetCompletedSize();
 	time_t simple = (time_t)(GetDatarate() ? ((uint64)GetFileSize() - completesize) / GetDatarate() : -1);
 	if (thePrefs.UseSimpleTimeRemainingComputation())
@@ -3561,6 +3588,7 @@ void CPartFile::PreviewFile()
 {
 	if (thePreviewApps.Preview(this))
 		return;
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	if (IsArchive(true)) {
 		if (!m_bRecoveringArchive && !m_bPreviewing)
@@ -3589,6 +3617,8 @@ bool CPartFile::IsReadyForPreview() const
 	CPreviewApps::ECanPreviewRes ePreviewAppsRes = thePreviewApps.CanPreview(this);
 	if (ePreviewAppsRes != CPreviewApps::NotHandled)
 		return (ePreviewAppsRes == CPreviewApps::Yes);
+
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	// Barry - Allow preview of archives if length > 1k
 	if (IsArchive(true)) {
@@ -3712,6 +3742,7 @@ void CPartFile::UpdateAvailablePartsCount()
 
 Packet* CPartFile::CreateSrcInfoPacket(const CUpDownClient *forClient, uint8 byRequestedVersion, uint16 nRequestedOptions) const
 {
+
 	if (!IsPartFile() || srclist.IsEmpty())
 		return CKnownFile::CreateSrcInfoPacket(forClient, byRequestedVersion, nRequestedOptions);
 
@@ -3736,6 +3767,7 @@ Packet* CPartFile::CreateSrcInfoPacket(const CUpDownClient *forClient, uint8 byR
 		return NULL;
 
 	CSafeMemFile data(1024);
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	uint8 byUsedVersion;
 	bool bIsSX2Packet;
@@ -3826,6 +3858,7 @@ Packet* CPartFile::CreateSrcInfoPacket(const CUpDownClient *forClient, uint8 byR
 	// (1+)16+2+501*(4+2+4+2+16+1) = 14547 (14548) bytes max.
 	if (result->size > 354)
 		result->PackPacket();
+
 	if (thePrefs.GetDebugSourceExchange())
 		AddDebugLogLine(false, _T("SXSend: Client source response SX2=%s, Version=%u; Count=%u, %s, File=\"%s\""), bIsSX2Packet ? _T("Yes") : _T("No"), byUsedVersion, nCount, (LPCTSTR)forClient->DbgGetClientInfo(), (LPCTSTR)GetFileName());
 	return result;
@@ -3835,6 +3868,8 @@ void CPartFile::AddClientSources(CSafeMemFile *sources, uint8 uClientSXVersion, 
 {
 	if (m_stopped)
 		return;
+
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	if (thePrefs.GetDebugSourceExchange()) {
 		CString strDbgClientInfo;
@@ -4042,6 +4077,8 @@ uint32 CPartFile::WriteToBuffer(uint64 transize, const BYTE *data, uint64 start,
 	ASSERT((sint64)transize > 0);
 	ASSERT(start <= end);
 
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	// Increment transferred bytes counter for this file
 	if (client) //Imported Parts are not counted as transferred
 		m_uTransferred += transize;
@@ -4147,6 +4184,7 @@ void CPartFile::FlushBuffer(bool forcewait, bool bForceICH, bool bNoAICH)
 
 	// Remember which parts need to be checked at the end of the flush
 	bool *changedPart = new bool[GetPartCount()](); //set array elements to false
+	CPreferences& thePrefs = CPreferences::Instance();
 	try {
 		bool bCheckDiskspace = thePrefs.IsCheckDiskspaceEnabled() && thePrefs.GetMinFreeDiskSpace() > 0;
 		ULONGLONG uFreeDiskSpace = bCheckDiskspace ? GetFreeDiskSpaceX(GetTempPath()) : 0;
@@ -4365,6 +4403,8 @@ void CPartFile::FlushBuffer(bool forcewait, bool bForceICH, bool bNoAICH)
 
 void CPartFile::FlushBuffersExceptionHandler(CFileException *error)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (thePrefs.IsCheckDiskspaceEnabled() && error->m_cause == CFileException::diskFull) {
 		CString msg;
 		msg.Format(GetResString(IDS_ERR_OUTOFSPACE), (LPCTSTR)GetFileName());
@@ -4546,6 +4586,8 @@ void CPartFile::UpdateAutoDownPriority()
 
 UINT CPartFile::GetCategory() /*const*/
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (m_category > (UINT)(thePrefs.GetCatCount() - 1))
 		m_category = 0;
 	return m_category;
@@ -4553,6 +4595,8 @@ UINT CPartFile::GetCategory() /*const*/
 
 bool CPartFile::HasDefaultCategory() const // extra function for const
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	return m_category == 0 || m_category > (UINT)(thePrefs.GetCatCount() - 1);
 }
 
@@ -4651,6 +4695,7 @@ void CPartFile::_SetStatus(EPartFileStatus eStatus)
 
 void CPartFile::SetStatus(EPartFileStatus eStatus)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	_SetStatus(eStatus);
 	if (!theApp.IsClosing()) {
 		NotifyStatusChange();
@@ -4740,6 +4785,8 @@ bool CPartFile::GetNextRequestedBlock(CUpDownClient *sender, Requested_Block_Str
 	uint16 tempLastPartAsked = _UI16_MAX;
 	if (sender->m_lastPartAsked != _UI16_MAX && sender->GetClientSoft() == SO_EMULE && sender->GetVersion() < MAKE_CLIENT_VERSION(0, 43, 1))
 		tempLastPartAsked = sender->m_lastPartAsked;
+
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	// Main loop
 	uint16 newBlockCount = 0;
@@ -5034,6 +5081,8 @@ CString CPartFile::GetInfoSummary(bool bNoFormatCommands) const
 		, (LPCTSTR)CastItoXBytes((uint64)GetFileSize())
 		, GetPercentCompleted());
 
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	const CString &lsc = (lastseencomplete != 0) ? lastseencomplete.Format(thePrefs.GetDateTimeFormat()) : GetResString(IDS_NEVER);
 
 	float availability = (GetPartCount() > 0) ? GetAvailablePartCount() * 100.0f / GetPartCount() : 0.0f;
@@ -5171,6 +5220,7 @@ AllcatTypes:
 */
 bool CPartFile::CheckShowItemInGivenCat(int inCategory) /*const*/
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	// common cases
 	if (inCategory >= thePrefs.GetCatCount())
 		return false;
@@ -5287,6 +5337,7 @@ bool CPartFile::RightFileHasHigherPrio(CPartFile *left, CPartFile *right)
 	if (!right)
 		return false;
 
+	CPreferences& thePrefs = CPreferences::Instance();
 	return !left
 		|| thePrefs.GetCategory(right->GetCategory())->prio > thePrefs.GetCategory(left->GetCategory())->prio
 		|| (thePrefs.GetCategory(right->GetCategory())->prio == thePrefs.GetCategory(left->GetCategory())->prio
@@ -5435,6 +5486,8 @@ void CPartFile::AICHRecoveryDataAvailable(UINT nPart)
 	}
 	m_CorruptionBlackBox.EvaluateData((uint16)nPart);
 
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (m_uCorruptionLoss >= nRecovered)
 		m_uCorruptionLoss -= nRecovered;
 	if (thePrefs.sesLostFromCorruption >= nRecovered)
@@ -5476,6 +5529,7 @@ UINT CPartFile::GetMaxSources() const
 {
 	// Ignore any specified 'max sources' value if not in 'extended mode' -> don't use a parameter
 	// which was once specified in GUI but can not be seen/modified any longer.
+	CPreferences& thePrefs = CPreferences::Instance();
 	return (!thePrefs.IsExtControlsEnabled() || m_uMaxSources == 0) ? thePrefs.GetMaxSourcePerFileDefault() : m_uMaxSources;
 }
 
@@ -5498,6 +5552,7 @@ CString CPartFile::GetTempPath() const
 
 void CPartFile::RefilterFileComments()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	const CString &cfilter = thePrefs.GetCommentFilter();
 	// check all available comments against our filter again
 	if (cfilter.IsEmpty())

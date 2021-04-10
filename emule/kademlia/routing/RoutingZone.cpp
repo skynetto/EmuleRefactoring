@@ -83,6 +83,7 @@ CRoutingZone::CRoutingZone()
 	// Can only create routing zone after prefs
 	// Set our KadID for creating the contact tree
 	CKademlia::GetPrefs()->GetKadID(&uMe);
+	CPreferences& thePrefs = CPreferences::Instance();
 	// Set the preference file name.
 	m_sFilename = thePrefs.GetMuleDirectory(EMULE_CONFIGDIR) + _T("nodes.dat");
 	// Init our root node.
@@ -167,6 +168,7 @@ void CRoutingZone::ReadFile(const CString &strSpecialNodesdate)
 		ASSERT(0);
 		return;
 	}
+	CPreferences& thePrefs = CPreferences::Instance();
 	// Read in the saved contact list.
 	try {
 		CSafeBufferedFile file;
@@ -272,6 +274,7 @@ void CRoutingZone::ReadBootstrapNodesDat(CFileDataIO &file)
 		ASSERT(0);
 		return;
 	}
+	CPreferences& thePrefs = CPreferences::Instance();
 	uint32 uNumContacts = file.ReadUInt32();
 	if (uNumContacts != 0 && uNumContacts * 25ull == (file.GetLength() - file.GetPosition())) {
 		uint32 uValidContacts = 0;
@@ -449,6 +452,7 @@ bool CRoutingZone::CanSplit() const
 bool CRoutingZone::Add(const CUInt128 &uID, uint32 uIP, uint16 uUDPPort, uint16 uTCPPort, uint8 uVersion, const CKadUDPKey &cUDPKey, bool &bIPVerified, bool bUpdate, bool bFromNodesDat, bool bFromHello)
 {
 	uint32 uhostIP = htonl(uIP);
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (IsGoodIPPort(uhostIP, uUDPPort)) {
 		if (!theApp.ipfilter->IsFiltered(uhostIP) && !(uUDPPort == 53 && uVersion <= KADEMLIA_VERSION5_48a)  /*No DNS Port without encryption*/)
 			return AddUnfiltered(uID, uIP, uUDPPort, uTCPPort, uVersion, cUDPKey, bIPVerified, bUpdate, bFromNodesDat, bFromHello);
@@ -809,7 +813,7 @@ void CRoutingZone::OnSmallTimer()
 {
 	if (!IsLeaf())
 		return;
-
+	CPreferences& thePrefs = CPreferences::Instance();
 	CContact *pContact = NULL;
 	time_t tNow = time(NULL);
 	ContactList listEntries;

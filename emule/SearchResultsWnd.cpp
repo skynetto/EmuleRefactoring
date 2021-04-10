@@ -239,6 +239,7 @@ void CSearchResultsWnd::StartSearch(SSearchParams *pParams)
 void CSearchResultsWnd::OnTimer(UINT_PTR nIDEvent)
 {
 	CResizableFormView::OnTimer(nIDEvent);
+	CPreferences& thePrefs = CPreferences::Instance();
 	CStatistics& theStats = CStatistics::Instance();
 
 	if (m_uTimerLocalServer != 0 && nIDEvent == m_uTimerLocalServer) {
@@ -518,6 +519,7 @@ CString CSearchResultsWnd::CreateWebQuery(SSearchParams *pParams)
 
 void CSearchResultsWnd::DownloadSelected()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	DownloadSelected(thePrefs.AddNewFilesPaused());
 }
 
@@ -773,6 +775,9 @@ void ParsedSearchExpression(const CSearchExpr *pexpr)
 	//	+1 Artist
 	// ---------------
 	//  12
+
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (iOpAnd + iOpOr + iOpNot > 10)
 		yyerror(GetResString(IDS_SEARCH_TOOCOMPLEX));
 
@@ -1077,6 +1082,8 @@ bool GetSearchPacket(CSafeMemFile *pData, SSearchParams *pParams, bool bTargetSu
 		s_SearchExpr.Add(&s_SearchExpr2);
 	}
 
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (thePrefs.GetVerbose()) {
 		s_strSearchTree.Empty();
 		DumpSearchTree(s_SearchExpr, true);
@@ -1250,7 +1257,9 @@ bool CSearchResultsWnd::DoNewEd2kSearch(SSearchParams *pParams)
 		m_pwndParams->m_ctlCancel.SetFocus();
 	m_iSentMoreReq = 0;
 
-	Packet *packet = new Packet(&data);
+	CPreferences& thePrefs = CPreferences::Instance();
+
+	Packet *packet =  new Packet(&data);
 	packet->opcode = OP_SEARCHREQUEST;
 	if (thePrefs.GetDebugServerTCPLevel() > 0)
 		Debug(_T(">>> Sending OP_SearchRequest\n"));
@@ -1276,6 +1285,7 @@ bool CSearchResultsWnd::DoNewEd2kSearch(SSearchParams *pParams)
 		searchprogress.SetRange32(0, (int)theApp.serverlist->GetServerCount() - 1);
 	}
 	CreateNewTab(pParams);
+
 	return true;
 }
 
@@ -1286,8 +1296,9 @@ bool CSearchResultsWnd::SearchMore()
 
 	SetActiveSearchResultsIcon(m_nEd2kSearchID);
 	cancelled = false;
+	CPreferences& thePrefs = CPreferences::Instance();
 
-	Packet *packet = new Packet();
+	Packet* packet = new Packet();
 	packet->opcode = OP_QUERY_MORE_RESULT;
 	if (thePrefs.GetDebugServerTCPLevel() > 0)
 		Debug(_T(">>> Sending OP_QueryMoreResults\n"));
@@ -1297,6 +1308,7 @@ bool CSearchResultsWnd::SearchMore()
 	theStats.AddUpDataOverheadServer(packet->size);
 	theApp.serverconnect->SendPacket(packet);
 	++m_iSentMoreReq;
+
 	return true;
 }
 
@@ -1571,6 +1583,7 @@ void CSearchResultsWnd::UpdateCatTabs()
 {
 	int oldsel = m_cattabs->GetCurSel();
 	m_cattabs->DeleteAllItems();
+	CPreferences& thePrefs = CPreferences::Instance();
 	for (INT_PTR i = 0; i < thePrefs.GetCatCount(); ++i) {
 		CString label(i ? thePrefs.GetCategory(i)->strTitle : GetResString(IDS_ALL));
 		label.Replace(_T("&"), _T("&&"));

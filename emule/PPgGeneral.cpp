@@ -64,6 +64,8 @@ END_MESSAGE_MAP()
 
 void CPPgGeneral::SetLangSel()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	for (int i = m_language.GetCount(); --i >= 0;)
 		if (m_language.GetItemData(i) == thePrefs.GetLanguageID()) {
 			m_language.SetCurSel(i);
@@ -85,6 +87,8 @@ void CPPgGeneral::DoDataExchange(CDataExchange *pDX)
 void CPPgGeneral::LoadSettings()
 {
 	SetLangSel();
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	SetDlgItemText(IDC_NICK, thePrefs.GetUserNick());
 	CheckDlgButton(IDC_STARTWIN, static_cast<UINT>(thePrefs.m_bAutoStart));
 	CheckDlgButton(IDC_STARTMIN, static_cast<UINT>(thePrefs.startMinimized));
@@ -111,6 +115,8 @@ BOOL CPPgGeneral::OnInitDialog()
 {
 	CPropertyPage::OnInitDialog();
 	InitWindowStyles(this);
+
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	static_cast<CEdit*>(GetDlgItem(IDC_NICK))->SetLimitText(thePrefs.GetMaxUserNickLength());
 
@@ -185,6 +191,8 @@ BOOL CPPgGeneral::OnApply()
 {
 	CString strNick;
 	GetDlgItemText(IDC_NICK, strNick);
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (!IsValidEd2kString(strNick.Trim()) || strNick.IsEmpty()) {
 		strNick = DEFAULT_NICK;
 		SetDlgItemText(IDC_NICK, strNick);
@@ -299,6 +307,8 @@ void CPPgGeneral::OnBnClickedEditWebservices()
 
 void CPPgGeneral::OnLangChange()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 // Official version mirrors
 //#define MIRRORS_URL	_T("http://langmirror%u.emule-project.org/lang/%u%u%u%u/")
 

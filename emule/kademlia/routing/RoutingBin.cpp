@@ -81,6 +81,7 @@ CRoutingBin::~CRoutingBin()
 bool CRoutingBin::AddContact(CContact *pContact)
 {
 	ASSERT(pContact != NULL);
+	CPreferences& thePrefs = CPreferences::Instance();
 	const uint32 cIP = pContact->GetIPAddress();
 	uint32 cSameSubnets = 0;
 	// Check if we already have a contact with this ID in the list.
@@ -300,6 +301,7 @@ bool CRoutingBin::ChangeContactIPAddress(CContact *pContact, uint32 uNewIP)
 	// contacts to itself and by that making them useless
 	if (pContact->GetIPAddress() == uNewIP)
 		return true;
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	ASSERT(GetContact(pContact->GetClientID()) == pContact);
 
@@ -384,6 +386,7 @@ void CRoutingBin::SetAllContactsVerified()
 
 bool CRoutingBin::CheckGlobalIPLimits(uint32 uIP, uint16 uPort, bool bLog)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	// no more than 1 KadID per IP
 	uint32 nSameIPCount;
 	if (!s_mapGlobalContactIPs.Lookup(uIP, nSameIPCount))

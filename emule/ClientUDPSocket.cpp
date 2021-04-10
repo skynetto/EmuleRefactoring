@@ -67,6 +67,7 @@ CClientUDPSocket::~CClientUDPSocket()
 
 void CClientUDPSocket::OnReceive(int nErrorCode)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (nErrorCode) {
 		if (thePrefs.GetVerbose())
 			DebugLogError(_T("Error: Client UDP socket, error on receive event: %s"), (LPCTSTR)GetErrorMessage(nErrorCode, 1));
@@ -199,6 +200,7 @@ void CClientUDPSocket::OnReceive(int nErrorCode)
 
 bool CClientUDPSocket::ProcessPacket(const BYTE *packet, UINT size, uint8 opcode, uint32 ip, uint16 port)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	CStatistics& theStats = CStatistics::Instance();
 	switch (opcode) {
 	case OP_REASKCALLBACKUDP:
@@ -412,6 +414,7 @@ bool CClientUDPSocket::ProcessPacket(const BYTE *packet, UINT size, uint8 opcode
 
 void CClientUDPSocket::OnSend(int nErrorCode)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (nErrorCode) {
 		if (thePrefs.GetVerbose())
 			DebugLogError(_T("Error: Client UDP socket, error on send event: %s"), (LPCTSTR)GetErrorMessage(nErrorCode, 1));
@@ -477,6 +480,7 @@ SocketSentBytes CClientUDPSocket::SendControlData(uint32 maxNumberOfBytesToSend,
 
 int CClientUDPSocket::SendTo(uchar *lpBuf, int nBufLen, uint32 dwIP, uint16 nPort)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	// NOTE: *** This function is invoked from a *different* thread!
 	//Currently called only locally; sendLocker must be locked by the caller
 	int result = CAsyncSocket::SendTo(lpBuf, nBufLen, nPort, ipstr(dwIP));
@@ -525,6 +529,7 @@ bool CClientUDPSocket::SendPacket(Packet *packet, uint32 dwIP, uint16 nPort, boo
 
 bool CClientUDPSocket::Create()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (thePrefs.GetUDPPort()) {
 		if (!CAsyncSocket::Create(thePrefs.GetUDPPort(), SOCK_DGRAM, FD_READ | FD_WRITE, thePrefs.GetBindAddrW()))
 			return false;
@@ -541,6 +546,7 @@ bool CClientUDPSocket::Create()
 
 bool CClientUDPSocket::Rebind()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (thePrefs.GetUDPPort() == m_port)
 		return false;
 	Close();

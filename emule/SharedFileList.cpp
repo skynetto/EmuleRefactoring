@@ -557,6 +557,8 @@ void CSharedFileList::FindSharedFiles()
 		theApp.downloadqueue->AddPartFilesToShare(); // read partfiles
 	}
 
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	// khaos::kmod+ Fix: Shared files loaded multiple times.
 	CStringList l_sAdded;
 	CString tempDir(thePrefs.GetMuleDirectory(EMULE_INCOMINGDIR));
@@ -874,6 +876,9 @@ void CSharedFileList::SendListToServer()
 	sortedList.RemoveAll();
 	Packet *packet = new Packet(&files);
 	packet->opcode = OP_OFFERFILES;
+
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	// compress packet
 	//   - this kind of data is highly compressible (N * (1 MD4 and at least 3 string meta data tags and 1 integer meta data tag))
 	//   - the min. amount of data needed for one published file is ~100 bytes
@@ -931,6 +936,9 @@ void CSharedFileList::CreateOfferedFilePacket(CKnownFile *cur_file, CSafeMemFile
 	// *) Newer eservers also support 2 special IP+port values which are used to hold basic file status info.
 	uint32 nClientID = 0;
 	uint16 nClientPort = 0;
+
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (pServer) {
 		// we use the 'TCP-compression' server feature flag as indicator for a 'newer' server.
 		if (pServer->GetTCPFlags() & SRV_TCPFLG_COMPRESSION) {
@@ -1456,6 +1464,8 @@ bool CSharedFileList::ShouldBeShared(const CString &strPath, const CString &strF
 {
 	// determines if a file should be a shared file based on out shared directories/files preferences
 
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (CompareDirectory(strPath, thePrefs.GetMuleDirectory(EMULE_INCOMINGDIR)) == 0)
 		return true;
 
@@ -1556,6 +1566,8 @@ void CSharedFileList::CheckAndAddSingleFile(const CFileFind &ff)
 
 	FILETIME tFoundFileTime;
 	ff.GetLastWriteTime(&tFoundFileTime);
+
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	// ignore real(!) LNK files
 	if (ExtensionIs(strFoundFileName, _T(".lnk"))) {
@@ -1664,6 +1676,7 @@ void CSharedFileList::CheckAndAddSingleFile(const CFileFind &ff)
 
 void CSharedFileList::Save() const
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	const CString &strFullPath(thePrefs.GetMuleDirectory(EMULE_CONFIGDIR) + SHAREDFILES_FILE);
 	CStdioFile sdirfile;
 	if (sdirfile.Open(strFullPath, CFile::modeCreate | CFile::modeWrite | CFile::shareDenyWrite | CFile::typeBinary)) {
@@ -1698,6 +1711,7 @@ void CSharedFileList::Save() const
 
 void CSharedFileList::LoadSingleSharedFilesList()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	const CString &strFullPath(thePrefs.GetMuleDirectory(EMULE_CONFIGDIR) + SHAREDFILES_FILE);
 	CStdioFile *sdirfile = new CStdioFile();
 	bool bIsUnicodeFile = IsUnicodeFile(strFullPath); // check for BOM
@@ -1747,6 +1761,8 @@ void CSharedFileList::LoadSingleSharedFilesList()
 bool CSharedFileList::AddSingleSharedDirectory(const CString &rstrFilePath, bool bNoUpdate)
 {
 	ASSERT(rstrFilePath.Right(1) == _T("\\"));
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	// check if we share this dir already or are not allowed to
 	if (ShouldBeShared(rstrFilePath, CString(), false) || !thePrefs.IsShareableDirectory(rstrFilePath))
 		return false;

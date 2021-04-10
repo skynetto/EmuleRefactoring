@@ -259,7 +259,7 @@ BOOL CArchivePreviewDlg::OnSetActive()
 {
 	if (!CResizablePage::OnSetActive())
 		return FALSE;
-
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (m_bDataChanged) {
 		UpdateArchiveDisplay(thePrefs.m_bAutomaticArcPreviewStart);
 		m_bDataChanged = false;
@@ -326,7 +326,7 @@ void CArchivePreviewDlg::OnBnClickedCreateRestored()
 		return;
 
 	CPartFile *file = static_cast<CPartFile*>((*m_paFiles)[0]);
-
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (!file->m_bRecoveringArchive && !file->m_bPreviewing)
 		CArchiveRecovery::recover(file, true, thePrefs.GetPreviewCopiedArchives());
 }
@@ -432,7 +432,7 @@ int CArchivePreviewDlg::ShowAceResults(int succ, archiveScannerThreadParams_s *t
 					temp.AppendFormat(_T("L%i"), (BYTE)(block->TECHINFO >> 8));
 				m_ContentList.SetItemText(iItem, uSubId++, temp);
 			}
-
+			CPreferences& thePrefs = CPreferences::Instance();
 			// date time
 			UINT16 fdate, ftime;
 			ftime = (UINT16)block->FTIME;
@@ -581,6 +581,7 @@ int CArchivePreviewDlg::ShowISOResults(int succ, archiveScannerThreadParams_s *t
 			file->dateTime.minute,
 			file->dateTime.second
 		);
+		CPreferences& thePrefs = CPreferences::Instance();
 		m_ContentList.SetItemText(iItem, 4, lm.Format(thePrefs.GetDateTimeFormat4Log()) + _T(" GMT"));
 
 		// cleanup
@@ -624,7 +625,7 @@ int CArchivePreviewDlg::ShowISOResults(int succ, archiveScannerThreadParams_s *t
  *****************************************/
 int CArchivePreviewDlg::ShowRarResults(int succ, archiveScannerThreadParams_s *tp)
 {
-
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (succ == 0) {
 		SetDlgItemText(IDC_INFO_STATUS, GetResString(IDS_ARCPREV_INSUFFDATA));
 		return -1;
@@ -803,6 +804,7 @@ int CArchivePreviewDlg::ShowRarResults(int succ, archiveScannerThreadParams_s *t
  *****************************************/
 int CArchivePreviewDlg::ShowZipResults(int succ, archiveScannerThreadParams_s *tp)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	if (succ == 0) {
 		SetDlgItemText(IDC_INFO_STATUS, GetResString(IDS_ARCPREV_INSUFFDATA));

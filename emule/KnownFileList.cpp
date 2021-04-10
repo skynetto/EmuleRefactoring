@@ -75,6 +75,7 @@ bool CKnownFileList::Init()
 
 bool CKnownFileList::LoadKnownFiles()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	CString fullpath(thePrefs.GetMuleDirectory(EMULE_CONFIGDIR) + KNOWN_MET_FILENAME);
 	CSafeBufferedFile file;
 	CFileException fexp;
@@ -131,6 +132,7 @@ bool CKnownFileList::LoadKnownFiles()
 
 bool CKnownFileList::LoadCancelledFiles()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 // cancelled.met Format: <Header 1 = CANCELLED_HEADER><Version 1 = CANCELLED_VERSION><Seed 4><Count 4>[<HashHash 16><TagCount 1>[Tags TagCount] Count]
 	if (!thePrefs.IsRememberingCancelledFiles())
 		return true;
@@ -207,6 +209,7 @@ bool CKnownFileList::LoadCancelledFiles()
 
 void CKnownFileList::Save()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (thePrefs.GetLogFileSaving())
 		AddDebugLogLine(false, _T("Saving known files list file \"%s\""), KNOWN_MET_FILENAME);
 	m_nLastSaved = ::GetTickCount();
@@ -442,6 +445,7 @@ bool CKnownFileList::IsFilePtrInList(const CKnownFile *file) const
 
 void CKnownFileList::AddCancelledFileID(const uchar *hash)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (thePrefs.IsRememberingCancelledFiles()) {
 		if (m_dwCancelledFilesSeed == 0)
 			m_dwCancelledFilesSeed = (GetRandomUInt32() % 0xFFFFFFFE) + 1;
@@ -457,6 +461,7 @@ void CKnownFileList::AddCancelledFileID(const uchar *hash)
 
 bool CKnownFileList::IsCancelledFileByID(const uchar *hash) const
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (thePrefs.IsRememberingCancelledFiles()) {
 		uchar pachSeedHash[20];
 		PokeUInt32(pachSeedHash, m_dwCancelledFilesSeed);

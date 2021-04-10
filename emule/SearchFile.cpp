@@ -167,6 +167,7 @@ CSearchFile::CSearchFile(CFileDataIO *in_data, bool bOptUTF8, uint32 nSearchID, 
 	m_FileIdentifier.SetMD4Hash(in_data);
 	m_nClientID = in_data->ReadUInt32();
 	m_nClientPort = in_data->ReadUInt16();
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (!IsValidSearchResultClientIPPort(m_nClientID, m_nClientPort)) {
 		if (thePrefs.GetDebugServerSearchesLevel() > 1)
 			Debug(_T("Filtered source from search result %s:%u\n"), (LPCTSTR)DbgGetClientID(m_nClientID), m_nClientPort);

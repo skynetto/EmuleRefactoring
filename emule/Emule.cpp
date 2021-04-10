@@ -423,6 +423,7 @@ BOOL InitWinsock2(WSADATA *lpwsaData)
 
 BOOL CemuleApp::InitInstance()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 #ifdef _DEBUG
 	// set Floating Point Processor to throw several exceptions, in particular the 'Floating point divide by zero'
 	UINT uEmCtrlWord = _control87(0, 0) & _MCW_EM;
@@ -835,6 +836,7 @@ void CemuleApp::SetTimeOnTransfer()
 CString CemuleApp::CreateKadSourceLink(const CAbstractFile *f)
 {
 	CString strLink;
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (Kademlia::CKademlia::IsConnected() && theApp.clientlist->GetBuddy() && theApp.IsFirewalled()) {
 		CString KadID;
 		Kademlia::CKademlia::GetPrefs()->GetKadID().Xor(Kademlia::CUInt128(true)).ToHexString(&KadID);
@@ -957,6 +959,7 @@ CString CemuleApp::CopyTextFromClipboard()
 
 void CemuleApp::OnlineSig() // Added By Bouc7
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (!thePrefs.IsOnlineSignatureEnabled())
 		return;
 
@@ -1039,6 +1042,7 @@ void CemuleApp::OnlineSig() // Added By Bouc7
 bool CemuleApp::GetLangHelpFilePath(CString &strResult)
 {
 	// Change extension for help file
+	CPreferences& thePrefs = CPreferences::Instance();
 	strResult = m_pszHelpFilePath;
 	WORD langID = thePrefs.GetLanguageID();
 	CString temp;
@@ -1089,6 +1093,7 @@ void CemuleApp::ShowHelp(UINT uTopic, UINT uCmd)
 
 bool CemuleApp::ShowWebHelp(UINT uTopic)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	CString strHelpURL;
 	strHelpURL.Format(_T("https://onlinehelp.emule-project.net/help.php?language=%u&topic=%u"), thePrefs.GetLanguageID(), uTopic);
 	BrowserOpen(strHelpURL, thePrefs.GetMuleDirectory(EMULE_EXECUTABLEDIR));
@@ -1252,6 +1257,7 @@ HICON CemuleApp::LoadIcon(LPCTSTR lpszResourceName, int cx, int cy, UINT uFlags)
 #endif
 
 	HICON hIcon = NULL;
+	CPreferences& thePrefs = CPreferences::Instance();
 	LPCTSTR pszSkinProfile = thePrefs.GetSkinProfile();
 	if (pszSkinProfile != NULL && pszSkinProfile[0] != _T('\0')) {
 		// load icon resource file specification from skin profile
@@ -1365,6 +1371,7 @@ HICON CemuleApp::LoadIcon(LPCTSTR lpszResourceName, int cx, int cy, UINT uFlags)
 
 HBITMAP CemuleApp::LoadImage(LPCTSTR lpszResourceName, LPCTSTR pszResourceType) const
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	LPCTSTR pszSkinProfile = thePrefs.GetSkinProfile();
 	if (pszSkinProfile != NULL && pszSkinProfile[0] != _T('\0')) {
 		// load resource file specification from skin profile
@@ -1405,6 +1412,7 @@ HBITMAP CemuleApp::LoadImage(LPCTSTR lpszResourceName, LPCTSTR pszResourceType) 
 
 CString CemuleApp::GetSkinFileItem(LPCTSTR lpszResourceName, LPCTSTR pszResourceType) const
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	LPCTSTR pszSkinProfile = thePrefs.GetSkinProfile();
 	if (pszSkinProfile != NULL && pszSkinProfile[0] != _T('\0')) {
 		// load resource file specification from skin profile
@@ -1439,6 +1447,7 @@ CString CemuleApp::GetSkinFileItem(LPCTSTR lpszResourceName, LPCTSTR pszResource
 
 bool CemuleApp::LoadSkinColor(LPCTSTR pszKey, COLORREF &crColor) const
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	LPCTSTR pszSkinProfile = thePrefs.GetSkinProfile();
 	if (pszSkinProfile != NULL && pszSkinProfile[0] != _T('\0')) {
 		TCHAR szColor[MAX_PATH];
@@ -1461,6 +1470,7 @@ bool CemuleApp::LoadSkinColorAlt(LPCTSTR pszKey, LPCTSTR pszAlternateKey, COLORR
 
 void CemuleApp::ApplySkin(LPCTSTR pszSkinProfile)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	thePrefs.SetSkinProfile(pszSkinProfile);
 	AfxGetMainWnd()->SendMessage(WM_SYSCOLORCHANGE);
 }
@@ -1587,6 +1597,7 @@ bool CemuleApp::IsEd2kServerLinkInClipboard()
 // Elandal:ThreadSafeLogging -->
 void CemuleApp::QueueDebugLogLine(bool bAddToStatusbar, LPCTSTR line, ...)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (!thePrefs.GetVerbose())
 		return;
 
@@ -1626,6 +1637,7 @@ void CemuleApp::QueueLogLine(bool bAddToStatusbar, LPCTSTR line, ...)
 
 void CemuleApp::QueueDebugLogLineEx(UINT uFlags, LPCTSTR line, ...)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (!thePrefs.GetVerbose())
 		return;
 
@@ -1665,6 +1677,7 @@ void CemuleApp::QueueLogLineEx(UINT uFlags, LPCTSTR line, ...)
 
 void CemuleApp::HandleDebugLogQueue()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	m_queueLock.Lock();
 	while (!m_QueueDebugLog.IsEmpty()) {
 		const SLogItem *newItem = m_QueueDebugLog.RemoveHead();
@@ -1783,6 +1796,7 @@ void CemuleApp::CreateAllFonts()
 	// "MS Shell Dlg 2" to let Windows map that font to the proper font on all Windows
 	// systems.
 	//
+	CPreferences& thePrefs = CPreferences::Instance();
 	LPLOGFONT plfHyperText = thePrefs.GetHyperTextLogFont();
 	if (plfHyperText->lfFaceName[0] == _T('\0') || !m_fontHyperText.CreateFontIndirect(plfHyperText))
 		CreatePointFont(m_fontHyperText, 10 * 10, lfDefault.lfFaceName);
@@ -1890,7 +1904,7 @@ BOOL WINAPI ConsoleCtrlHandler(DWORD dwCtrlType) noexcept
 	// NOTE: Windows will in each case forcefully terminate the process after 20 seconds!
 	// Every action which is started after receiving this notification will get forcefully
 	// terminated by Windows after 20 seconds.
-
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (thePrefs.GetDebug2Disk()) {
 		static TCHAR szCtrlType[40];
 		LPCTSTR pszCtrlType;

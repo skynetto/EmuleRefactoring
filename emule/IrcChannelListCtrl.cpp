@@ -201,6 +201,7 @@ BOOL CIrcChannelListCtrl::OnCommand(WPARAM wParam, LPARAM)
 
 bool CIrcChannelListCtrl::AddChannelToList(const CString &sName, const CString &sUsers, const CString &sDesc)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	UINT uUsers = _tstoi(sUsers);
 	if (thePrefs.GetIRCUseChannelFilter() && uUsers < thePrefs.GetIRCChannelUserFilter())
 		return false;

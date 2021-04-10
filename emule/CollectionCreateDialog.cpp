@@ -231,6 +231,7 @@ void CCollectionCreateDialog::OnBnClickedOk()
 	//Some users have noted that the collection can at times
 	//save a collection with an invalid name...
 	OnEnKillFocusCollectionName();
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	CString sFileName;
 	m_CollectionNameEdit.GetWindowText(sFileName);

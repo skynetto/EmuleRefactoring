@@ -120,6 +120,8 @@ void CPPgDebug::DoDataExchange(CDataExchange *pDX)
 
 BOOL CPPgDebug::OnInitDialog()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 #define	SET_DETAIL_OPT(idx, var) \
 	m_checks[idx] = ((var) > 0); \
 	m_levels[idx] = ((var) > 0) ? (var) : -(var)
@@ -161,6 +163,8 @@ BOOL CPPgDebug::OnApply()
 	// if prop page is closed by pressing ENTER we have to explicitly commit
 	// any possibly pending data from an open edit control
 	m_ctrlTreeOptions.HandleChildControlLosingFocus();
+	CPreferences& thePrefs = CPreferences::Instance();
+
 
 	if (!UpdateData())
 		return FALSE;

@@ -270,6 +270,7 @@ void CUpDownClient::SendFileRequest()
 {
 	// normally asktime has already been reset here, and SwapToAnotherFile will return without much work, so check to make sure
 	SwapToAnotherFile(_T("A4AF check before TCP file re-ask. CUpDownClient::SendFileRequest()"), true, false, false, NULL, true, true);
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	ASSERT(m_reqfile != NULL);
 	if (!m_reqfile)
@@ -436,6 +437,7 @@ void CUpDownClient::SendStartupLoadReq()
 		ASSERT(0);
 		return;
 	}
+	CPreferences& thePrefs = CPreferences::Instance();
 	CStatistics& theStats = CStatistics::Instance();
 	m_fQueueRankPending = 1;
 	m_fUnaskQueueRankRecv = 0;
@@ -463,7 +465,7 @@ void CUpDownClient::ProcessFileInfo(CSafeMemFile *data, CPartFile *file)
 		p = NULL;
 	if (p)
 		throw GetResString(IDS_ERR_WRONGFILEID) + p;
-
+	CPreferences& thePrefs = CPreferences::Instance();
 	m_strClientFilename = data->ReadString(GetUnicodeSupport() != UTF8strNone);
 	if (thePrefs.GetDebugClientTCPLevel() > 0)
 		Debug(_T("  Filename=\"%s\"\n"), (LPCTSTR)m_strClientFilename);
@@ -517,6 +519,7 @@ void CUpDownClient::ProcessFileStatus(bool bUdpPacket, CSafeMemFile *data, CPart
 
 	delete[] m_abyPartStatus;
 	m_abyPartStatus = NULL;
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	uint16 nED2KPartCount = data->ReadUInt16();
 	bool bPartsNeeded = m_bCompleteSource = !nED2KPartCount;
@@ -622,6 +625,8 @@ void CUpDownClient::ClearDownloadBlockRequests()
 
 void CUpDownClient::SetDownloadState(EDownloadState nNewState, LPCTSTR pszReason)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (m_eDownloadState != nNewState) {
 		switch (nNewState) {
 		case DS_CONNECTING:
@@ -811,6 +816,7 @@ void CUpDownClient::SendBlockRequests()
 	m_dwLastBlockReceived = ::GetTickCount();
 	if (!m_reqfile)
 		return;
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	// prevent locking of too many blocks when we are on a slow (probably standby/trickle) slot
 	int blockCount = 3; // max pending block requests
@@ -994,6 +1000,7 @@ void CUpDownClient::SendBlockRequests()
 */
 void CUpDownClient::ProcessBlockPacket(const uchar *packet, uint32 size, bool packed, bool bI64Offsets)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (!bI64Offsets) {
 		uint32 nDbgStartPos = *((uint32*)(packet + 16));
 		if (thePrefs.GetDebugClientTCPLevel() > 1) {
@@ -1202,6 +1209,8 @@ void CUpDownClient::ProcessBlockPacket(const uchar *packet, uint32 size, bool pa
 
 int CUpDownClient::unzip(Pending_Block_Struct *block, const BYTE *zipped, uint32 lenZipped, BYTE **unzipped, uint32 *lenUnzipped, int iRecursion)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 //#define TRACE_UNZIP	TRACE
 #define TRACE_UNZIP	__noop
 	TRACE_UNZIP("unzip: Zipd=%6u Unzd=%6u Rcrs=%d", lenZipped, *lenUnzipped, iRecursion);
@@ -1384,6 +1393,7 @@ void CUpDownClient::UDPReaskACK(uint16 nNewQR)
 
 void CUpDownClient::UDPReaskFNF()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	m_bUDPPending = false;
 	if (GetDownloadState() != DS_DOWNLOADING) { // avoid premature deletion of 'this' client
 		if (thePrefs.GetVerbose())
@@ -1417,6 +1427,7 @@ void CUpDownClient::UDPReaskForDownload()
 	//TODO: This should be changed to determine if the last 4 UDP packets failed, not the total one.
 	if (m_nTotalUDPPackets > 3 && (m_nFailedUDPPackets / (float)m_nTotalUDPPackets > .3))
 		return;
+	CPreferences& thePrefs = CPreferences::Instance();
 	CStatistics& theStats = CStatistics::Instance();
 
 	if (GetUDPPort() != 0 && GetUDPVersion() != 0 && thePrefs.GetUDPPort() != 0 &&
@@ -1496,6 +1507,7 @@ const bool CUpDownClient::IsInNoNeededList(const CPartFile *fileToCheck) const
 
 const bool CUpDownClient::SwapToRightFile(CPartFile *SwapTo, CPartFile *cur_file, bool ignoreSuspensions, bool SwapToIsNNPFile, bool curFileisNNPFile, bool &wasSkippedDueToSourceExchange, bool doAgressiveSwapping, bool debug)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	bool printDebug = debug && thePrefs.GetLogA4AF();
 
 	if (printDebug) {
@@ -1601,6 +1613,7 @@ const bool CUpDownClient::SwapToRightFile(CPartFile *SwapTo, CPartFile *cur_file
 
 bool CUpDownClient::SwapToAnotherFile(LPCTSTR reason, bool bIgnoreNoNeeded, bool ignoreSuspensions, bool bRemoveCompletely, CPartFile *toFile, bool allowSame, bool isAboutToAsk, bool debug)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	bool printDebug = debug && thePrefs.GetLogA4AF();
 
 	if (printDebug)
@@ -1857,6 +1870,7 @@ bool CUpDownClient::SwapToAnotherFile(LPCTSTR reason, bool bIgnoreNoNeeded, bool
 bool CUpDownClient::DoSwap(CPartFile *SwapTo, bool bRemoveCompletely, LPCTSTR reason)
 {
 	ASSERT(m_reqfile);
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (thePrefs.GetLogA4AF())
 		AddDebugLogLine(DLP_LOW, false, _T("ooo Swapped source %s Remove = %s '%s'   -->   %s Reason: %s"), (LPCTSTR)DbgGetClientInfo(), (bRemoveCompletely ? _T("Yes") : _T("No")), (LPCTSTR)m_reqfile->GetFileName(), (LPCTSTR)SwapTo->GetFileName(), reason);
 
@@ -2009,7 +2023,7 @@ void CUpDownClient::SendCancelTransfer()
 		ASSERT(0);
 		return;
 	}
-
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (!GetSentCancelTransfer()) {
 		if (thePrefs.GetDebugClientTCPLevel() > 0)
 			DebugSend("OP_CancelTransfer", this);
@@ -2037,6 +2051,7 @@ void CUpDownClient::SetRequestFile(CPartFile *pReqFile)
 
 void CUpDownClient::ProcessAcceptUpload()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	m_fQueueRankPending = 1;
 	if (m_reqfile && !m_reqfile->IsStopped() && (m_reqfile->GetStatus() == PS_READY || m_reqfile->GetStatus() == PS_EMPTY)) {
 		SetSentCancelTransfer(0);
@@ -2062,6 +2077,7 @@ void CUpDownClient::ProcessEdonkeyQueueRank(const uchar *packet, UINT size)
 {
 	CSafeMemFile data(packet, size);
 	uint32 rank = data.ReadUInt32();
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (thePrefs.GetDebugClientTCPLevel() > 0)
 		Debug(_T("  QR=%u (prev. %d)\n"), rank, IsRemoteQueueFull() ? UINT_MAX : (UINT)GetRemoteQueueRank());
 	SetRemoteQueueRank(rank, GetDownloadState() == DS_ONQUEUE);
@@ -2073,6 +2089,7 @@ void CUpDownClient::ProcessEmuleQueueRank(const uchar *packet, UINT size)
 	if (size != 12)
 		throw GetResString(IDS_ERR_BADSIZE);
 	uint16 rank = PeekUInt16(packet);
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (thePrefs.GetDebugClientTCPLevel() > 0)
 		Debug(_T("  QR=%u\n"), rank); // no prev. QR available for eMule clients
 	SetRemoteQueueFull(false);
@@ -2082,6 +2099,7 @@ void CUpDownClient::ProcessEmuleQueueRank(const uchar *packet, UINT size)
 
 void CUpDownClient::CheckQueueRankFlood()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (m_fQueueRankPending == 0) {
 		if (GetDownloadState() != DS_DOWNLOADING) {
 			if (m_fUnaskQueueRankRecv < 3) // NOTE: Do not increase this nr. without increasing the bits for 'm_fUnaskQueueRankRecv'
@@ -2132,6 +2150,7 @@ void CUpDownClient::SendAICHRequest(CPartFile *pForFile, uint16 nPart)
 	data.WriteUInt16(nPart);
 	pForFile->GetAICHRecoveryHashSet()->GetMasterHash().Write(&data);
 	Packet *packet = new Packet(&data, OP_EMULEPROT, OP_AICHREQUEST);
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (thePrefs.GetDebugClientTCPLevel() > 0)
 		DebugSend("OP_AichRequest", this, (uchar*)packet->pBuffer);
 	CStatistics& theStats = CStatistics::Instance();
@@ -2182,7 +2201,7 @@ void CUpDownClient::ProcessAICHRequest(const uchar *packet, UINT size)
 {
 	if (size != (16u + 2u + CAICHHash::GetHashSize()))
 		throw CString(_T("Received AICH Request Packet with wrong size"));
-
+	CPreferences& thePrefs = CPreferences::Instance();
 	CSafeMemFile data(packet, size);
 	uchar abyHash[MDX_DIGEST_SIZE];
 	data.ReadHash16(abyHash);
@@ -2283,6 +2302,7 @@ void CUpDownClient::ProcessAICHFileHash(CSafeMemFile *data, CPartFile *file, con
 
 void CUpDownClient::SendHashSetRequest()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (socket && socket->IsConnected()) {
 		Packet *packet = NULL;
 		if (SupportsFileIdentifiers()) {

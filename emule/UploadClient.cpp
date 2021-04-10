@@ -218,6 +218,9 @@ uint32 CUpDownClient::GetScore(bool sysvalue, bool isdownloading, bool onlybasev
 
 	int filepriority = GetFilePrioAsNumber();
 
+	CPreferences& thePrefs = CPreferences::Instance();
+
+
 	// calculate score, based on waitingtime and other factors
 	float fBaseValue;
 	if (onlybasevalue)
@@ -332,6 +335,9 @@ void CUpDownClient::SetUploadFileID(CKnownFile *newreqfile)
 static INT_PTR dbgLastQueueCount = 0;
 void CUpDownClient::AddReqBlock(Requested_Block_Struct *reqblock, bool bSignalIOThread)
 {
+
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	// do _all_ sanity checks on the requested block here, than put it on the block list for the client
 	// UploadDiskIPThread will handle those later on
 
@@ -440,6 +446,8 @@ uint32 CUpDownClient::UpdateUploadingStatisticsData()
 	uint64 sentBytesCompleteFile = 0;
 	uint64 sentBytesPartFile = 0;
 
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (GetFileUploadSocket() && (m_ePeerCacheUpState != PCUS_WAIT_CACHE_REPLY)) {
 		CEMSocket *s = GetFileUploadSocket();
 		UINT uUpStatsPort;
@@ -521,6 +529,10 @@ uint32 CUpDownClient::UpdateUploadingStatisticsData()
 
 void CUpDownClient::SendOutOfPartReqsAndAddToWaitingQueue()
 {
+
+	CPreferences& thePrefs = CPreferences::Instance();
+
+
 	//OP_OUTOFPARTREQS will tell the downloading client to go back to OnQueue.
 	//The main reason for this is that if we put the client back on queue and it goes
 	//back to the upload before the socket times out... We get a situation where the
@@ -549,6 +561,8 @@ void CUpDownClient::FlushSendBlocks() // call this when you stop upload, or the 
 
 void CUpDownClient::SendHashsetPacket(const uchar *pData, uint32 nSize, bool bFileIdentifiers)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	Packet *packet;
 	CSafeMemFile fileResponse(1024);
 	if (bFileIdentifiers) {
@@ -599,6 +613,8 @@ void CUpDownClient::SendHashsetPacket(const uchar *pData, uint32 nSize, bool bFi
 
 void CUpDownClient::SendRankingInfo()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (!ExtProtocolAvailable())
 		return;
 	UINT nRank = theApp.uploadqueue->GetWaitingPosition(this);
@@ -625,6 +641,9 @@ void CUpDownClient::SendCommentInfo(/*const */CKnownFile *file)
 	const CString &desc = file->GetFileComment();
 	if (rating == 0 && desc.IsEmpty())
 		return;
+
+
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	CSafeMemFile data(256);
 	data.WriteUInt8((uint8)rating);
@@ -680,6 +699,8 @@ void  CUpDownClient::UnBan()
 
 void CUpDownClient::Ban(LPCTSTR pszReason)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	SetChatState(MS_NONE);
 	theApp.clientlist->AddTrackClient(this);
 	if (!IsBanned()) {
@@ -706,6 +727,9 @@ uint32 CUpDownClient::GetWaitStartTime() const
 		ASSERT(0);
 		return 0;
 	}
+
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	uint32 dwResult = credits->GetSecureWaitStartTime(GetIP());
 	if (dwResult > m_dwUploadTime && IsDownloading()) {
 		//this happens only if two clients with invalid securehash are in the queue - if at all
@@ -744,6 +768,9 @@ bool CUpDownClient::GetFriendSlot() const
 
 CEMSocket* CUpDownClient::GetFileUploadSocket(bool bLog)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
+
 	if (m_pPCUpSocket && (IsUploadingToPeerCache() || m_ePeerCacheUpState == PCUS_WAIT_CACHE_REPLY)) {
 		if (bLog && thePrefs.GetVerbose())
 			AddDebugLogLine(false, _T("%s got peercache socket."), (LPCTSTR)DbgGetClientInfo());

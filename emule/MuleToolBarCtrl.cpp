@@ -91,14 +91,15 @@ BEGIN_MESSAGE_MAP(CMuleToolbarCtrl, CToolBarCtrl)
 END_MESSAGE_MAP()
 
 CMuleToolbarCtrl::CMuleToolbarCtrl()
-	: m_sizBtnBmp(thePrefs.GetToolbarIconSize())
-	, m_iPreviousHeight()
+	: m_iPreviousHeight()
 	, m_iLastPressedButton(-1)
 	, m_buttoncount(_countof(TBStringIDs) + 1)
 	, TBButtons()
 	, TBStrings()
 	, m_eLabelType(NoLabels)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+	m_sizBtnBmp = thePrefs.GetToolbarIconSize();
 }
 
 CMuleToolbarCtrl::~CMuleToolbarCtrl()
@@ -113,6 +114,7 @@ void CMuleToolbarCtrl::Init()
 
 	// Win98: Explicitly set to Unicode to receive Unicode notifications.
 	SendMessage(CCM_SETUNICODEFORMAT, TRUE);
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	ModifyStyle(0, TBSTYLE_FLAT | TBSTYLE_ALTDRAG | CCS_ADJUSTABLE | TBSTYLE_TRANSPARENT | TBSTYLE_TOOLTIPS | CCS_NODIVIDER);
 	if (thePrefs.GetUseReBarToolbar()) {
@@ -237,6 +239,8 @@ void CMuleToolbarCtrl::SetAllButtonsWidth()
 	if (GetButtonCount() <= 0)
 		return;
 
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (m_eLabelType == LabelsBelow) {
 		CDC *pDC = GetDC();
 		CFont *pFnt = GetFont();
@@ -304,6 +308,7 @@ void CMuleToolbarCtrl::SetAllButtonsWidth()
 
 void CMuleToolbarCtrl::OnNmRClick(LPNMHDR, LRESULT *pResult)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (GetKeyState(VK_CONTROL) < 0) {
 		if (!thePrefs.GetToolbarBitmapSettings().IsEmpty())
 			ChangeToolbarBitmap(thePrefs.GetToolbarBitmapSettings(), true);
@@ -513,7 +518,7 @@ void CMuleToolbarCtrl::OnTbnToolbarChange(LPNMHDR, LRESULT *pResult)
 		if (GetButton(i, &buttoninfo))
 			config.AppendFormat(_T("%02i"), (buttoninfo.idCommand != 0) ? buttoninfo.idCommand - IDC_TOOLBARBUTTON : 99);
 	}
-
+	CPreferences& thePrefs = CPreferences::Instance();
 	thePrefs.SetToolbarSettings(config);
 	Localize();
 
@@ -583,6 +588,7 @@ void CMuleToolbarCtrl::ChangeToolbarBitmap(const CString &path, bool bRefresh)
 
 BOOL CMuleToolbarCtrl::OnCommand(WPARAM wParam, LPARAM)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	switch (wParam) {
 	case MP_SELECTTOOLBARBITMAPDIR:
 		{
@@ -812,7 +818,7 @@ void CMuleToolbarCtrl::OnTbnReset(LPNMHDR, LRESULT*)
 		int index = _tstoi(config.Mid(i, 2));
 		AddButtons(1, (index == 99) ? &sepButton : &TBButtons[index]);
 	}
-
+	CPreferences& thePrefs = CPreferences::Instance();
 	// save new (default) configuration
 	thePrefs.SetToolbarSettings(config);
 
@@ -839,6 +845,7 @@ void CMuleToolbarCtrl::OnTbnEndAdjust(LPNMHDR, LRESULT *pResult)
 void CMuleToolbarCtrl::OnSysColorChange()
 {
 	CToolBarCtrl::OnSysColorChange();
+	CPreferences& thePrefs = CPreferences::Instance();
 	ChangeToolbarBitmap(thePrefs.GetToolbarBitmapSettings(), true);
 }
 
@@ -879,6 +886,7 @@ void CMuleToolbarCtrl::OnSettingChange(UINT uFlags, LPCTSTR lpszSection)
 	if (theApp.m_ullComCtrlVer >= MAKEDLLVERULL(6, 16, 0, 0)
 		&& (m_eLabelType == NoLabels || (m_eLabelType == LabelsRight && m_sizBtnBmp.cx == 16)))
 	{
+		CPreferences& thePrefs = CPreferences::Instance();
 		ChangeToolbarBitmap(thePrefs.GetToolbarBitmapSettings(), true);
 	}
 }

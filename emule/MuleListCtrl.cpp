@@ -153,6 +153,7 @@ void CMuleListCtrl::PreSubclassWindow()
 	// DEFAULT_GUI_FONT: Vista: "MS Shell Dlg" with 8 pts (regardless of system applet settings !!!)
 	// SYSTEM_FONT:		 Vista: Good old Windows 3.11 System Font
 	// NULL				 Vista: Font ('Symbol') with the face and size which is configured in System applet.
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (thePrefs.GetUseSystemFontForMainControls())
 		SendMessage(WM_SETFONT, NULL, FALSE);
 }
@@ -257,7 +258,7 @@ void CMuleListCtrl::SaveSettings()
 	ASSERT(!m_Name.IsEmpty());
 
 	ASSERT(GetHeaderCtrl()->GetItemCount() == m_iColumnsTracked);
-
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (m_Name.IsEmpty() || GetHeaderCtrl()->GetItemCount() != m_iColumnsTracked)
 		return;
 
@@ -328,7 +329,7 @@ void CMuleListCtrl::LoadSettings()
 		ASSERT(0);
 		return;
 	}
-
+	CPreferences& thePrefs = CPreferences::Instance();
 	CIni ini(thePrefs.GetConfigFile(), _T("ListControlSetup"));
 
 	// sort history
@@ -434,7 +435,7 @@ void CMuleListCtrl::SetColors()
 	m_crWindowTextBk = m_crWindow;
 
 	COLORREF crHighlight = ::GetSysColor(COLOR_HIGHLIGHT);
-
+	CPreferences& thePrefs = CPreferences::Instance();
 	CString strBkImage;
 	LPCTSTR pszSkinProfile = thePrefs.GetSkinProfile();
 	if (pszSkinProfile[0] != _T('\0')) {
@@ -1372,7 +1373,7 @@ void CMuleListCtrl::OnSysColorChange()
 	//redraw the up/down sort arrow (if it's there)
 	if (m_iCurrentSortItem >= 0)
 		SetSortArrow(m_iCurrentSortItem, (ArrowType)m_atSortArrow);
-
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (thePrefs.GetUseSystemFontForMainControls()) {
 		// Send a (useless) WM_WINDOWPOSCHANGED to the listview control to trigger a
 		// WM_MEASUREITEM message which is needed to set the new item height in case
@@ -1395,7 +1396,7 @@ void CMuleListCtrl::OnSysColorChange()
 void CMuleListCtrl::MeasureItem(LPMEASUREITEMSTRUCT lpMeasureItemStruct)
 {
 	Default();
-
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (thePrefs.GetUseSystemFontForMainControls()) {
 		CDC *pDC = GetDC();
 		if (pDC) {

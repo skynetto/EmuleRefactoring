@@ -162,6 +162,7 @@ CPreviewApps::CPreviewApps()
 
 CString CPreviewApps::GetDefaultAppsFile()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	return thePrefs.GetMuleDirectory(EMULE_CONFIGDIR) + _T("PreviewApps.dat");
 }
 

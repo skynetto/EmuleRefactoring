@@ -361,6 +361,7 @@ void COScopeCtrl::InvalidateCtrl(bool deleteGraph)
 		for (int i = m_rectPlot.left; i < m_rectPlot.right; i += 4)
 			m_dcGrid.SetPixel(i, GridPos, m_crGridColor);
 	}
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	if (thePrefs.m_bShowVerticalHourMarkers) {
 		// Add vertical reference lines in the graphs. Each line indicates an elapsed hour from the current
@@ -840,6 +841,7 @@ void COScopeCtrl::OnLButtonDblClk(UINT nFlags, CPoint point)
 void COScopeCtrl::OnMouseMove(UINT nFlags, CPoint point)
 {
 	CWnd::OnMouseMove(nFlags, point);
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	if ((nFlags & MK_LBUTTON) == 0) {
 		if (m_uLastMouseFlags & MK_LBUTTON) {

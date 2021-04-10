@@ -153,6 +153,7 @@ BOOL CStatisticsDlg::OnInitDialog()
 		SetDlgItemText(IDC_BNMENU, _T("6")); // show a down-arrow
 	}
 
+	CPreferences& thePrefs = CPreferences::Instance();
 	// Win98: Explicitly set to Unicode to receive Unicode notifications.
 	m_stattree.SendMessage(CCM_SETUNICODEFORMAT, TRUE);
 	if (thePrefs.GetUseSystemFontForMainControls())
@@ -297,6 +298,7 @@ BOOL CStatisticsDlg::OnInitDialog()
 
 void CStatisticsDlg::initCSize()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	UINT x = thePrefs.GetSplitterbarPositionStat();
 	UINT y = thePrefs.GetSplitterbarPositionStat_HL();
 	UINT z = thePrefs.GetSplitterbarPositionStat_HR();
@@ -354,6 +356,7 @@ void CStatisticsDlg::DoResize_HL(int delta)
 {
 	if (!delta)
 		return;
+	CPreferences& thePrefs = CPreferences::Instance();
 	m_DownloadOMeter.InvalidateCtrl(true);
 	CSplitterControl::ChangeHeight(&m_UploadOMeter, delta, CW_TOPALIGN);
 	CSplitterControl::ChangeHeight(&m_Statistics, -delta, CW_BOTTOMALIGN);
@@ -378,6 +381,9 @@ void CStatisticsDlg::DoResize_HR(int delta)
 {
 	if (!delta)
 		return;
+
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	CSplitterControl::ChangeHeight(&m_DownloadOMeter, delta, CW_TOPALIGN);
 	CSplitterControl::ChangeHeight(&m_UploadOMeter, -delta, CW_BOTTOMALIGN);
 	m_Statistics.InvalidateCtrl(true);
@@ -402,6 +408,9 @@ void CStatisticsDlg::DoResize_V(int delta)
 {
 	if (!delta)
 		return;
+
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	CSplitterControl::ChangeWidth(GetDlgItem(IDC_STATIC_LASTRESET), delta);
 	CSplitterControl::ChangeWidth(&m_stattree, delta);
 	CSplitterControl::ChangeWidth(&m_DownloadOMeter, -delta, CW_RIGHTALIGN);
@@ -438,6 +447,8 @@ void CStatisticsDlg::DoResize_V(int delta)
 
 LRESULT CStatisticsDlg::DefWindowProc(UINT message, WPARAM wParam, LPARAM lParam)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	switch (message) {
 	case WM_PAINT:
 		{
@@ -521,6 +532,8 @@ LRESULT CStatisticsDlg::DefWindowProc(UINT message, WPARAM wParam, LPARAM lParam
 
 void CStatisticsDlg::RepaintMeters()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	CString Buffer;
 	m_DownloadOMeter.SetBackgroundColor(thePrefs.GetStatsColor(0));	// Background
 	m_DownloadOMeter.SetGridColor(thePrefs.GetStatsColor(1));		// Grid
@@ -616,6 +629,7 @@ void CStatisticsDlg::ShowStatistics(bool forceUpdate)
 {
 	m_stattree.SetRedraw(false);
 	CString cbuffer;
+	CPreferences& thePrefs = CPreferences::Instance();
 	CStatistics& theStats = CStatistics::Instance();
 
 	// Set Tree Values
@@ -2681,7 +2695,7 @@ void CStatisticsDlg::UpdateConnectionsGraph()
 {
 	// This updates the Y-Axis scale of the Connections Statistics graph...
 	// And it updates the trend ratio for the active connections trend.
-
+	CPreferences& thePrefs = CPreferences::Instance();
 	m_Statistics.SetRanges(0, thePrefs.GetStatsMax());
 	m_Statistics.SetTrendRatio(0, thePrefs.GetStatsConnectionsGraphRatio());
 }
@@ -2704,6 +2718,8 @@ void CStatisticsDlg::ShowInterval()
 {
 	if (theApp.IsClosing())
 		return;
+
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	// Check if OScope already initialized
 	if (m_DownloadOMeter.GetSafeHwnd() != NULL && m_UploadOMeter.GetSafeHwnd() != NULL) {
@@ -2744,6 +2760,7 @@ void CStatisticsDlg::SetARange(bool SetDownload, int maxValue)
 void CStatisticsDlg::Localize()
 {
 	RepaintMeters();
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	CString myBuffer;
 	myBuffer.Format(GetResString(IDS_STATS_LASTRESETSTATIC), (LPCTSTR)thePrefs.GetStatsLastResetStr(false));
@@ -3016,6 +3033,7 @@ void CStatisticsDlg::CreateMyTree()
 	m_stattree.SetItemState(hconn_tu, TVIS_BOLD, TVIS_BOLD);
 	m_stattree.SetItemState(hconn_td, TVIS_BOLD, TVIS_BOLD);
 
+	CPreferences& thePrefs = CPreferences::Instance();
 	// Expand our purdy new tree...
 	m_stattree.ApplyExpandedMask(thePrefs.GetExpandedTreeItems());
 

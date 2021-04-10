@@ -103,6 +103,7 @@ CPreferencesDlg::CPreferencesDlg()
 void CPreferencesDlg::OnDestroy()
 {
 	CTreePropSheet::OnDestroy();
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (m_bSaveIniFile) {
 		thePrefs.Save();
 		m_bSaveIniFile = false;

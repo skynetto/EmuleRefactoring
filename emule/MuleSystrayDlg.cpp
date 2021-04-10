@@ -283,6 +283,7 @@ BOOL CMuleSystrayDlg::OnInitDialog()
 	CFont Font;
 	Font.CreateFont(-16, 0, 900, 0, 700, 0, 0, 0, 0, 3, 2, 1, 34, _T("Tahoma"));
 
+	CPreferences& thePrefs = CPreferences::Instance();
 	UINT winver = thePrefs.GetWindowsVersion();
 	int iClr = (winver == _WINVER_95_ || winver == _WINVER_NT4_ || g_bLowColorDesktop)
 		? COLOR_ACTIVECAPTION : COLOR_GRADIENTACTIVECAPTION;
@@ -321,6 +322,7 @@ void CMuleSystrayDlg::OnChangeDowntxt()
 		m_ctrlUpSpeedSld.SetPos(m_nUpSpeedTxt);
 	}
 	m_DownSpeedInput.EnableWindow(m_nDownSpeedTxt > 0);
+	CPreferences& thePrefs = CPreferences::Instance();
 	thePrefs.SetMaxDownload(m_nDownSpeedTxt ? m_nDownSpeedTxt : UNLIMITED);
 
 	UpdateData(FALSE);
@@ -336,6 +338,7 @@ void CMuleSystrayDlg::OnChangeUptxt()
 		m_ctrlDownSpeedSld.SetPos(m_nDownSpeedTxt);
 	}
 	m_UpSpeedInput.EnableWindow(m_nUpSpeedTxt > 0);
+	CPreferences& thePrefs = CPreferences::Instance();
 	thePrefs.SetMaxUpload(m_nUpSpeedTxt ? m_nUpSpeedTxt : UNLIMITED);
 
 	UpdateData(FALSE);
@@ -345,6 +348,7 @@ void CMuleSystrayDlg::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar *pScrollBar)
 {
 	m_nUpSpeedTxt = m_ctrlUpSpeedSld.GetPos();
 	m_nDownSpeedTxt = m_ctrlDownSpeedSld.GetPos();
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	if (pScrollBar->GetSafeHwnd() == m_ctrlUpSpeedSld.m_hWnd) {
 		if (CPPgConnection::CheckUp(m_nUpSpeedTxt, m_nDownSpeedTxt)) {

@@ -86,6 +86,8 @@ bool CServerSocket::OnHostNameResolved(const SOCKADDR_IN *pSockAddr)
 		}
 		DEBUG_ONLY(DebugLog(_T("Resolved DN for server '%s': IP=%s"), cur_server->GetAddress(), (LPCTSTR)ipstr(cur_server->GetIP())));
 
+		CPreferences& thePrefs = CPreferences::Instance();
+
 		// As this is a dynIP-server, we need to check the IP against the IP-filter
 		// and eventually disconnect and delete that server.
 		//
@@ -131,6 +133,8 @@ void CServerSocket::OnConnect(int nErrorCode)
 	}
 	m_bIsDeleting = true;
 	SetConnectionState(state);
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (thePrefs.GetVerbose())
 		DebugLogError(_T("Failed to connect to server %s; %s"), cur_server->GetAddress(), (LPCTSTR)GetFullErrorMessage(nErrorCode));
 	serverconnect->DestroySocket(this);
@@ -148,6 +152,7 @@ void CServerSocket::OnReceive(int nErrorCode)
 
 bool CServerSocket::ProcessPacket(const BYTE *packet, uint32 size, uint8 opcode)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	CStatistics& theStats = CStatistics::Instance();
 
 	try {
@@ -620,6 +625,8 @@ bool CServerSocket::ProcessPacket(const BYTE *packet, uint32 size, uint8 opcode)
 
 void CServerSocket::ProcessPacketError(UINT size, UINT opcode, LPCTSTR pszError)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (thePrefs.GetVerbose()) {
 		CString strServer;
 		try {
@@ -640,6 +647,7 @@ void CServerSocket::ConnectTo(CServer *server, bool bNoCrypt)
 		delete cur_server;
 		cur_server = NULL;
 	}
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	cur_server = new CServer(server);
 	bool bEncrypt = !bNoCrypt && thePrefs.IsServerCryptLayerTCPRequested() && (cur_server->SupportsObfuscationTCP() || !cur_server->TriedCrypt());
@@ -677,6 +685,8 @@ void CServerSocket::ConnectTo(CServer *server, bool bNoCrypt)
 
 void CServerSocket::OnError(int nErrorCode)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	SetConnectionState(CS_DISCONNECTED);
 	if (thePrefs.GetVerbose())
 		DebugLogError(GetResString(IDS_ERR_SOCKET), (LPCTSTR)cur_server->GetListName(), cur_server->GetAddress(), cur_server->GetPort(), (LPCTSTR)GetFullErrorMessage(nErrorCode));
@@ -684,6 +694,7 @@ void CServerSocket::OnError(int nErrorCode)
 
 bool CServerSocket::PacketReceived(Packet *packet)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	CStatistics& theStats = CStatistics::Instance();
 
 #ifndef _DEBUG

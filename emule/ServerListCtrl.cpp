@@ -159,6 +159,8 @@ void CServerListCtrl::RemoveServer(const CServer *pServer)
 
 void CServerListCtrl::RemoveAllDeadServers()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	ShowWindow(SW_HIDE);
 	for (POSITION pos = theApp.serverlist->list.GetHeadPosition(); pos != NULL;) {
 		const CServer *cur_server = theApp.serverlist->list.GetNext(pos);
@@ -170,6 +172,7 @@ void CServerListCtrl::RemoveAllDeadServers()
 
 void CServerListCtrl::RemoveAllFilteredServers()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (!thePrefs.GetFilterServerByIP())
 		return;
 	ShowWindow(SW_HIDE);
@@ -201,6 +204,9 @@ void CServerListCtrl::RefreshServer(const CServer *server)
 {
 	if (theApp.IsClosing() || !server)
 		return;
+
+	CPreferences& thePrefs = CPreferences::Instance();
+
 
 	LVFINDINFO find;
 	find.flags = LVFI_PARAM;
@@ -347,6 +353,7 @@ void CServerListCtrl::OnContextMenu(CWnd*, CPoint point)
 BOOL CServerListCtrl::OnCommand(WPARAM wParam, LPARAM)
 {
 	wParam = LOWORD(wParam);
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	switch (wParam) {
 	case MP_CONNECTTO:
@@ -749,6 +756,9 @@ void CServerListCtrl::OnNmCustomDraw(LPNMHDR pNMHDR, LRESULT *pResult)
 		*pResult = CDRF_NOTIFYITEMDRAW;
 		return;
 	}
+
+	CPreferences& thePrefs = CPreferences::Instance();
+
 
 	if (pnmlvcd->nmcd.dwDrawStage == CDDS_ITEMPREPAINT) {
 		const CServer *pServer = reinterpret_cast<CServer*>(pnmlvcd->nmcd.lItemlParam);

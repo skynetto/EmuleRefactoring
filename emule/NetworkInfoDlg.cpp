@@ -90,6 +90,7 @@ BOOL CNetworkInfoDlg::OnInitDialog()
 void CreateNetworkInfo(CRichEditCtrlX &rCtrl, CHARFORMAT &rcfDef, CHARFORMAT &rcfBold, bool bFullInfo)
 {
 	CString buffer;
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	if (bFullInfo) {
 		///////////////////////////////////////////////////////////////////////////

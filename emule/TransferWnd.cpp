@@ -143,6 +143,7 @@ void CTransferWnd::OnInitialUpdate()
 	CResizableFormView::OnInitialUpdate();
 	InitWindowStyles(this);
 
+	CPreferences& thePrefs = CPreferences::Instance();
 	ResetTransToolbar(thePrefs.IsTransToolbarEnabled(), false);
 	uploadlistctrl.Init();
 	downloadlistctrl.Init();
@@ -277,10 +278,13 @@ void CTransferWnd::UpdateSplitterRange()
 {
 	CRect rcWnd;
 	GetWindowRect(rcWnd);
+
 	if (rcWnd.Height() == 0) {
 		ASSERT(0);
 		return;
 	}
+
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	RECT rcDown;
 	downloadlistctrl.GetWindowRect(&rcDown);
@@ -324,6 +328,8 @@ void CTransferWnd::OnSplitterMoved(LPNMHDR pNMHDR, LRESULT* /*pResult*/)
 
 BOOL CTransferWnd::PreTranslateMessage(MSG *pMsg)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	//if (theApp.emuledlg->m_pSplashWnd)
 	//	return FALSE;
 	if (pMsg->message == WM_KEYDOWN) {
@@ -496,6 +502,8 @@ void CTransferWnd::UpdateListCount(EWnd2 listindex, int iCount /*=-1*/)
 
 void CTransferWnd::SwitchUploadList()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (m_uWnd2 == wnd2Uploading) {
 		SetWnd2(wnd2Downloading);
 		queuelistctrl.Hide();
@@ -546,6 +554,8 @@ void CTransferWnd::SwitchUploadList()
 
 void CTransferWnd::ShowWnd2(EWnd2 uWnd2)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (uWnd2 == wnd2Downloading) {
 		SetWnd2(uWnd2);
 		queuelistctrl.Hide();
@@ -588,6 +598,7 @@ void CTransferWnd::ShowWnd2(EWnd2 uWnd2)
 
 void CTransferWnd::SetWnd2(EWnd2 uWnd2)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	m_uWnd2 = uWnd2;
 	thePrefs.SetTransferWnd2(m_uWnd2);
 }
@@ -711,6 +722,8 @@ void CTransferWnd::OnNmRClickDltab(LPNMHDR, LRESULT *pResult)
 	m_rightclickindex = GetTabUnderMouse(point);
 	if (m_rightclickindex < 0)
 		return;
+
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	CMenu PrioMenu;
 	PrioMenu.CreateMenu();
@@ -844,6 +857,8 @@ void CTransferWnd::OnLvnBeginDragDownloadList(LPNMHDR pNMHDR, LRESULT *pResult)
 
 void CTransferWnd::OnMouseMove(UINT nFlags, CPoint point)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (!(nFlags & MK_LBUTTON))
 		m_bIsDragging = false;
 
@@ -895,6 +910,8 @@ void CTransferWnd::OnLButtonUp(UINT /*nFlags*/, CPoint /*point*/)
 
 BOOL CTransferWnd::OnCommand(WPARAM wParam, LPARAM)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	// category filter menuitems
 	if (wParam >= MP_CAT_SET0 && wParam <= MP_CAT_SET0 + 99) {
 		if (wParam == MP_CAT_SET0 + 17)
@@ -1054,6 +1071,8 @@ BOOL CTransferWnd::OnCommand(WPARAM wParam, LPARAM)
 
 void CTransferWnd::UpdateCatTabTitles(bool force)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	CPoint point;
 	::GetCursorPos(&point);
 	if (!force && GetTabUnderMouse(point) >= 0)	// avoid cat tooltip jumping
@@ -1067,6 +1086,7 @@ void CTransferWnd::UpdateCatTabTitles(bool force)
 
 void CTransferWnd::EditCatTabLabel(int index)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	EditCatTabLabel(index, /*(index==0) ? GetCatTitle(thePrefs.GetAllcatType()) :*/thePrefs.GetCategory(index)->strTitle);
 }
 
@@ -1078,6 +1098,8 @@ void CTransferWnd::EditCatTabLabel(int index, CString newlabel)
 	tabitem.mask = TCIF_TEXT;
 
 	newlabel.Replace(_T("&"), _T("&&"));
+
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	if (!index)
 		newlabel.Empty();
@@ -1136,6 +1158,8 @@ int CTransferWnd::AddCategory(const CString &newtitle, const CString &newincomin
 	newcat->care4all = false;
 	newcat->color = CLR_NONE;
 
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	int index = (int)thePrefs.AddCat(newcat);
 	if (addTab)
 		m_dlTab.InsertItem(index, newtitle);
@@ -1147,6 +1171,7 @@ int CTransferWnd::AddCategory(const CString &newtitle, const CString &newincomin
 int CTransferWnd::AddCategoryInteractive()
 {
 	m_nLastCatTT = -1;
+	CPreferences& thePrefs = CPreferences::Instance();
 	int newindex = AddCategory(_T("?"), thePrefs.GetMuleDirectory(EMULE_INCOMINGDIR), _T(""), _T(""), false);
 	CCatDialog dialog(newindex);
 	if (dialog.DoModal() == IDOK) {
@@ -1257,6 +1282,8 @@ CString CTransferWnd::GetTabStatistic(int tab)
 	int total;
 	int compl = downloadlistctrl.GetCompleteDownloads(tab, total);
 
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	UINT uid;
 	switch (thePrefs.GetCategory(tab)->prio) {
 	case PR_LOW:
@@ -1299,6 +1326,8 @@ void CTransferWnd::OnTabMovement(LPNMHDR, LRESULT*)
 {
 	UINT from = m_dlTab.GetLastMovementSource();
 	UINT to = m_dlTab.GetLastMovementDestionation();
+
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	if (from == 0 || to == 0 || from == to - 1)
 		return;
@@ -1372,6 +1401,8 @@ CString CTransferWnd::GetCatTitle(int catid)
 
 void CTransferWnd::OnBnClickedChangeView()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	switch (m_dwShowListIDC) {
 	case IDC_DOWNLOADLIST:
 		ShowList(IDC_UPLOADLIST);
@@ -1420,6 +1451,8 @@ void CTransferWnd::ShowList(uint32 dwListIDC)
 	RECT rcWnd;
 	GetWindowRect(&rcWnd);
 	ScreenToClient(&rcWnd);
+
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	RECT rcDown;
 	GetDlgItem(dwListIDC)->GetWindowRect(&rcDown);
@@ -1484,6 +1517,7 @@ void CTransferWnd::ShowList(uint32 dwListIDC)
 
 void CTransferWnd::ShowSplitWindow(bool bReDraw)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	thePrefs.SetTransferWnd1(0);
 	m_dlTab.ShowWindow(SW_SHOW);
 	if (!bReDraw && m_dwShowListIDC == IDC_DOWNLOADLIST + IDC_UPLOADLIST)
@@ -1569,6 +1603,7 @@ void CTransferWnd::ShowSplitWindow(bool bReDraw)
 
 void CTransferWnd::OnDisableList()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	bool bSwitchList = false;
 	if (thePrefs.m_bDisableKnownClientList) {
 		clientlistctrl.DeleteAllItems();
@@ -1590,6 +1625,8 @@ void CTransferWnd::OnWnd1BtnDropDown(LPNMHDR, LRESULT*)
 	menu.CreatePopupMenu();
 	menu.EnableIcons();
 
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	menu.AppendMenu(MF_STRING | (m_dwShowListIDC == IDC_DOWNLOADLIST + IDC_UPLOADLIST ? MF_GRAYED : 0), MP_VIEW1_SPLIT_WINDOW, GetResString(IDS_SPLIT_WINDOW), _T("SplitWindow"));
 	menu.AppendMenu(MF_SEPARATOR);
 	menu.AppendMenu(MF_STRING | (m_dwShowListIDC == IDC_DOWNLOADLIST ? MF_GRAYED : 0), MP_VIEW1_DOWNLOADS, GetResString(IDS_TW_DOWNLOADS), _T("DownloadFiles"));
@@ -1610,6 +1647,8 @@ void CTransferWnd::OnWnd2BtnDropDown(LPNMHDR, LRESULT*)
 	CTitleMenu menu;
 	menu.CreatePopupMenu();
 	menu.EnableIcons();
+
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	menu.AppendMenu(MF_STRING | (m_uWnd2 == wnd2Uploading ? MF_GRAYED : 0), MP_VIEW2_UPLOADING, GetResString(IDS_UPLOADING), _T("Upload"));
 	menu.AppendMenu(MF_STRING | (m_uWnd2 == wnd2Downloading ? MF_GRAYED : 0), MP_VIEW2_DOWNLOADING, GetResString(IDS_DOWNLOADING), _T("Download"));
@@ -1650,6 +1689,8 @@ void CTransferWnd::ResetTransToolbar(bool bShowToolbar, bool bResetLists)
 	m_btnWnd2->Init(!bShowToolbar);
 	m_btnWnd2->MoveWindow(&rcBtn2);
 	SetWnd2Icons();
+
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	if (bShowToolbar) {
 		// Vista: Remove the TBSTYLE_TRANSPARENT to avoid flickering (can be done only after the toolbar was initially created with TBSTYLE_TRANSPARENT !?)

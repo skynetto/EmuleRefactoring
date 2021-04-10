@@ -106,6 +106,7 @@ CStatistics::CStatistics()
 
 void CStatistics::Init()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	maxcumDown = thePrefs.GetConnMaxDownRate();
 	cumUpavg = thePrefs.GetConnAvgUpRate();
 	maxcumDownavg = thePrefs.GetConnMaxAvgDownRate();
@@ -119,6 +120,7 @@ void CStatistics::Init()
 //				the averages not be calculated if the graphs are disabled (Which is bad!).
 void CStatistics::UpdateConnectionStats(float uploadrate, float downloadrate)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	rateUp = uploadrate;
 	rateDown = downloadrate;
 
@@ -199,7 +201,7 @@ void CStatistics::RecordRate()
 {
 	if (transferStarttime == 0)
 		return;
-
+	CPreferences& thePrefs = CPreferences::Instance();
 	// Accurate data rate Calculation
 	const DWORD tick = ::GetTickCount();
 	downrateHistory.push_front(TransferredData{(uint32)sessionReceivedBytes, tick});
@@ -217,7 +219,7 @@ void CStatistics::RecordRate()
 float CStatistics::GetAvgDownloadRate(int averageType)
 {
 	DWORD running;
-
+	CPreferences& thePrefs = CPreferences::Instance();
 	switch (averageType) {
 	case AVG_SESSION:
 		if (transferStarttime > 0) {
@@ -249,7 +251,7 @@ float CStatistics::GetAvgDownloadRate(int averageType)
 float CStatistics::GetAvgUploadRate(int averageType)
 {
 	DWORD running;
-
+	CPreferences& thePrefs = CPreferences::Instance();
 	switch (averageType) {
 	case AVG_SESSION:
 		if (transferStarttime) {

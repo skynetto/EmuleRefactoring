@@ -73,6 +73,8 @@ void CPPgDisplay::DoDataExchange(CDataExchange *pDX)
 
 void CPPgDisplay::LoadSettings()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	CheckDlgButton(IDC_MINTRAY, static_cast<UINT>(thePrefs.mintotray));
 	CheckDlgButton(IDC_DBLCLICK, static_cast<UINT>(thePrefs.transferDoubleclick));
 	CheckDlgButton(IDC_SHOWRATEONTITLE, static_cast<UINT>(thePrefs.showRatesInTitle));
@@ -99,6 +101,7 @@ BOOL CPPgDisplay::OnInitDialog()
 {
 	CPropertyPage::OnInitDialog();
 	InitWindowStyles(this);
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	// Barry - Controls depth of 3d colour shading
 	CSliderCtrl *slider3D = static_cast<CSliderCtrl*>(GetDlgItem(IDC_3DDEPTH));
@@ -120,6 +123,8 @@ BOOL CPPgDisplay::OnInitDialog()
 
 BOOL CPPgDisplay::OnApply()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	bool mintotray_old = thePrefs.mintotray;
 	thePrefs.mintotray = IsDlgButtonChecked(IDC_MINTRAY) != 0;
 	thePrefs.transferDoubleclick = IsDlgButtonChecked(IDC_DBLCLICK) != 0;

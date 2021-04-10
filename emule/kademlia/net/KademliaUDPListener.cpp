@@ -96,6 +96,7 @@ void CKademliaUDPListener::Bootstrap(LPCTSTR szHost, uint16 uUDPPort)
 // Used by Kad1.0 and Kad 2.0
 void CKademliaUDPListener::Bootstrap(uint32 uIP, uint16 uUDPPort, uint8 byKadVersion, const CUInt128 *uCryptTargetID)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (thePrefs.GetDebugClientKadUDPLevel() > 0)
 		DebugSend("KADEMLIA2_BOOTSTRAP_REQ", uIP, uUDPPort);
 	CSafeMemFile fileIO(0);
@@ -106,6 +107,7 @@ void CKademliaUDPListener::Bootstrap(uint32 uIP, uint16 uUDPPort, uint8 byKadVer
 // Used by Kad1.0 and Kad 2.0
 void CKademliaUDPListener::SendMyDetails(byte byOpcode, uint32 uIP, uint16 uUDPPort, uint8 byKadVersion, const CKadUDPKey &targetUDPKey, const CUInt128 *uCryptTargetID, bool bRequestAckPackage)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (byKadVersion > 1) {
 		byte byPacket[1024];
 		CByteIO byteIOResponse(byPacket, sizeof(byPacket));
@@ -161,6 +163,7 @@ void CKademliaUDPListener::SendMyDetails(byte byOpcode, uint32 uIP, uint16 uUDPP
 // Kad1.0 & Kad2.0 currently.
 void CKademliaUDPListener::FirewalledCheck(uint32 uIP, uint16 uUDPPort, const CKadUDPKey &senderUDPKey, uint8 byKadVersion)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (byKadVersion > KADEMLIA_VERSION6_49aBETA) {
 		// new Opcode since 0.49a with extended informations to support obfuscated connections properly
 		CSafeMemFile fileIO(19);
@@ -188,6 +191,7 @@ void CKademliaUDPListener::SendNullPacket(byte byOpcode, uint32 uIP, uint16 uUDP
 
 void CKademliaUDPListener::SendPublishSourcePacket(CContact *pContact, const CUInt128 &uTargetID, const CUInt128 &uContactID, const TagList &tags)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	//We need to get the tag lists working with CSafeMemFiles.
 	byte byPacket[1024];
 	CByteIO byteIO(byPacket, sizeof byPacket);
@@ -219,6 +223,7 @@ void CKademliaUDPListener::SendPublishSourcePacket(CContact *pContact, const CUI
 
 void CKademliaUDPListener::ProcessPacket(const byte *pbyData, uint32 uLenData, uint32 uIP, uint16 uUDPPort, bool bValidReceiverKey, const CKadUDPKey &senderUDPKey)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	// we do not accept (<= 0.48a) unencrypted incoming packets from port 53 (DNS) to avoid attacks based on DNS protocol confusion
 	if (uUDPPort == 53 && senderUDPKey.IsEmpty()) {
 		DEBUG_ONLY(DebugLog(_T("Dropping incoming unencrypted packet on port 53 (DNS), IP: %s"), (LPCTSTR)ipstr(htonl(uIP))));
@@ -492,6 +497,7 @@ bool CKademliaUDPListener::AddContact_KADEMLIA2(const byte *pbyData, uint32 uLen
 // Used only for Kad2.0
 void CKademliaUDPListener::Process_KADEMLIA2_BOOTSTRAP_REQ(uint32 uIP, uint16 uUDPPort, const CKadUDPKey &senderUDPKey)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	// Get some contacts to return
 	ContactList contacts;
 	uint16 uNumContacts = (uint16)CKademlia::GetRoutingZone()->GetBootstrapContacts(&contacts, 20);
@@ -563,6 +569,7 @@ void CKademliaUDPListener::Process_KADEMLIA2_BOOTSTRAP_RES(const byte *pbyPacket
 // Used in Kad2.0 only
 void CKademliaUDPListener::Process_KADEMLIA2_HELLO_REQ(const byte *pbyPacketData, uint32 uLenPacket, uint32 uIP, uint16 uUDPPort, const CKadUDPKey &senderUDPKey, bool bValidReceiverKey)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	//uint16 dbgOldUDPPort = uUDPPort;
 	uint8 byContactVersion;
 	CUInt128 uContactID;
@@ -630,6 +637,7 @@ void CKademliaUDPListener::Process_KADEMLIA2_HELLO_RES_ACK(const byte *pbyPacket
 // Used in Kad2.0 only
 void CKademliaUDPListener::Process_KADEMLIA2_HELLO_RES(const byte *pbyPacketData, uint32 uLenPacket, uint32 uIP, uint16 uUDPPort, const CKadUDPKey &senderUDPKey, bool bValidReceiverKey)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (!IsOnOutTrackList(uIP, KADEMLIA2_HELLO_REQ)) {
 		CString strError;
 		strError.Format(_T("***NOTE: Received unrequested response packet, size (%u) in %hs"), uLenPacket, __FUNCTION__);
@@ -679,6 +687,7 @@ void CKademliaUDPListener::Process_KADEMLIA2_HELLO_RES(const byte *pbyPacketData
 // Used in Kad2.0 only
 void CKademliaUDPListener::Process_KADEMLIA2_REQ(const byte *pbyPacketData, uint32 uLenPacket, uint32 uIP, uint16 uUDPPort, const CKadUDPKey &senderUDPKey)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	// Get target and type
 	CSafeMemFile fileIO(pbyPacketData, uLenPacket);
 	byte byType = fileIO.ReadUInt8();
@@ -732,6 +741,8 @@ void CKademliaUDPListener::Process_KADEMLIA2_REQ(const byte *pbyPacketData, uint
 // Used in Kad2.0 only
 void CKademliaUDPListener::Process_KADEMLIA2_RES(const byte *pbyPacketData, uint32 uLenPacket, uint32 uIP, uint16 uUDPPort, const CKadUDPKey& /*senderUDPKey*/)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (!IsOnOutTrackList(uIP, KADEMLIA2_REQ)) {
 		CString strError;
 		strError.Format(_T("***NOTE: Received unrequested response packet, size (%u) in %hs"), uLenPacket, __FUNCTION__);
@@ -1059,6 +1070,7 @@ SSearchTerm* CKademliaUDPListener::CreateSearchExpressionTree(CSafeMemFile &file
 // Used in Kad2.0 only
 void CKademliaUDPListener::Process_KADEMLIA2_SEARCH_KEY_REQ(const byte *pbyPacketData, uint32 uLenPacket, uint32 uIP, uint16 uUDPPort, const CKadUDPKey &senderUDPKey)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	CSafeMemFile fileIO(pbyPacketData, uLenPacket);
 	CUInt128 uTarget;
 	fileIO.ReadUInt128(&uTarget);
@@ -1186,6 +1198,7 @@ void CKademliaUDPListener::Process_KADEMLIA2_SEARCH_RES(const byte *pbyPacketDat
 // Used in Kad2.0 only
 void CKademliaUDPListener::Process_KADEMLIA2_PUBLISH_KEY_REQ(const byte *pbyPacketData, uint32 uLenPacket, uint32 uIP, uint16 uUDPPort, const CKadUDPKey &senderUDPKey)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	// check if we are UDP firewalled
 	if (CUDPFirewallTester::IsFirewalledUDP(true))
 		//We are firewalled. We should not index this entry and give publisher a false report.
@@ -1285,6 +1298,7 @@ void CKademliaUDPListener::Process_KADEMLIA2_PUBLISH_KEY_REQ(const byte *pbyPack
 // Used in Kad2.0 only
 void CKademliaUDPListener::Process_KADEMLIA2_PUBLISH_SOURCE_REQ(const byte *pbyPacketData, uint32 uLenPacket, uint32 uIP, uint16 uUDPPort, const CKadUDPKey &senderUDPKey)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	// check if we are UDP firewalled
 	if (CUDPFirewallTester::IsFirewalledUDP(true))
 		//We are firewalled. We should not index this entry and give publisher a false report.
@@ -1437,6 +1451,7 @@ void CKademliaUDPListener::Process_KADEMLIA_PUBLISH_RES(const byte *pbyPacketDat
 // Used only by Kad2.0
 void CKademliaUDPListener::Process_KADEMLIA2_PUBLISH_RES(const byte *pbyPacketData, uint32 uLenPacket, uint32 uIP, uint16 uUDPPort, const CKadUDPKey &senderUDPKey)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (!IsOnOutTrackList(uIP, KADEMLIA2_PUBLISH_KEY_REQ) && !IsOnOutTrackList(uIP, KADEMLIA2_PUBLISH_SOURCE_REQ) && !IsOnOutTrackList(uIP, KADEMLIA2_PUBLISH_NOTES_REQ)) {
 		CString strError;
 		strError.Format(_T("***NOTE: Received unrequested response packet, size (%u) in %hs"), uLenPacket, __FUNCTION__);
@@ -1519,6 +1534,7 @@ void CKademliaUDPListener::Process_KADEMLIA_SEARCH_NOTES_RES(const byte *pbyPack
 // Used only by Kad2.0
 void CKademliaUDPListener::Process_KADEMLIA2_PUBLISH_NOTES_REQ(const byte *pbyPacketData, uint32 uLenPacket, uint32 uIP, uint16 uUDPPort, const CKadUDPKey &senderUDPKey)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	// check if we are UDP firewalled
 	if (CUDPFirewallTester::IsFirewalledUDP(true)) {
 		//We are firewalled. We should not index this entry and give publisher a false report.
@@ -1587,6 +1603,7 @@ void CKademliaUDPListener::Process_KADEMLIA2_PUBLISH_NOTES_REQ(const byte *pbyPa
 // Used by Kad1.0 and Kad2.0
 void CKademliaUDPListener::Process_KADEMLIA_FIREWALLED_REQ(const byte *pbyPacketData, uint32 uLenPacket, uint32 uIP, uint16 uUDPPort, const CKadUDPKey &senderUDPKey)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	// Verify packet is expected size
 	if (uLenPacket != 2) {
 		CString strError;
@@ -1616,6 +1633,7 @@ void CKademliaUDPListener::Process_KADEMLIA_FIREWALLED_REQ(const byte *pbyPacket
 // Used by Kad2.0 Prot.Version 7+
 void CKademliaUDPListener::Process_KADEMLIA_FIREWALLED2_REQ(const byte *pbyPacketData, uint32 uLenPacket, uint32 uIP, uint16 uUDPPort, const CKadUDPKey &senderUDPKey)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	// Verify packet is expected size
 	if (uLenPacket < 19) {
 		CString strError;
@@ -1690,6 +1708,7 @@ void CKademliaUDPListener::Process_KADEMLIA_FIREWALLED_ACK_RES(uint32 uLenPacket
 // Used by Kad1.0 and Kad2.0
 void CKademliaUDPListener::Process_KADEMLIA_FINDBUDDY_REQ(const byte *pbyPacketData, uint32 uLenPacket, uint32 uIP, uint16 uUDPPort, const CKadUDPKey &senderUDPKey)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	// Verify packet is expected size
 	if (uLenPacket < 34) {
 		CString strError;
@@ -1773,6 +1792,8 @@ void CKademliaUDPListener::Process_KADEMLIA_FINDBUDDY_RES(const byte *pbyPacketD
 // Used by Kad1.0 and Kad2.0
 void CKademliaUDPListener::Process_KADEMLIA_CALLBACK_REQ(const byte *pbyPacketData, uint32 uLenPacket, uint32 uIP, const CKadUDPKey& /*senderUDPKey*/)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	// Verify packet is expected size
 	if (uLenPacket < 34) {
 		CString strError;
@@ -1810,6 +1831,7 @@ void CKademliaUDPListener::Process_KADEMLIA_CALLBACK_REQ(const byte *pbyPacketDa
 
 void CKademliaUDPListener::Process_KADEMLIA2_PING(uint32 uIP, uint16 uUDPPort, const CKadUDPKey &senderUDPKey)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 // can be used just as PING, currently it is however only used to determine ones external port
 	CSafeMemFile fileIO2(2);
 	fileIO2.WriteUInt16(uUDPPort);
@@ -1937,6 +1959,8 @@ void CKademliaUDPListener::SendPacket(CSafeMemFile *pbyData, byte byOpcode, uint
 
 bool CKademliaUDPListener::FindNodeIDByIP(CKadClientSearcher *pRequester, uint32 dwIP, uint16 nTCPPort, uint16 nUDPPort)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	// send a hello packet to the given IP in order to get a HELLO_RES with the NodeID
 
 	// we will drop support for Kad1 soon, so don't bother sending two packets in case we don't know if kad2 is supported
@@ -1966,6 +1990,7 @@ void CKademliaUDPListener::ExpireClientSearch(CKadClientSearcher *pExpireImmedia
 
 void CKademliaUDPListener::SendLegacyChallenge(uint32 uIP, uint16 uUDPPort, const CUInt128 &uContactID)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	// We want to verify that a pre-0.49a contact is valid and not sent from a spoofed IP.
 	// Because those versions don't support any direct validating, we sent a KAD_REQ with a random ID,
 	// which is our challenge. If we receive an answer packet for this request, we can be sure the

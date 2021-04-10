@@ -46,6 +46,7 @@ CCatDialog::CCatDialog(int index)
 	: CDialog(CCatDialog::IDD)
 	, m_pacRegExp()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	m_myCat = thePrefs.GetCategory(index);
 	if (m_myCat != NULL)
 		newcolor = CLR_NONE;
@@ -53,6 +54,7 @@ CCatDialog::CCatDialog(int index)
 
 CCatDialog::~CCatDialog()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (m_pacRegExp) {
 		m_pacRegExp->SaveList(thePrefs.GetMuleDirectory(EMULE_CONFIGDIR) + REGULAREXPRESSIONS_STRINGS_PROFILE);
 		m_pacRegExp->Unbind();
@@ -62,6 +64,7 @@ CCatDialog::~CCatDialog()
 
 BOOL CCatDialog::OnInitDialog()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	CDialog::OnInitDialog();
 	InitWindowStyles(this);
 	Localize();
@@ -151,6 +154,8 @@ void CCatDialog::OnBnClickedBrowse()
 void CCatDialog::OnBnClickedOk()
 {
 	CString oldpath = m_myCat->strIncomingPath;
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (GetDlgItem(IDC_TITLE)->GetWindowTextLength() > 0)
 		GetDlgItemText(IDC_TITLE, m_myCat->strTitle);
 

@@ -82,7 +82,6 @@ CKnownFile::CKnownFile()
 	, m_iPartCount()
 	, m_iED2KPartCount()
 	, m_iUpPriority()
-	, m_bAutoUpPriority(thePrefs.GetNewAutoUp())
 	, m_PublishedED2K()
 	, m_bAICHRecoverHashSetAvailable()
 
@@ -90,6 +89,8 @@ CKnownFile::CKnownFile()
 	m_iUpPriority = m_bAutoUpPriority ? PR_HIGH : PR_NORMAL;
 	statistic.fileParent = this;
 	SetLastPublishTimeKadSrc(0, 0);
+	CPreferences& thePrefs = CPreferences::Instance();
+	m_bAutoUpPriority = thePrefs.GetNewAutoUp();
 }
 
 CKnownFile::~CKnownFile()
@@ -1190,6 +1191,7 @@ Packet*	CKnownFile::CreateSrcInfoPacket(const CUpDownClient *forClient, uint8 by
 	// (1+)16+2+501*(4+2+4+2+16+1) = 14547 (14548) bytes max.
 	if (result->size > 354)
 		result->PackPacket();
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (thePrefs.GetDebugSourceExchange())
 		AddDebugLogLine(false, _T("SXSend: Client source response SX2=%s, Version=%u; Count=%u, %s, File=\"%s\""), bIsSX2Packet ? _T("Yes") : _T("No"), byUsedVersion, nCount, (LPCTSTR)forClient->DbgGetClientInfo(), (LPCTSTR)GetFileName());
 	return result;
@@ -1197,6 +1199,7 @@ Packet*	CKnownFile::CreateSrcInfoPacket(const CUpDownClient *forClient, uint8 by
 
 void CKnownFile::SetFileComment(LPCTSTR pszComment)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (m_strComment.Compare(pszComment) != 0) {
 		SetLastPublishTimeKadNotes(0);
 		CIni ini(thePrefs.GetFileCommentsFilePath(), md4str(GetFileHash()));
@@ -1210,6 +1213,7 @@ void CKnownFile::SetFileComment(LPCTSTR pszComment)
 
 void CKnownFile::SetFileRating(UINT uRating)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (m_uRating != uRating) {
 		SetLastPublishTimeKadNotes(0);
 		CIni ini(thePrefs.GetFileCommentsFilePath(), md4str(GetFileHash()));
@@ -1449,6 +1453,7 @@ void CKnownFile::UpdateMetaDataTags()
 	// and provide only tags which were determined by us.
 	RemoveMetaDataTags();
 
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (thePrefs.GetExtractMetaData() == 0)
 		return;
 
@@ -1679,6 +1684,7 @@ bool CKnownFile::GrabImage(const CString &strFileName, uint8 nFramesToGrab, doub
 // imgResults[i] can be NULL
 void CKnownFile::GrabbingFinished(CxImage **imgResults, uint8 nFramesGrabbed, void *pSender)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	// continue processing
 	if (theApp.clientlist->IsValidClient(reinterpret_cast<CUpDownClient*>(pSender)))
 		reinterpret_cast<CUpDownClient*>(pSender)->SendPreviewAnswer(this, imgResults, nFramesGrabbed);
@@ -1803,6 +1809,7 @@ CString CKnownFile::GetUpPriorityDisplayString() const
 
 bool CKnownFile::ShouldPartiallyPurgeFile() const
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	return thePrefs.DoPartiallyPurgeOldKnownFiles() && m_timeLastSeen > 0
 		&& time(NULL) >= m_timeLastSeen + OLDFILES_PARTIALLYPURGE;
 }

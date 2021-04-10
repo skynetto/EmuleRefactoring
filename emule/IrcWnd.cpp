@@ -140,6 +140,8 @@ BOOL CIrcWnd::OnInitDialog()
 {
 	CResizableDialog::OnInitDialog();
 
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	m_bConnected = false;
 	m_bLoggedIn = false;
 	m_pIrcMain = new CIrcMain();
@@ -266,7 +268,7 @@ void CIrcWnd::DoResize(int iDelta)
 		if (pChannel->m_wndLog.m_hWnd)
 			CSplitterControl::ChangeWidth(&pChannel->m_wndLog, -iDelta, CW_RIGHTALIGN);
 	}
-
+	CPreferences& thePrefs = CPreferences::Instance();
 	RECT rcSpl;
 	m_wndSplitterHorz.GetWindowRect(&rcSpl);
 	ScreenToClient(&rcSpl);
@@ -470,6 +472,7 @@ BOOL CIrcWnd::PreTranslateMessage(MSG *pMsg)
 
 void CIrcWnd::OnBnClickedIrcConnect()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (!m_bConnected) {
 		//close all channels, private conversations and channel list
 		for (POSITION pos = m_wndChanSel.m_lstChannels.GetHeadPosition(); pos != NULL;) {
@@ -550,6 +553,7 @@ bool CIrcWnd::UpdateModes(const CString &sAllModes, CString &sModes, TCHAR cDir,
 
 CString make_time_stamp()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	return thePrefs.GetIRCAddTimeStamp() ? s_szTimeStampColorPrefix + CTime::GetCurrentTime().Format(TIME_STAMP_FORMAT) : CString();
 }
 
@@ -911,6 +915,7 @@ void CIrcWnd::SetConnectStatus(bool bFlag)
 
 void CIrcWnd::NoticeMessage(const CString &sSource, const CString &sTarget, const CString &sMessage)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (sTarget.CompareNoCase(thePrefs.GetIRCNick()) == 0) {
 		AddInfoMessageF(sTarget, _T("-%s- %s"), (LPCTSTR)sSource,/* sTarget,*/ (LPCTSTR)sMessage);
 		return;
@@ -1039,6 +1044,7 @@ void CIrcWnd::OnChatTextChange()
 
 void CIrcWnd::ParseChangeMode(const CString &sChannel, const CString &sChanger, CString sCommands, const CString &sParams)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (sChanger.IsEmpty())
 		return;
 	const CString sCommandsOrig(sCommands);

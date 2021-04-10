@@ -487,6 +487,9 @@ void CSearch::StorePacket()
 	m_pLookupHistory->ContactAskedKeyword(pFromContact);
 	theApp.emuledlg->kademliawnd->UpdateSearchGraph(m_pLookupHistory);
 	// What kind of search are we doing?
+
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	switch (m_uType) {
 	case FILE:
 		{
@@ -979,6 +982,7 @@ void CSearch::ProcessResultNotes(const CUInt128 &uAnswer, TagList *plistInfo)
 	pEntry->m_uSourceID.SetValue(uAnswer);
 	// Create flag to determine if we keep this note.
 	bool bFilterComment = false;
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	// Loops through tags and pull wanted into. Currently we only keep Filename, Rating, Comment.
 	for (TagList::const_iterator itInfoList = plistInfo->begin(); itInfoList != plistInfo->end(); ++itInfoList) {
@@ -1237,6 +1241,8 @@ void CSearch::ProcessResultKeyword(const CUInt128 &uAnswer, TagList *plistInfo, 
 
 void CSearch::SendFindValue(CContact *pContact, bool bReAskMore)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	// Found a Node that we think has contacts closer to our target.
 	try {
 		// Make sure we are not in the process of stopping.

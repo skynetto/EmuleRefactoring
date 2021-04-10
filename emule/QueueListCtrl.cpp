@@ -60,6 +60,8 @@ CQueueListCtrl::CQueueListCtrl()
 	SetGeneralPurposeFind(true);
 	SetSkinKey(_T("QueuedLv"));
 
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	// Barry - Refresh the queue every 10 secs
 	VERIFY((m_hTimer = ::SetTimer(NULL, 0, SEC2MS(10), QueueUpdateTimer)) != 0);
 	if (thePrefs.GetVerbose() && !m_hTimer)
@@ -134,6 +136,8 @@ void CQueueListCtrl::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct)
 {
 	if (theApp.IsClosing() || !lpDrawItemStruct->itemData)
 		return;
+	CPreferences& thePrefs = CPreferences::Instance();
+
 
 	CMemoryDC dc(CDC::FromHandle(lpDrawItemStruct->hDC), &lpDrawItemStruct->rcItem);
 	BOOL bCtrlFocused;
@@ -412,6 +416,7 @@ void CQueueListCtrl::OnContextMenu(CWnd*, CPoint point)
 	int iSel = GetNextItem(-1, LVIS_SELECTED | LVIS_FOCUSED);
 	const CUpDownClient *client = reinterpret_cast<CUpDownClient*>(iSel >= 0 ? GetItemData(iSel) : NULL);
 	const bool is_ed2k = client && client->IsEd2kClient();
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	CTitleMenu ClientMenu;
 	ClientMenu.CreatePopupMenu();
@@ -482,6 +487,8 @@ void CQueueListCtrl::AddClient(CUpDownClient *client, bool resetclient)
 		client->SetWaitStartTime();
 		client->SetAskedCount(1);
 	}
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (!theApp.IsClosing() && !thePrefs.IsQueueListDisabled()) {
 		int iItemCount = GetItemCount();
 		int iItem = InsertItem(LVIF_TEXT | LVIF_PARAM, iItemCount, LPSTR_TEXTCALLBACK, 0, 0, 0, (LPARAM)client);
@@ -550,6 +557,8 @@ void CQueueListCtrl::ShowQueueClients()
 // Barry - Refresh the queue every 10 secs
 void CALLBACK CQueueListCtrl::QueueUpdateTimer(HWND /*hwnd*/, UINT /*uiMsg*/, UINT_PTR /*idEvent*/, DWORD /*dwTime*/) noexcept
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	// NOTE: Always handle all type of MFC exceptions in TimerProcs - otherwise we'll get mem leaks
 	try {
 		if (theApp.IsClosing() // Don't do anything if the app is shutting down - can cause unhandled exceptions

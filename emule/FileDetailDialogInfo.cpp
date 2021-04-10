@@ -130,6 +130,8 @@ void CFileDetailDialogInfo::RefreshData()
 		str.Format(_T("%u;  %s: %u (%.1f%%)"), file->GetPartCount(), (LPCTSTR)GetResString(IDS_AVAILABLE), file->GetAvailablePartCount(), (file->GetAvailablePartCount()*100.0) / file->GetPartCount());
 		SetDlgItemText(IDC_PARTCOUNT, str);
 
+		CPreferences& thePrefs = CPreferences::Instance();
+
 		// date created
 		if (file->GetCrFileDate() != 0) {
 			str.Format(_T("%s   ") + GetResString(IDS_TIMEBEFORE),

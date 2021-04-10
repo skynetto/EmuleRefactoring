@@ -16,30 +16,29 @@
 //Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 #include "stdafx.h"
-#include <io.h>
-#include <share.h>
-#include <iphlpapi.h>
-#include "emule.h"
-#include "Preferences.h"
-#include "Opcodes.h"
-#include "Ini2.h"
-#include "DownloadQueue.h"
-#include "UploadQueue.h"
-#include "Statistics.h"
-#include "MD5Sum.h"
-#include "PartFile.h"
-#include "ServerConnect.h"
-#include "ListenSocket.h"
-#include "ServerList.h"
-#include "SharedFileList.h"
-#include "UpDownClient.h"
-#include "SafeFile.h"
-#include "emuledlg.h"
-#include "StatisticsDlg.h"
-#include "Log.h"
-#include "MuleToolbarCtrl.h"
-#include "VistaDefines.h"
+#include <Preferences.h>
+#include <OtherFunctions.h>
+#include <Resource.h>
+#include <Emule.h>
+#include <Statistics.h>
+#include <Ini2.h>
+#include <Log.h>
+#include <PartFile.h>
+#include <SafeFile.h>
+#include <MD5Sum.h>
+#include <emuledlg.h>
+#include <ClientStateDefs.h>
+#include <UploadQueue.h>
+#include <DownloadQueue.h>
+#include <Statistics.h>
+#include <MuleToolbarCtrl.h>
 #include <cryptopp/osrng.h>
+#include <StatisticsDlg.h>
+#include <ServerConnect.h>
+#include <ListenSocket.h>
+#include <ServerList.h>
+#include <SharedFileList.h>
+
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -47,446 +46,16 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
-CPreferences thePrefs;
-
-CString CPreferences::m_astrDefaultDirs[13];
-bool	CPreferences::m_abDefaultDirsCreated[13] = {};
-int		CPreferences::m_nCurrentUserDirMode = -1;
-int		CPreferences::m_iDbgHeap;
-CString	CPreferences::strNick;
-uint32	CPreferences::m_minupload;
-uint32	CPreferences::m_maxupload;
-uint32	CPreferences::m_maxdownload;
-LPCSTR	CPreferences::m_pszBindAddrA;
-CStringA CPreferences::m_strBindAddrA;
-LPCWSTR	CPreferences::m_pszBindAddrW;
-CStringW CPreferences::m_strBindAddrW;
-uint16	CPreferences::port;
-uint16	CPreferences::udpport;
-uint16	CPreferences::nServerUDPPort;
-UINT	CPreferences::maxconnections;
-UINT	CPreferences::maxhalfconnections;
-bool	CPreferences::m_bConditionalTCPAccept;
-bool	CPreferences::reconnect;
-bool	CPreferences::m_bUseServerPriorities;
-bool	CPreferences::m_bUseUserSortedServerList;
-CString	CPreferences::m_strIncomingDir;
-CStringArray CPreferences::tempdir;
-bool	CPreferences::ICH;
-bool	CPreferences::m_bAutoUpdateServerList;
-bool	CPreferences::updatenotify;
-bool	CPreferences::mintotray;
-bool	CPreferences::autoconnect;
-bool	CPreferences::m_bAutoConnectToStaticServersOnly;
-bool	CPreferences::autotakeed2klinks;
-bool	CPreferences::addnewfilespaused;
-UINT	CPreferences::depth3D;
-bool	CPreferences::m_bEnableMiniMule;
-int		CPreferences::m_iStraightWindowStyles;
-bool	CPreferences::m_bUseSystemFontForMainControls;
-bool	CPreferences::m_bRTLWindowsLayout;
-CString	CPreferences::m_strSkinProfile;
-CString	CPreferences::m_strSkinProfileDir;
-bool	CPreferences::m_bAddServersFromServer;
-bool	CPreferences::m_bAddServersFromClients;
-UINT	CPreferences::maxsourceperfile;
-UINT	CPreferences::trafficOMeterInterval;
-UINT	CPreferences::statsInterval;
-bool	CPreferences::m_bFillGraphs;
-uchar	CPreferences::userhash[MDX_DIGEST_SIZE];
-WINDOWPLACEMENT CPreferences::EmuleWindowPlacement;
-int		CPreferences::maxGraphDownloadRate;
-int		CPreferences::maxGraphUploadRate;
-uint32	CPreferences::maxGraphUploadRateEstimated = 0;
-bool	CPreferences::beepOnError;
-bool	CPreferences::m_bIconflashOnNewMessage;
-bool	CPreferences::confirmExit;
-DWORD	CPreferences::m_adwStatsColors[15];
-bool	CPreferences::bHasCustomTaskIconColor;
-bool	CPreferences::splashscreen;
-bool	CPreferences::filterLANIPs;
-bool	CPreferences::m_bAllocLocalHostIP;
-bool	CPreferences::onlineSig;
-uint64	CPreferences::cumDownOverheadTotal;
-uint64	CPreferences::cumDownOverheadFileReq;
-uint64	CPreferences::cumDownOverheadSrcEx;
-uint64	CPreferences::cumDownOverheadServer;
-uint64	CPreferences::cumDownOverheadKad;
-uint64	CPreferences::cumDownOverheadTotalPackets;
-uint64	CPreferences::cumDownOverheadFileReqPackets;
-uint64	CPreferences::cumDownOverheadSrcExPackets;
-uint64	CPreferences::cumDownOverheadServerPackets;
-uint64	CPreferences::cumDownOverheadKadPackets;
-uint64	CPreferences::cumUpOverheadTotal;
-uint64	CPreferences::cumUpOverheadFileReq;
-uint64	CPreferences::cumUpOverheadSrcEx;
-uint64	CPreferences::cumUpOverheadServer;
-uint64	CPreferences::cumUpOverheadKad;
-uint64	CPreferences::cumUpOverheadTotalPackets;
-uint64	CPreferences::cumUpOverheadFileReqPackets;
-uint64	CPreferences::cumUpOverheadSrcExPackets;
-uint64	CPreferences::cumUpOverheadServerPackets;
-uint64	CPreferences::cumUpOverheadKadPackets;
-uint32	CPreferences::cumUpSuccessfulSessions;
-uint32	CPreferences::cumUpFailedSessions;
-uint32	CPreferences::cumUpAvgTime;
-uint64	CPreferences::cumUpData_EDONKEY;
-uint64	CPreferences::cumUpData_EDONKEYHYBRID;
-uint64	CPreferences::cumUpData_EMULE;
-uint64	CPreferences::cumUpData_MLDONKEY;
-uint64	CPreferences::cumUpData_AMULE;
-uint64	CPreferences::cumUpData_EMULECOMPAT;
-uint64	CPreferences::cumUpData_SHAREAZA;
-uint64	CPreferences::sesUpData_EDONKEY;
-uint64	CPreferences::sesUpData_EDONKEYHYBRID;
-uint64	CPreferences::sesUpData_EMULE;
-uint64	CPreferences::sesUpData_MLDONKEY;
-uint64	CPreferences::sesUpData_AMULE;
-uint64	CPreferences::sesUpData_EMULECOMPAT;
-uint64	CPreferences::sesUpData_SHAREAZA;
-uint64	CPreferences::cumUpDataPort_4662;
-uint64	CPreferences::cumUpDataPort_OTHER;
-uint64	CPreferences::cumUpDataPort_PeerCache;
-uint64	CPreferences::sesUpDataPort_4662;
-uint64	CPreferences::sesUpDataPort_OTHER;
-uint64	CPreferences::sesUpDataPort_PeerCache;
-uint64	CPreferences::cumUpData_File;
-uint64	CPreferences::cumUpData_Partfile;
-uint64	CPreferences::sesUpData_File;
-uint64	CPreferences::sesUpData_Partfile;
-uint32	CPreferences::cumDownCompletedFiles;
-uint32	CPreferences::cumDownSuccessfulSessions;
-uint32	CPreferences::cumDownFailedSessions;
-uint32	CPreferences::cumDownAvgTime;
-uint64	CPreferences::cumLostFromCorruption;
-uint64	CPreferences::cumSavedFromCompression;
-uint32	CPreferences::cumPartsSavedByICH;
-uint32	CPreferences::sesDownSuccessfulSessions;
-uint32	CPreferences::sesDownFailedSessions;
-uint32	CPreferences::sesDownAvgTime;
-uint32	CPreferences::sesDownCompletedFiles;
-uint64	CPreferences::sesLostFromCorruption;
-uint64	CPreferences::sesSavedFromCompression;
-uint32	CPreferences::sesPartsSavedByICH;
-uint64	CPreferences::cumDownData_EDONKEY;
-uint64	CPreferences::cumDownData_EDONKEYHYBRID;
-uint64	CPreferences::cumDownData_EMULE;
-uint64	CPreferences::cumDownData_MLDONKEY;
-uint64	CPreferences::cumDownData_AMULE;
-uint64	CPreferences::cumDownData_EMULECOMPAT;
-uint64	CPreferences::cumDownData_SHAREAZA;
-uint64	CPreferences::cumDownData_URL;
-uint64	CPreferences::sesDownData_EDONKEY;
-uint64	CPreferences::sesDownData_EDONKEYHYBRID;
-uint64	CPreferences::sesDownData_EMULE;
-uint64	CPreferences::sesDownData_MLDONKEY;
-uint64	CPreferences::sesDownData_AMULE;
-uint64	CPreferences::sesDownData_EMULECOMPAT;
-uint64	CPreferences::sesDownData_SHAREAZA;
-uint64	CPreferences::sesDownData_URL;
-uint64	CPreferences::cumDownDataPort_4662;
-uint64	CPreferences::cumDownDataPort_OTHER;
-uint64	CPreferences::cumDownDataPort_PeerCache;
-uint64	CPreferences::sesDownDataPort_4662;
-uint64	CPreferences::sesDownDataPort_OTHER;
-uint64	CPreferences::sesDownDataPort_PeerCache;
-float	CPreferences::cumConnAvgDownRate;
-float	CPreferences::cumConnMaxAvgDownRate;
-float	CPreferences::cumConnMaxDownRate;
-float	CPreferences::cumConnAvgUpRate;
-float	CPreferences::cumConnMaxAvgUpRate;
-float	CPreferences::cumConnMaxUpRate;
-time_t	CPreferences::cumConnRunTime;
-uint32	CPreferences::cumConnNumReconnects;
-uint32	CPreferences::cumConnAvgConnections;
-uint32	CPreferences::cumConnMaxConnLimitReached;
-uint32	CPreferences::cumConnPeakConnections;
-uint32	CPreferences::cumConnTransferTime;
-uint32	CPreferences::cumConnDownloadTime;
-uint32	CPreferences::cumConnUploadTime;
-uint32	CPreferences::cumConnServerDuration;
-uint32	CPreferences::cumSrvrsMostWorkingServers;
-uint32	CPreferences::cumSrvrsMostUsersOnline;
-uint32	CPreferences::cumSrvrsMostFilesAvail;
-uint32	CPreferences::cumSharedMostFilesShared;
-uint64	CPreferences::cumSharedLargestShareSize;
-uint64	CPreferences::cumSharedLargestAvgFileSize;
-uint64	CPreferences::cumSharedLargestFileSize;
-time_t	CPreferences::stat_datetimeLastReset;
-UINT	CPreferences::statsConnectionsGraphRatio;
-UINT	CPreferences::statsSaveInterval;
-CString	CPreferences::m_strStatsExpandedTreeItems;
-bool	CPreferences::m_bShowVerticalHourMarkers;
-uint64	CPreferences::totalDownloadedBytes;
-uint64	CPreferences::totalUploadedBytes;
-LANGID	CPreferences::m_wLanguageID;
-bool	CPreferences::transferDoubleclick;
-EViewSharedFilesAccess CPreferences::m_iSeeShares;
-UINT	CPreferences::m_iToolDelayTime;
-bool	CPreferences::bringtoforeground;
-UINT	CPreferences::splitterbarPosition;
-UINT	CPreferences::splitterbarPositionSvr;
-UINT	CPreferences::splitterbarPositionStat;
-UINT	CPreferences::splitterbarPositionStat_HL;
-UINT	CPreferences::splitterbarPositionStat_HR;
-UINT	CPreferences::splitterbarPositionFriend;
-UINT	CPreferences::splitterbarPositionIRC;
-UINT	CPreferences::splitterbarPositionShared;
-UINT	CPreferences::m_uTransferWnd1;
-UINT	CPreferences::m_uTransferWnd2;
-UINT	CPreferences::m_uDeadServerRetries;
-DWORD	CPreferences::m_dwServerKeepAliveTimeout;
-UINT	CPreferences::statsMax;
-UINT	CPreferences::statsAverageMinutes;
-CString	CPreferences::notifierConfiguration;
-bool	CPreferences::notifierOnDownloadFinished;
-bool	CPreferences::notifierOnNewDownload;
-bool	CPreferences::notifierOnChat;
-bool	CPreferences::notifierOnLog;
-bool	CPreferences::notifierOnImportantError;
-bool	CPreferences::notifierOnEveryChatMsg;
-bool	CPreferences::notifierOnNewVersion;
-ENotifierSoundType CPreferences::notifierSoundType = ntfstNoSound;
-CString	CPreferences::notifierSoundFile;
-CString CPreferences::m_strIRCServer;
-CString	CPreferences::m_strIRCNick;
-CString	CPreferences::m_strIRCChannelFilter;
-bool	CPreferences::m_bIRCAddTimeStamp;
-bool	CPreferences::m_bIRCUseChannelFilter;
-UINT	CPreferences::m_uIRCChannelUserFilter;
-CString	CPreferences::m_strIRCPerformString;
-bool	CPreferences::m_bIRCUsePerform;
-bool	CPreferences::m_bIRCGetChannelsOnConnect;
-bool	CPreferences::m_bIRCAcceptLinks;
-bool	CPreferences::m_bIRCAcceptLinksFriendsOnly;
-bool	CPreferences::m_bIRCPlaySoundEvents;
-bool	CPreferences::m_bIRCIgnoreMiscMessages;
-bool	CPreferences::m_bIRCIgnoreJoinMessages;
-bool	CPreferences::m_bIRCIgnorePartMessages;
-bool	CPreferences::m_bIRCIgnoreQuitMessages;
-bool	CPreferences::m_bIRCIgnorePingPongMessages;
-bool	CPreferences::m_bIRCIgnoreEmuleAddFriendMsgs;
-bool	CPreferences::m_bIRCAllowEmuleAddFriend;
-bool	CPreferences::m_bIRCIgnoreEmuleSendLinkMsgs;
-bool	CPreferences::m_bIRCJoinHelpChannel;
-bool	CPreferences::m_bIRCEnableSmileys;
-bool	CPreferences::m_bIRCEnableUTF8;
-bool	CPreferences::m_bMessageEnableSmileys;
-bool	CPreferences::m_bRemove2bin;
-bool	CPreferences::m_bShowCopyEd2kLinkCmd;
-bool	CPreferences::m_bpreviewprio;
-bool	CPreferences::m_bSmartServerIdCheck;
-uint8	CPreferences::smartidstate;
-bool	CPreferences::m_bSafeServerConnect;
-bool	CPreferences::startMinimized;
-bool	CPreferences::m_bAutoStart;
-bool	CPreferences::m_bRestoreLastMainWndDlg;
-int		CPreferences::m_iLastMainWndDlgID;
-bool	CPreferences::m_bRestoreLastLogPane;
-int		CPreferences::m_iLastLogPaneID;
-UINT	CPreferences::MaxConperFive;
-bool	CPreferences::checkDiskspace;
-UINT	CPreferences::m_uMinFreeDiskSpace;
-bool	CPreferences::m_bSparsePartFiles;
-bool	CPreferences::m_bImportParts;
-CString	CPreferences::m_strYourHostname;
-bool	CPreferences::m_bEnableVerboseOptions;
-bool	CPreferences::m_bVerbose;
-bool	CPreferences::m_bFullVerbose;
-bool	CPreferences::m_bDebugSourceExchange;
-bool	CPreferences::m_bLogBannedClients;
-bool	CPreferences::m_bLogRatingDescReceived;
-bool	CPreferences::m_bLogSecureIdent;
-bool	CPreferences::m_bLogFilteredIPs;
-bool	CPreferences::m_bLogFileSaving;
-bool	CPreferences::m_bLogA4AF; // ZZ:DownloadManager
-bool	CPreferences::m_bLogUlDlEvents;
-#if defined(_DEBUG) || defined(USE_DEBUG_DEVICE)
-bool	CPreferences::m_bUseDebugDevice = true;
-#else
-bool	CPreferences::m_bUseDebugDevice = false;
-#endif
-int		CPreferences::m_iDebugServerTCPLevel;
-int		CPreferences::m_iDebugServerUDPLevel;
-int		CPreferences::m_iDebugServerSourcesLevel;
-int		CPreferences::m_iDebugServerSearchesLevel;
-int		CPreferences::m_iDebugClientTCPLevel;
-int		CPreferences::m_iDebugClientUDPLevel;
-int		CPreferences::m_iDebugClientKadUDPLevel;
-int		CPreferences::m_iDebugSearchResultDetailLevel;
-bool	CPreferences::m_bupdatequeuelist;
-bool	CPreferences::m_bManualAddedServersHighPriority;
-bool	CPreferences::m_btransferfullchunks;
-int		CPreferences::m_istartnextfile;
-bool	CPreferences::m_bshowoverhead;
-bool	CPreferences::m_bDAP;
-bool	CPreferences::m_bUAP;
-bool	CPreferences::m_bDisableKnownClientList;
-bool	CPreferences::m_bDisableQueueList;
-bool	CPreferences::m_bExtControls;
-bool	CPreferences::m_bTransflstRemain;
-UINT	CPreferences::versioncheckdays;
-bool	CPreferences::showRatesInTitle;
-CString	CPreferences::m_strTxtEditor;
-CString	CPreferences::m_strVideoPlayer;
-CString CPreferences::m_strVideoPlayerArgs;
-bool	CPreferences::moviePreviewBackup;
-int		CPreferences::m_iPreviewSmallBlocks;
-bool	CPreferences::m_bPreviewCopiedArchives;
-int		CPreferences::m_iInspectAllFileTypes;
-bool	CPreferences::m_bPreviewOnIconDblClk;
-bool	CPreferences::m_bCheckFileOpen;
-bool	CPreferences::indicateratings;
-bool	CPreferences::watchclipboard;
-bool	CPreferences::filterserverbyip;
-bool	CPreferences::m_bFirstStart;
-bool	CPreferences::m_bBetaNaggingDone;
-bool	CPreferences::m_bCreditSystem;
-bool	CPreferences::log2disk;
-bool	CPreferences::debug2disk;
-int		CPreferences::iMaxLogBuff;
-UINT	CPreferences::uMaxLogFileSize;
-ELogFileFormat CPreferences::m_iLogFileFormat = Unicode;
-bool	CPreferences::scheduler;
-bool	CPreferences::dontcompressavi;
-bool	CPreferences::msgonlyfriends;
-bool	CPreferences::msgsecure;
-bool	CPreferences::m_bUseChatCaptchas;
-UINT	CPreferences::filterlevel;
-UINT	CPreferences::m_uFileBufferSize;
-DWORD	CPreferences::m_uFileBufferTimeLimit;
-INT_PTR	CPreferences::m_iQueueSize;
-int		CPreferences::m_iCommitFiles;
-UINT	CPreferences::maxmsgsessions;
-time_t	CPreferences::versioncheckLastAutomatic;
-CString	CPreferences::messageFilter;
-CString	CPreferences::commentFilter;
-CString	CPreferences::filenameCleanups;
-CString	CPreferences::m_strDateTimeFormat;
-CString	CPreferences::m_strDateTimeFormat4Log;
-CString	CPreferences::m_strDateTimeFormat4Lists;
-LOGFONT CPreferences::m_lfHyperText;
-LOGFONT CPreferences::m_lfLogText;
-COLORREF CPreferences::m_crLogError = RGB(255, 0, 0);
-COLORREF CPreferences::m_crLogWarning = RGB(128, 0, 128);
-COLORREF CPreferences::m_crLogSuccess = RGB(0, 0, 255);
-int		CPreferences::m_iExtractMetaData;
-bool	CPreferences::m_bAdjustNTFSDaylightFileTime = false; //'true' causes rehashing in XP and above when DST switches on/off
-bool	CPreferences::m_bRearrangeKadSearchKeywords;
-CString	CPreferences::m_strWebPassword;
-CString	CPreferences::m_strWebLowPassword;
-CUIntArray CPreferences::m_aAllowedRemoteAccessIPs;
-uint16	CPreferences::m_nWebPort;
-bool	CPreferences::m_bWebUseUPnP;
-bool	CPreferences::m_bWebEnabled;
-bool	CPreferences::m_bWebUseGzip;
-int		CPreferences::m_nWebPageRefresh;
-bool	CPreferences::m_bWebLowEnabled;
-int		CPreferences::m_iWebTimeoutMins;
-int		CPreferences::m_iWebFileUploadSizeLimitMB;
-bool	CPreferences::m_bAllowAdminHiLevFunc;
-CString	CPreferences::m_strTemplateFile;
-bool	CPreferences::m_bWebUseHttps;
-CString	CPreferences::m_sWebHttpsCertificate;
-CString	CPreferences::m_sWebHttpsKey;
-
-ProxySettings CPreferences::proxy;
-bool	CPreferences::showCatTabInfos;
-bool	CPreferences::resumeSameCat;
-bool	CPreferences::dontRecreateGraphs;
-bool	CPreferences::autofilenamecleanup;
-bool	CPreferences::m_bUseAutocompl;
-bool	CPreferences::m_bShowDwlPercentage;
-bool	CPreferences::m_bRemoveFinishedDownloads;
-INT_PTR	CPreferences::m_iMaxChatHistory;
-bool	CPreferences::m_bShowActiveDownloadsBold;
-int		CPreferences::m_iSearchMethod;
-bool	CPreferences::m_bAdvancedSpamfilter;
-bool	CPreferences::m_bUseSecureIdent;
-bool	CPreferences::networkkademlia;
-bool	CPreferences::networked2k;
-EToolbarLabelType CPreferences::m_nToolbarLabels;
-CString	CPreferences::m_sToolbarBitmap;
-CString	CPreferences::m_sToolbarBitmapFolder;
-CString	CPreferences::m_sToolbarSettings;
-bool	CPreferences::m_bReBarToolbar;
-CSize	CPreferences::m_sizToolbarIconSize;
-bool	CPreferences::m_bPreviewEnabled;
-bool	CPreferences::m_bAutomaticArcPreviewStart;
-bool	CPreferences::m_bDynUpEnabled;
-int		CPreferences::m_iDynUpPingTolerance;
-int		CPreferences::m_iDynUpGoingUpDivider;
-int		CPreferences::m_iDynUpGoingDownDivider;
-int		CPreferences::m_iDynUpNumberOfPings;
-int		CPreferences::m_iDynUpPingToleranceMilliseconds;
-bool	CPreferences::m_bDynUpUseMillisecondPingTolerance;
-bool    CPreferences::m_bAllocFull;
-bool	CPreferences::m_bShowSharedFilesDetails;
-bool	CPreferences::m_bShowUpDownIconInTaskbar;
-bool	CPreferences::m_bShowWin7TaskbarGoodies;
-bool	CPreferences::m_bForceSpeedsToKB;
-bool	CPreferences::m_bAutoShowLookups;
-bool	CPreferences::m_bExtraPreviewWithMenu;
-
-// ZZ:DownloadManager -->
-bool    CPreferences::m_bA4AFSaveCpu;
-// ZZ:DownloadManager <--
-bool    CPreferences::m_bHighresTimer;
-bool	CPreferences::m_bResolveSharedShellLinks;
-bool	CPreferences::m_bKeepUnavailableFixedSharedDirs;
-CStringList CPreferences::shareddir_list;
-CStringList CPreferences::addresses_list;
-CString CPreferences::m_strFileCommentsFilePath;
-Preferences_Ext_Struct* CPreferences::prefsExt;
-WORD	CPreferences::m_wWinVer;
-CArray<Category_Struct*, Category_Struct*> CPreferences::catMap;
-UINT	CPreferences::m_nWebMirrorAlertLevel;
-bool	CPreferences::m_bRunAsUser;
-bool	CPreferences::m_bPreferRestrictedOverUser;
-bool	CPreferences::m_bUseOldTimeRemaining;
-time_t	CPreferences::m_uPeerCacheLastSearch;
-bool	CPreferences::m_bPeerCacheWasFound;
-bool	CPreferences::m_bPeerCacheEnabled;
-uint16	CPreferences::m_nPeerCachePort;
-bool	CPreferences::m_bPeerCacheShow;
-
-bool	CPreferences::m_bOpenPortsOnStartUp;
-int		CPreferences::m_byLogLevel;
-bool	CPreferences::m_bTrustEveryHash;
-bool	CPreferences::m_bRememberCancelledFiles;
-bool	CPreferences::m_bRememberDownloadedFiles;
-bool	CPreferences::m_bPartiallyPurgeOldKnownFiles;
-
-EmailSettings CPreferences::m_email;
-
-bool	CPreferences::m_bWinaTransToolbar;
-bool	CPreferences::m_bShowDownloadToolbar;
-
-bool	CPreferences::m_bCryptLayerRequested;
-bool	CPreferences::m_bCryptLayerSupported;
-bool	CPreferences::m_bCryptLayerRequired;
-uint32	CPreferences::m_dwKadUDPKey;
-uint8	CPreferences::m_byCryptTCPPaddingLength;
-
-bool	CPreferences::m_bSkipWANIPSetup;
-bool	CPreferences::m_bSkipWANPPPSetup;
-bool	CPreferences::m_bEnableUPnP;
-bool	CPreferences::m_bCloseUPnPOnExit;
-bool	CPreferences::m_bIsWinServImplDisabled;
-bool	CPreferences::m_bIsMinilibImplDisabled;
-int		CPreferences::m_nLastWorkingImpl;
-
-bool	CPreferences::m_bEnableSearchResultFilter;
-
-BOOL	CPreferences::m_bIsRunningAeroGlass;
-bool	CPreferences::m_bPreventStandby;
-bool	CPreferences::m_bStoreSearches;
-
 CPreferences::CPreferences()
 {
 #ifdef _DEBUG
 	m_iDbgHeap = 1;
 #endif
+
+	cumUpData_File = 0;
+	cumUpData_Partfile = 0; 
+	sesUpData_File = 0;
+	sesUpData_Partfile = 0;
 }
 
 CPreferences::~CPreferences()
@@ -712,7 +281,7 @@ uint64 CPreferences::GetMaxDownloadInBytesPerSec(bool dynamic)
 {
 	//don't be a Lam3r :)
 	uint32 maxup;
-	if (dynamic && thePrefs.IsDynUpEnabled() && theApp.uploadqueue->GetWaitingUserCount() > 0 && theApp.uploadqueue->GetDatarate() > 0)
+	if (dynamic && IsDynUpEnabled() && theApp.uploadqueue->GetWaitingUserCount() > 0 && theApp.uploadqueue->GetDatarate() > 0)
 		maxup = theApp.uploadqueue->GetDatarate();
 	else
 		maxup = GetMaxUpload() * 1024u;
@@ -1199,7 +768,6 @@ void CPreferences::ResetCumulativeStatistics()
 
 	// Save the reset stats
 	SaveStats();
-	theApp.emuledlg->statisticswnd->ShowStatistics(true);
 }
 
 
@@ -1368,7 +936,7 @@ bool CPreferences::LoadStats(int loadBackUp)
 
 		// Since we know this is a restore, now we should call ShowStatistics to update the data items to the new ones we just loaded.
 		// Otherwise user is left waiting around for the tick counter to reach the next automatic update (Depending on setting in prefs)
-		theApp.emuledlg->statisticswnd->ShowStatistics();
+		// this can be done in the caller function. No need to bother with upper classes
 	} else {
 		// Stupid Load -> Just load the values.
 		// Load records for servers / network
@@ -1483,7 +1051,7 @@ bool CPreferences::Save()
 		} catch (CFileException *ferror) {
 			TCHAR buffer[MAX_CFEXP_ERRORMSG];
 			GetExceptionMessage(*ferror, buffer, _countof(buffer));
-			if (thePrefs.GetVerbose())
+			if (GetVerbose())
 				AddDebugLogLine(true, _T("Failed to save %s - %s"), (LPCTSTR)strSharPath, buffer);
 			ferror->Delete();
 		}
@@ -1928,9 +1496,9 @@ void CPreferences::LoadPreferences()
 	m_nWebMirrorAlertLevel = ini.GetInt(_T("WebMirrorAlertLevel"), 0);
 	updatenotify = ini.GetBool(_T("UpdateNotifyTestClient"), true);
 
-	SetUserNick(ini.GetStringUTF8(_T("Nick"), DEFAULT_NICK));
+	SetUserNick(ini.GetStringUTF8(_T("Nick"), GetHomepageBaseURL()));
 	if (strNick.IsEmpty() || IsDefaultNick(strNick))
-		SetUserNick(DEFAULT_NICK);
+		SetUserNick(GetHomepageBaseURL());
 
 	m_strIncomingDir = ini.GetString(_T("IncomingDir"), _T(""));
 	if (m_strIncomingDir.IsEmpty()) // We want GetDefaultDirectory to also create the folder, so we have to know if we use the default or not
@@ -2003,11 +1571,11 @@ void CPreferences::LoadPreferences()
 
 	port = (uint16)ini.GetInt(_T("Port"), 0);
 	if (port == 0)
-		port = thePrefs.GetRandomTCPPort();
+		port = GetRandomTCPPort();
 
 	// 0 is a valid value for the UDP port setting, as it is used for disabling it.
 	int iPort = ini.GetInt(_T("UDPPort"), INT_MAX/*invalid port value*/);
-	udpport = (iPort == INT_MAX) ? thePrefs.GetRandomUDPPort() : (uint16)iPort;
+	udpport = (iPort == INT_MAX) ? GetRandomUDPPort() : (uint16)iPort;
 
 	nServerUDPPort = (uint16)ini.GetInt(_T("ServerUDPPort"), -1); // 0 = Don't use UDP port for servers, -1 = use a random port (for backward compatibility)
 	maxsourceperfile = ini.GetInt(_T("MaxSourcesPerFile"), 400);
@@ -2735,9 +2303,9 @@ CString CPreferences::GetVersionCheckURL()
 {
 	CString theUrl;
 	theUrl.Format(_T("%s/en/version_check.php?version=%u&language=%u") _T("&mod=1") //this suffix for community version only
-		, (LPCTSTR)thePrefs.GetVersionCheckBaseURL()
+		, (LPCTSTR)GetVersionCheckBaseURL()
 		, theApp.m_uCurVersionCheck
-		, thePrefs.GetLanguageID());
+		, GetLanguageID());
 	return theUrl;
 }
 
@@ -2794,7 +2362,7 @@ void CPreferences::EstimateMaxUploadCap(uint32 nCurrentUpload)
 	if (maxGraphUploadRateEstimated + 1 < nCurrentUpload) {
 		maxGraphUploadRateEstimated = nCurrentUpload;
 		if (maxGraphUploadRate == UNLIMITED && theApp.emuledlg->statisticswnd)
-			theApp.emuledlg->statisticswnd->SetARange(false, thePrefs.GetMaxGraphUploadRate(true));
+			theApp.emuledlg->statisticswnd->SetARange(false, GetMaxGraphUploadRate(true));
 	}
 }
 

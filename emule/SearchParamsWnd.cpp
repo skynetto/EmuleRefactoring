@@ -143,6 +143,8 @@ LRESULT CSearchParamsWnd::OnInitDialog(WPARAM, LPARAM)
 	m_ctlCancel.GetWindowRect(m_rcCancel);
 	ScreenToClient(m_rcCancel);
 
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (thePrefs.GetUseAutocompletion()) {
 		m_pacSearchString = new CCustomAutoComplete();
 		m_pacSearchString->AddRef();
@@ -436,6 +438,8 @@ void CSearchParamsWnd::OnUpdateCmdUI(CFrameWnd* /*pTarget*/, BOOL /*bDisableIfNo
 
 void CSearchParamsWnd::UpdateControls()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	int iMethod = m_ctlMethod.GetCurSel();
 	if (iMethod != CB_ERR) {
 		if (iMethod != thePrefs.GetSearchMethod()) {
@@ -731,6 +735,7 @@ BOOL CSearchParamsWnd::SaveSearchStrings()
 {
 	if (m_pacSearchString == NULL)
 		return FALSE;
+	CPreferences& thePrefs = CPreferences::Instance();
 	return m_pacSearchString->SaveList(thePrefs.GetMuleDirectory(EMULE_CONFIGDIR) + SEARCH_STRINGS_PROFILE);
 }
 

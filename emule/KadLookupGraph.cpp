@@ -579,6 +579,7 @@ CString CKadLookupGraph::GetCurrentLookupTitle() const
 
 void CKadLookupGraph::OnContextMenu(CWnd*, CPoint point)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	CMenu menu;
 	menu.CreatePopupMenu();
 	menu.AppendMenu(MF_STRING, MP_AUTOKADLOOKUPGRAPH, GetResString(IDS_AUTOKADLOOKUPGRAPH));
@@ -593,10 +594,12 @@ bool CKadLookupGraph::HasActiveLookup() const
 
 void CKadLookupGraph::OnSwitchAutoLookup()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	thePrefs.SetAutoShowLookups(!thePrefs.GetAutoShowLookups());
 }
 
 bool CKadLookupGraph::GetAutoShowLookups() const
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	return thePrefs.GetAutoShowLookups();
 }

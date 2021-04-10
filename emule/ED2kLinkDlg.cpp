@@ -63,6 +63,7 @@ BOOL CED2kLinkDlg::OnInitDialog()
 {
 	CResizablePage::OnInitDialog();
 	InitWindowStyles(this);
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	if (!m_bReducedDlg) {
 		AddAnchor(IDC_LD_BASICGROUP, BOTTOM_LEFT, BOTTOM_RIGHT);
@@ -174,6 +175,7 @@ void CED2kLinkDlg::Localize()
 
 void CED2kLinkDlg::UpdateLink()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	const bool bHashset = IsDlgButtonChecked(IDC_LD_HASHSETCHE) != 0;
 	const bool bHTML = IsDlgButtonChecked(IDC_LD_HTMLCHE) != 0;
 	const bool bHostname = IsDlgButtonChecked(IDC_LD_HOSTNAMECHE) != 0 && theApp.IsConnected() && !theApp.IsFirewalled() && thePrefs.GetYourHostname().Find(_T('.')) >= 0;

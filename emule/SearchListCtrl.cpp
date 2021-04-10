@@ -113,6 +113,8 @@ CSearchResultFileDetailSheet::CSearchResultFileDetailSheet(CTypedPtrList<CPtrLis
 	: CListViewWalkerPropertySheet(pListCtrl)
 	, m_uInvokePage(uInvokePage)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	for (POSITION pos = paFiles.GetHeadPosition(); pos != NULL;)
 		m_aItems.Add(paFiles.GetNext(pos));
 	m_psh.dwFlags &= ~PSH_HASHELP;
@@ -263,6 +265,9 @@ void CSearchListCtrl::Init(CSearchList *in_searchlist)
 	}
 	searchlist = in_searchlist;
 
+	CPreferences& thePrefs = CPreferences::Instance();
+
+
 	InsertColumn(0,	GetResString(IDS_DL_FILENAME),	LVCFMT_LEFT,	DFLT_FILENAME_COL_WIDTH);
 	InsertColumn(1, GetResString(IDS_DL_SIZE),		LVCFMT_RIGHT,	DFLT_SIZE_COL_WIDTH);
 	InsertColumn(2, GetResString(IDS_SEARCHAVAIL) + (thePrefs.IsExtControlsEnabled() ? _T(" (") + GetResString(IDS_DL_SOURCES) + _T(')') : CString()), LVCFMT_RIGHT, 60);
@@ -334,6 +339,9 @@ void CSearchListCtrl::Localize()
 	hdi.mask = HDI_TEXT;
 	CString strRes;
 
+	CPreferences& thePrefs = CPreferences::Instance();
+
+
 	for (int icol = pHeaderCtrl->GetItemCount(); --icol >= 0;) {
 		strRes = GetResString(ids[icol]);
 		if (thePrefs.IsExtControlsEnabled() && icol == 2)
@@ -402,6 +410,8 @@ void CSearchListCtrl::UpdateSources(const CSearchFile *toupdate)
 	LVFINDINFO find;
 	find.flags = LVFI_PARAM;
 	find.lParam = (LPARAM)toupdate;
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	int iItem = FindItem(&find);
 	if (iItem >= 0) {
 		CString strBuffer;
@@ -472,6 +482,9 @@ CString CSearchListCtrl::GetCompleteSourcesDisplayString(const CSearchFile *pFil
 		if (pFile->GetDirectory() != NULL)
 			uCompleteSources = 1;
 	}
+
+	CPreferences& thePrefs = CPreferences::Instance();
+
 
 	CString str;
 	if (iComplete < 0) {		// '< 0' ... unknown
@@ -644,6 +657,8 @@ int CSearchListCtrl::CompareChild(const CSearchFile *item1, const CSearchFile *i
 
 int CSearchListCtrl::Compare(const CSearchFile *item1, const CSearchFile *item2, LPARAM lParamSort, bool bSortAscending)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (thePrefs.IsSearchSpamFilterEnabled()) {
 		// files marked as spam are always put to the bottom of the list (maybe as option later)
 		if (item1->IsConsideredSpam() ^ item2->IsConsideredSpam()) {
@@ -719,6 +734,9 @@ void CSearchListCtrl::OnContextMenu(CWnd*, CPoint point)
 		}
 	}
 
+	CPreferences& thePrefs = CPreferences::Instance();
+
+
 	m_SearchFileMenu.EnableMenuItem(MP_RESUME, iToDownload > 0 ? MF_ENABLED : MF_GRAYED);
 	if (thePrefs.IsExtControlsEnabled())
 		m_SearchFileMenu.EnableMenuItem(MP_RESUMEPAUSED, iToDownload > 0 ? MF_ENABLED : MF_GRAYED);
@@ -780,6 +798,9 @@ BOOL CSearchListCtrl::OnCommand(WPARAM wParam, LPARAM)
 		if (index >= 0)
 			selectedList.AddTail(reinterpret_cast<CSearchFile*>(GetItemData(index)));
 	}
+
+	CPreferences& thePrefs = CPreferences::Instance();
+
 
 	if (!selectedList.IsEmpty()) {
 		CSearchFile *file = selectedList.GetHead();
@@ -927,6 +948,9 @@ void CSearchListCtrl::CreateMenus()
 {
 	if (m_SearchFileMenu)
 		VERIFY(m_SearchFileMenu.DestroyMenu());
+
+	CPreferences& thePrefs = CPreferences::Instance();
+
 
 	m_SearchFileMenu.CreatePopupMenu();
 	m_SearchFileMenu.AddMenuTitle(GetResString(IDS_FILE), true);
@@ -1290,6 +1314,8 @@ void CSearchListCtrl::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct)
 	int iIndent = (content->GetListParent() != NULL) ? 8 : 0; // indent child items
 	int iIconPosY = (rcItem.Height() > theApp.GetSmallSytemIconSize().cy) ? ((rcItem.Height() - theApp.GetSmallSytemIconSize().cy) / 2) : 0;
 
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	// spam indicator takes the place of commentsrating icon
 	if (thePrefs.IsSearchSpamFilterEnabled() && content->IsConsideredSpam())
 		m_ImageList.Draw(dc, 8, CPoint(rcItem.left + iIndent + TREE_WIDTH + 18, rcItem.top + iIconPosY), ILD_NORMAL);
@@ -1436,6 +1462,7 @@ void CSearchListCtrl::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct)
 COLORREF CSearchListCtrl::GetSearchItemColor(/*const*/ CSearchFile *src)
 {
 	const CKnownFile *pFile = theApp.downloadqueue->GetFileByID(src->GetFileHash());
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	if (pFile) {
 		if (pFile->IsPartFile()) {
@@ -1471,6 +1498,7 @@ COLORREF CSearchListCtrl::GetSearchItemColor(/*const*/ CSearchFile *src)
 
 void CSearchListCtrl::DrawSourceChild(CDC *dc, int nColumn, LPRECT lpRect, UINT uDrawTextAlignment, const CSearchFile *src)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	const CString &sItem(GetItemDisplayText(src, nColumn));
 	switch (nColumn) {
 	case 0: // file name
@@ -1496,6 +1524,8 @@ void CSearchListCtrl::DrawSourceChild(CDC *dc, int nColumn, LPRECT lpRect, UINT 
 void CSearchListCtrl::DrawSourceParent(CDC *dc, int nColumn, LPRECT lpRect, UINT uDrawTextAlignment, const CSearchFile *src)
 {
 	const CString &sItem(GetItemDisplayText(src, nColumn));
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	switch (nColumn) {
 	case 0: // file name
 		{
@@ -1605,6 +1635,8 @@ void CSearchListCtrl::ClearResultViewState(uint32 nResultsID)
 
 CString CSearchListCtrl::GetItemDisplayText(const CSearchFile *src, int iSubItem) const
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	CString sText;
 	switch (iSubItem) {
 	case 0: //file name

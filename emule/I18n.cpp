@@ -355,6 +355,7 @@ void CPreferences::InitThreadLocale()
 
 void InitThreadLocale()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	thePrefs.InitThreadLocale();
 }
 

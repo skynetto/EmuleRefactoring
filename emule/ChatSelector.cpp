@@ -124,6 +124,7 @@ void CChatSelector::UpdateFonts(CFont *pFont)
 
 CChatItem* CChatSelector::StartSession(CUpDownClient *client, bool show)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (show)
 		m_pParent->m_wndMessage.SetFocus();
 	if (GetTabByClient(client) >= 0) {
@@ -223,7 +224,7 @@ void CChatSelector::ProcessMessage(CUpDownClient *sender, const CString &message
 	CChatItem *ci = GetItemByClient(sender);
 
 	AddLogLine(true, GetResString(IDS_NEWMSG), (LPCTSTR)sender->GetUserName(), (LPCTSTR)ipstr(sender->GetConnectIP()));
-
+	CPreferences& thePrefs = CPreferences::Instance();
 	bool isNewChatWindow = !ci;
 	if (isNewChatWindow) {
 		if ((UINT)GetItemCount() >= thePrefs.GetMsgSessionsMax())
@@ -247,6 +248,7 @@ void CChatSelector::ProcessMessage(CUpDownClient *sender, const CString &message
 
 void CChatSelector::ShowCaptchaRequest(CUpDownClient *sender, HBITMAP bmpCaptcha)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	CChatItem *ci = GetItemByClient(sender);
 	if (ci != NULL) {
 		if (thePrefs.GetIRCAddTimeStamp())
@@ -259,6 +261,7 @@ void CChatSelector::ShowCaptchaRequest(CUpDownClient *sender, HBITMAP bmpCaptcha
 
 void CChatSelector::ShowCaptchaResult(CUpDownClient *sender, const CString &strResult)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	CChatItem *ci = GetItemByClient(sender);
 	if (ci != NULL) {
 		if (thePrefs.GetIRCAddTimeStamp())
@@ -272,6 +275,7 @@ bool CChatSelector::SendMessage(const CString &rstrMessage)
 	CChatItem *ci = GetCurrentChatItem();
 	if (!ci)
 		return false;
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	if (ci->history.GetCount() == thePrefs.GetMaxChatHistoryLines())
 		ci->history.RemoveAt(0);
@@ -323,7 +327,7 @@ void CChatSelector::ConnectingResult(CUpDownClient *sender, bool success)
 	CChatItem *ci = GetItemByClient(sender);
 	if (!ci)
 		return;
-
+	CPreferences& thePrefs = CPreferences::Instance();
 	ci->client->SetChatState(MS_CHATTING);
 	if (success)
 		if (ci->strMessagePending.IsEmpty()) {
@@ -619,6 +623,7 @@ void CChatSelector::EnableSmileys(bool bEnable)
 
 void CChatSelector::ReportConnectionProgress(CUpDownClient *pClient, const CString &strProgressDesc, bool bNoTimeStamp)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	CChatItem *ci = GetItemByClient(pClient);
 	if (!ci)
 		return;

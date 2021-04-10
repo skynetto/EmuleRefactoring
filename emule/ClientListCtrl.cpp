@@ -427,6 +427,7 @@ BOOL CClientListCtrl::OnCommand(WPARAM wParam, LPARAM)
 
 void CClientListCtrl::AddClient(const CUpDownClient *client)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (!theApp.IsClosing() && !thePrefs.IsKnownClientListDisabled()) {
 		int iItemCount = GetItemCount();
 		InsertItem(LVIF_TEXT | LVIF_PARAM, iItemCount, LPSTR_TEXTCALLBACK, 0, 0, 0, (LPARAM)client);

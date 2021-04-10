@@ -58,9 +58,10 @@ END_MESSAGE_MAP()
 
 CPPgNotify::CPPgNotify()
 	: CPropertyPage(CPPgNotify::IDD)
-	, m_mail(thePrefs.GetEmailSettings())
 	, m_icoBrowse()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+	m_mail = thePrefs.GetEmailSettings();
 }
 
 void CPPgNotify::DoDataExchange(CDataExchange *pDX)
@@ -78,6 +79,8 @@ BOOL CPPgNotify::OnInitDialog()
 
 	ASSERT(IDC_CB_TBN_NOSOUND < IDC_CB_TBN_USESOUND && IDC_CB_TBN_USESOUND < IDC_CB_TBN_USESPEECH);
 	int iBtnID;
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	switch (thePrefs.notifierSoundType) {
 	case ntfstSoundFile:
 		iBtnID = IDC_CB_TBN_USESOUND;
@@ -166,6 +169,8 @@ BOOL CPPgNotify::OnApply()
 		return FALSE;
 	}
 
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	thePrefs.notifierOnDownloadFinished = IsDlgButtonChecked(IDC_CB_TBN_ONDOWNLOAD) != 0;
 	thePrefs.notifierOnNewDownload = IsDlgButtonChecked(IDC_CB_TBN_ONNEWDOWNLOAD) != 0;
 	thePrefs.notifierOnChat = IsDlgButtonChecked(IDC_CB_TBN_ONCHAT) != 0;
@@ -188,6 +193,7 @@ BOOL CPPgNotify::OnApply()
 
 void CPPgNotify::ApplyNotifierSoundType()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	GetDlgItemText(IDC_EDIT_TBN_WAVFILE, thePrefs.notifierSoundFile);
 	if (IsDlgButtonChecked(IDC_CB_TBN_USESOUND))
 		thePrefs.notifierSoundType = ntfstSoundFile;
@@ -237,6 +243,7 @@ void CPPgNotify::OnBnClickedUseSpeech()
 void CPPgNotify::OnBnClickedTestNotification()
 {
 	// save current pref settings
+	CPreferences& thePrefs = CPreferences::Instance();
 	bool bCurNotifyOnImportantError = thePrefs.notifierOnImportantError;
 	ENotifierSoundType iCurSoundType = thePrefs.notifierSoundType;
 	CString strSoundFile = thePrefs.notifierSoundFile;
@@ -280,6 +287,7 @@ void CPPgNotify::OnBnClickedCbEnablenotifications()
 
 void CPPgNotify::OnBnClickedSMTPserver()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	CSMTPserverDlg serverDlg;
 	if (serverDlg.DoModal() == IDOK) {
 		SetModified();

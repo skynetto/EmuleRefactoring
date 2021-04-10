@@ -62,6 +62,7 @@ static int __cdecl CmpSIPFilterByStartAddr(const void *p1, const void *p2) noexc
 
 CString CIPFilter::GetDefaultFilePath()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	return thePrefs.GetMuleDirectory(EMULE_CONFIGDIR) + DFLT_IPFILTER_FILENAME;
 }
 
@@ -73,6 +74,7 @@ INT_PTR	CIPFilter::LoadFromDefaultFile(bool bShowResponse)
 
 INT_PTR CIPFilter::AddFromFile(LPCTSTR pszFilePath, bool bShowResponse)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	DWORD dwStart = ::GetTickCount();
 	FILE *readFile = _tfsopen(pszFilePath, _T("r"), _SH_DENYWR);
 	if (readFile != NULL) {
@@ -279,6 +281,7 @@ INT_PTR CIPFilter::AddFromFile(LPCTSTR pszFilePath, bool bShowResponse)
 
 void CIPFilter::SaveToDefaultFile()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	const CString strFilePath(thePrefs.GetMuleDirectory(EMULE_CONFIGDIR) + DFLT_IPFILTER_FILENAME);
 	FILE *fp = _tfsopen(strFilePath, _T("wt"), _SH_DENYWR);
 	if (fp != NULL) {
@@ -385,6 +388,7 @@ void CIPFilter::RemoveAllIPFilters()
 
 bool CIPFilter::IsFiltered(uint32 ip) /*const*/
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	return IsFiltered(ip, thePrefs.GetIPFilterLevel());
 }
 

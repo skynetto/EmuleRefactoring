@@ -77,6 +77,8 @@ CPeerCacheFinder::CPeerCacheFinder()
 
 void CPeerCacheFinder::Save()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (m_PCStatus > 10) { // permanent error range
 		if (!m_bNotReSearched) {
 			struct tm tmTemp;
@@ -259,6 +261,8 @@ bool CPeerCacheFinder::IsCacheAvailable() const
 CString ReverseDnsLookup(DWORD dwIP)
 {
 	CString strHostName;
+	CPreferences& thePrefs = CPreferences::Instance();
+
 
 	HMODULE hLib = LoadLibrary(_T("dnsapi.dll"));
 	if (hLib) {
@@ -645,6 +649,8 @@ BOOL CPCReverseDnsThread::InitInstance()
 
 	memset(s_acDNSBuffer, 0, sizeof s_acDNSBuffer);
 	const CString &strHostname = ReverseDnsLookup(m_dwIP);
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (strHostname.IsEmpty()) {
 		in_addr IPHost;
 		// FIXME: Unable to resolve my own host - will always get the Windows Computer/Domain name. Dunno how to avoid this

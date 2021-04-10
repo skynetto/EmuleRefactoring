@@ -89,6 +89,7 @@ void CHTRichEditCtrl::Init(LPCTSTR pszTitle, LPCTSTR pszSkinKey)
 	SetTitle(pszTitle);
 
 	VERIFY(SendMessage(EM_SETUNDOLIMIT, 0, 0) == 0);
+	CPreferences& thePrefs = CPreferences::Instance();
 	int iMaxLogBuff = thePrefs.GetMaxLogBuff();
 	LimitText(iMaxLogBuff ? iMaxLogBuff : 128 * 1024);
 	m_iLimitText = GetLimitText();
@@ -186,6 +187,7 @@ void CHTRichEditCtrl::OnSize(UINT nType, int cx, int cy)
 
 COLORREF GetLogLineColor(UINT eMsgType)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	switch (eMsgType) {
 	case LOG_SUCCESS:
 		return thePrefs.m_crLogSuccess;

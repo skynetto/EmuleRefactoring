@@ -79,6 +79,8 @@ BOOL CPPgScheduler::OnInitDialog()
 	m_actions.InsertColumn(1, GetResString(IDS_VALUE), LVCFMT_LEFT, 80);
 
 	Localize();
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	CheckDlgButton(IDC_ENABLE, thePrefs.IsSchedulerEnabled());
 	FillScheduleList();
 
@@ -362,6 +364,8 @@ void CPPgScheduler::OnNmRClickActionlist(LPNMHDR, LRESULT *pResult)
 	m_ActionMenu.AddMenuTitle(GetResString(IDS_ACTION));
 	m_ActionMenu.AppendMenu(MF_POPUP, (UINT_PTR)m_ActionSel.m_hMenu, GetResString(IDS_ADD));
 
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (isCatAction) {
 		if (thePrefs.GetCatCount() > 1)
 			m_CatActionSel.AppendMenu(MF_STRING, MP_SCHACTIONS + 20, GetResString(IDS_ALLUNASSIGNED));
@@ -432,6 +436,7 @@ void CPPgScheduler::RecheckSchedules()
 
 void CPPgScheduler::OnEnableChange()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	thePrefs.scheduler = IsDlgButtonChecked(IDC_ENABLE) != 0;
 	if (!thePrefs.scheduler)
 		theApp.scheduler->RestoreOriginals();

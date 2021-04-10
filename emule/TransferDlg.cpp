@@ -95,6 +95,8 @@ int CTransferDlg::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	m_pwndTransfer->SendMessage(WM_INITIALUPDATE);
 
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	LoadBarState(DOWNLOAD_TOOLBAR_PROFILE);
 	DockToolbarWnd(); // Too much bug reports about vanished search parameters window. Force to dock.
 	ShowToolbar(thePrefs.IsDownloadToolbarEnabled());
@@ -175,6 +177,7 @@ BOOL CTransferDlg::OnHelpInfo(HELPINFO*)
 
 void CTransferDlg::ShowToolbar(bool bShow)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (m_pwndToolbar->IsVisible() != static_cast<BOOL>(bShow))
 		if (thePrefs.IsDownloadToolbarEnabled() || !bShow)
 			ShowControlBar(m_pwndToolbar, static_cast<BOOL>(bShow), TRUE);

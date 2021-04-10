@@ -221,6 +221,8 @@ BOOL CServerWnd::OnInitDialog()
 	logbox->ShowWindow(SW_HIDE);
 	servermsgbox->ShowWindow(SW_SHOW);
 
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	// optional: restore last used log pane
 	if (thePrefs.GetRestoreLastLogPane()) {
 		if (thePrefs.GetLastLogPaneID() >= 0 && thePrefs.GetLastLogPaneID() < StatusSelector.GetItemCount()) {
@@ -303,6 +305,7 @@ bool CServerWnd::UpdateServerMetFromURL(const CString &strURL)
 	if (m_pacServerMetURL && m_pacServerMetURL->IsBound())
 		m_pacServerMetURL->AddItem(strURL, 0);
 
+	CPreferences& thePrefs = CPreferences::Instance();
 	CString strTempFilename;
 	strTempFilename.Format(_T("%stemp-%u-server.met"), (LPCTSTR)thePrefs.GetMuleDirectory(EMULE_CONFIGDIR), ::GetTickCount());
 
@@ -479,6 +482,7 @@ void CServerWnd::PasteServerFromClipboard()
 bool CServerWnd::AddServer(uint16 nPort, const CString &strAddress, const CString &strName, bool bShowErrorMB)
 {
 	CServer *toadd = new CServer(nPort, strAddress);
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	// Barry - Default all manually added servers to high priority
 	if (thePrefs.GetManualAddedServersHighPriority())
@@ -511,6 +515,7 @@ void CServerWnd::OnBnClickedUpdateServerMetFromUrl()
 {
 	CString strURL;
 	GetDlgItemText(IDC_SERVERMETURL, strURL);
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	if (strURL.Trim().IsEmpty()) {
 		if (thePrefs.addresses_list.IsEmpty())
@@ -584,6 +589,7 @@ void CServerWnd::UpdateLogTabSelection()
 
 void CServerWnd::ToggleDebugWindow()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	int cur_sel = StatusSelector.GetCurSel();
 	if (thePrefs.GetVerbose() && !debug) {
 		TCITEM newitem;
@@ -672,6 +678,7 @@ bool CServerWnd::SaveServerMetStrings()
 {
 	if (m_pacServerMetURL == NULL)
 		return false;
+	CPreferences& thePrefs = CPreferences::Instance();
 	return m_pacServerMetURL->SaveList(thePrefs.GetMuleDirectory(EMULE_CONFIGDIR) + SERVERMET_STRINGS_PROFILE);
 }
 
@@ -684,6 +691,7 @@ void CServerWnd::ShowNetworkInfo()
 void CServerWnd::OnEnLinkServerBox(LPNMHDR pNMHDR, LRESULT *pResult)
 {
 	ENLINK *pEnLink = reinterpret_cast<ENLINK*>(pNMHDR);
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (pEnLink && pEnLink->msg == WM_LBUTTONDOWN) {
 		CString strUrl;
 		servermsgbox->GetTextRange(pEnLink->chrg.cpMin, pEnLink->chrg.cpMax, strUrl);
@@ -722,6 +730,7 @@ void CServerWnd::OnBnConnect()
 
 void CServerWnd::SaveAllSettings()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	thePrefs.SetLastLogPaneID(StatusSelector.GetCurSel());
 	SaveServerMetStrings();
 }
@@ -774,6 +783,7 @@ void CServerWnd::InitSplitter()
 	CRect rcWnd;
 	GetWindowRect(rcWnd);
 	ScreenToClient(rcWnd);
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	m_wndSplitter.SetRange(rcWnd.top + 100, rcWnd.bottom - 50);
 	LONG splitpos = 5 + (thePrefs.GetSplitterbarPositionServer() * rcWnd.Height()) / 100;
@@ -831,6 +841,7 @@ void CServerWnd::ReattachAnchors()
 	RemoveAnchor(*servermsgbox);
 	RemoveAnchor(*logbox);
 	RemoveAnchor(*debuglog);
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	AddAnchor(serverlistctrl, TOP_LEFT, ANCHOR(100, thePrefs.GetSplitterbarPositionServer()));
 	AddAnchor(StatusSelector, ANCHOR(0, thePrefs.GetSplitterbarPositionServer()), BOTTOM_RIGHT);
@@ -854,6 +865,7 @@ void CServerWnd::UpdateSplitterRange()
 	CRect rcWnd;
 	GetWindowRect(rcWnd);
 	ScreenToClient(rcWnd);
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	RECT rcDlgItem;
 	serverlistctrl.GetWindowRect(&rcDlgItem);

@@ -135,6 +135,7 @@ void CDownloadClientsCtrl::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct)
 {
 	if (theApp.IsClosing() || !lpDrawItemStruct->itemData)
 		return;
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	CMemoryDC dc(CDC::FromHandle(lpDrawItemStruct->hDC), &lpDrawItemStruct->rcItem);
 	BOOL bCtrlFocused;

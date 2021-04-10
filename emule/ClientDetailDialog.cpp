@@ -83,6 +83,7 @@ BOOL CClientDetailPage::OnSetActive()
 {
 	if (!CResizablePage::OnSetActive())
 		return FALSE;
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	if (m_bDataChanged) {
 		CUpDownClient *client = static_cast<CUpDownClient*>((*m_paClients)[0]);

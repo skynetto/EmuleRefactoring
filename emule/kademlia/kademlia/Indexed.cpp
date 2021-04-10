@@ -67,6 +67,7 @@ CIndexed::CIndexed()
 	m_mapNotes.InitHashTable(1031);
 	m_mapLoad.InitHashTable(1031);
 	m_mapSources.InitHashTable(1031);
+	CPreferences& thePrefs = CPreferences::Instance();
 	const CString &confdir = thePrefs.GetMuleDirectory(EMULE_CONFIGDIR);
 	m_sSourceFileName = confdir + _T("src_index.dat");
 	m_sKeyFileName = confdir + _T("key_index.dat");
@@ -606,6 +607,7 @@ void CIndexed::SendValidKeywordResult(const CUInt128 &uKeyID, const SSearchTerm 
 		DEBUG_ONLY(DebugLogWarning(strLoadingInProgress));
 		return;
 	}
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	KeyHash *pCurrKeyHash;
 	if (m_mapKeyword.Lookup(CCKey(uKeyID.GetData()), pCurrKeyHash)) {
@@ -696,6 +698,7 @@ void CIndexed::SendValidSourceResult(const CUInt128 &uKeyID, uint32 uIP, uint16 
 		DEBUG_ONLY(DebugLogWarning(strLoadingInProgress));
 		return;
 	}
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	SrcHash *pCurrSrcHash;
 	if (m_mapSources.Lookup(CCKey(uKeyID.GetData()), pCurrSrcHash)) {
@@ -772,6 +775,8 @@ void CIndexed::SendValidNoteResult(const CUInt128 &uKeyID, uint32 uIP, uint16 uP
 		DEBUG_ONLY(DebugLogWarning(strLoadingInProgress));
 		return;
 	}
+
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	try {
 		SrcHash *pCurrNoteHash;

@@ -81,6 +81,7 @@ CUploadQueue::CUploadQueue()
 	, m_bStatisticsWaitingListDirty(true)
 {
 	VERIFY((h_timer = ::SetTimer(0, 0, 100, UploadTimer)) != 0);
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (thePrefs.GetVerbose() && !h_timer)
 		AddDebugLogLine(true, _T("Failed to create 'upload queue' timer - %s"), (LPCTSTR)GetErrorMessage(::GetLastError()));
 	counter = 0;
@@ -198,6 +199,8 @@ bool CUploadQueue::AddUpNextClient(LPCTSTR pszReason, CUpDownClient *directadd)
 	if (newclient == NULL)
 		return false;
 
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (!thePrefs.TransferFullChunks())
 		UpdateMaxClientScore(); // refresh score caching, now that the highest score is removed
 
@@ -311,6 +314,7 @@ void CUploadQueue::Process()
 	DWORD curTick = ::GetTickCount();
 
 	UpdateActiveClientsInfo(curTick);
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	if (ForceNewClient())
 		// There's not enough open uploads. Open another one.
@@ -408,6 +412,8 @@ bool CUploadQueue::AcceptNewClient(INT_PTR curUploadSlots) const
 	if (curUploadSlots < max(MIN_UP_CLIENTS_ALLOWED, 4))
 		return true;
 
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	uint32 MaxSpeed;
 	if (thePrefs.IsDynUpEnabled())
 		MaxSpeed = theApp.lastCommonRouteFinder->GetUpload() / 1024u;
@@ -454,6 +460,9 @@ bool CUploadQueue::ForceNewClient(bool allowEmptyWaitingQueue)
 		return false;
 
 	uint32 MaxSpeed;
+
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (thePrefs.IsDynUpEnabled())
 		MaxSpeed = theApp.lastCommonRouteFinder->GetUpload() / 1024u;
 	else
@@ -569,6 +578,9 @@ void CUploadQueue::AddClientToQueue(CUpDownClient *client, bool bIgnoreTimelimit
 		client->AddRequestCount(client->GetUploadFileID());
 	if (client->IsBanned())
 		return;
+
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	uint16 cSameIP = 0;
 	// check for duplicates
 	for (POSITION pos = waitinglist.GetHeadPosition(); pos != NULL;) {
@@ -718,6 +730,9 @@ bool CUploadQueue::RemoveFromUploadQueue(CUpDownClient *client, LPCTSTR pszReaso
 {
 	bool result = false;
 	uint32 slotCounter = 1;
+
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	for (POSITION pos = uploadinglist.GetHeadPosition(); pos != NULL;) {
 		POSITION curPos = pos;
 		UploadingToClient_Struct *curClientStruct = uploadinglist.GetNext(pos);
@@ -817,6 +832,8 @@ bool CUploadQueue::CheckForTimeOver(const CUpDownClient *client)
 	if (waitinglist.IsEmpty() || client->GetFriendSlot())
 		return false;
 
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (client->HasCollectionUploadSlot()) {
 		const CKnownFile *pDownloadingFile = theApp.sharedfiles->GetFileByID(client->requpfileid);
 		if (pDownloadingFile == NULL)
@@ -885,6 +902,7 @@ UINT CUploadQueue::GetWaitingPosition(CUpDownClient *client)
 
 VOID CALLBACK CUploadQueue::UploadTimer(HWND /*hwnd*/, UINT /*uMsg*/, UINT_PTR /*idEvent*/, DWORD /*dwTime*/) noexcept
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	CStatistics& theStats = CStatistics::Instance();
 
 	// NOTE: Always handle all type of MFC exceptions in TimerProcs - otherwise we'll get mem leaks

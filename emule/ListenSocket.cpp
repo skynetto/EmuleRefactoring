@@ -182,7 +182,7 @@ void CClientReqSocket::OnClose(int nErrorCode)
 {
 	ASSERT(theApp.listensocket->IsValidSocket(this));
 	CEMSocket::OnClose(nErrorCode);
-
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (nErrorCode)
 		Disconnect(thePrefs.GetVerbose() ? GetErrorMessage(nErrorCode, 1) : NULL);
 	else
@@ -233,6 +233,7 @@ void CClientReqSocket::Safe_Delete()
 
 bool CClientReqSocket::ProcessPacket(const BYTE *packet, uint32 size, UINT opcode)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	CStatistics& theStats = CStatistics::Instance();
 
 	try {
@@ -920,6 +921,7 @@ bool CClientReqSocket::ProcessPacket(const BYTE *packet, uint32 size, UINT opcod
 
 bool CClientReqSocket::ProcessExtPacket(const BYTE *packet, uint32 size, UINT opcode, UINT uRawSize)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	CStatistics& theStats = CStatistics::Instance();
 
 	try {
@@ -1843,6 +1845,7 @@ bool CClientReqSocket::ProcessExtPacket(const BYTE *packet, uint32 size, UINT op
 
 void CClientReqSocket::PacketToDebugLogLine(LPCTSTR protocol, const uchar *packet, uint32 size, UINT opcode)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (thePrefs.GetVerbose()) {
 		CString buffer;
 		buffer.Format(_T("Unknown %s Protocol Opcode: 0x%02x, Size=%u, Data=["), protocol, opcode, size);
@@ -1880,6 +1883,7 @@ void CClientReqSocket::OnConnect(int nErrorCode)
 {
 	SetConState(SS_Complete);
 	CEMSocket::OnConnect(nErrorCode);
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (nErrorCode) {
 		CString strTCPError;
 		if (thePrefs.GetVerbose()) {
@@ -1902,6 +1906,7 @@ void CClientReqSocket::OnSend(int nErrorCode)
 void CClientReqSocket::OnError(int nErrorCode)
 {
 	CString strTCPError;
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (thePrefs.GetVerbose()) {
 		if (nErrorCode == ERR_WRONGHEADER)
 			strTCPError = _T("Error: Wrong header");
@@ -1920,6 +1925,7 @@ void CClientReqSocket::OnError(int nErrorCode)
 
 bool CClientReqSocket::PacketReceived(Packet *packet)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	CStatistics& theStats = CStatistics::Instance();
 
 	UINT uRawSize = packet->size;
@@ -1954,6 +1960,7 @@ void CClientReqSocket::OnReceive(int nErrorCode)
 
 bool CClientReqSocket::Create()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	theApp.listensocket->AddConnection();
 	return CAsyncSocketEx::Create(0, SOCK_STREAM, FD_WRITE | FD_READ | FD_CLOSE | FD_CONNECT, thePrefs.GetBindAddr());
 }
@@ -1982,6 +1989,7 @@ void CClientReqSocket::SendPacket(Packet *packet, bool controlpacket, uint32 act
 
 bool CListenSocket::SendPortTestReply(char result, bool disconnect)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	CStatistics& theStats = CStatistics::Instance();
 
 	for (POSITION pos = socket_list.GetHeadPosition(); pos != NULL;) {
@@ -2025,6 +2033,7 @@ CListenSocket::~CListenSocket()
 
 bool CListenSocket::Rebind()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (thePrefs.GetPort() == m_port)
 		return false;
 
@@ -2037,6 +2046,8 @@ bool CListenSocket::Rebind()
 bool CListenSocket::StartListening()
 {
 	bListening = true;
+
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	// Creating the socket with SO_REUSEADDR may solve LowID issues if emule was restarted
 	// quickly or started after a crash, but(!) it will also create another problem. If the
@@ -2114,6 +2125,7 @@ static int s_iAcceptConnectionCondRejected;
 int CALLBACK AcceptConnectionCond(LPWSABUF lpCallerId, LPWSABUF /*lpCallerData*/, LPQOS /*lpSQOS*/, LPQOS /*lpGQOS*/,
 	LPWSABUF /*lpCalleeId*/, LPWSABUF /*lpCalleeData*/, GROUP FAR* /*g*/, DWORD_PTR /*dwCallbackData*/) noexcept
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (lpCallerId && lpCallerId->buf && lpCallerId->len >= sizeof SOCKADDR_IN) {
 		LPSOCKADDR_IN pSockAddr = (LPSOCKADDR_IN)lpCallerId->buf;
 		ASSERT(pSockAddr->sin_addr.s_addr != 0 && pSockAddr->sin_addr.s_addr != INADDR_NONE);
@@ -2142,6 +2154,7 @@ int CALLBACK AcceptConnectionCond(LPWSABUF lpCallerId, LPWSABUF /*lpCallerData*/
 
 void CListenSocket::OnAccept(int nErrorCode)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	CStatistics& theStats = CStatistics::Instance();
 
 	if (!nErrorCode) {
@@ -2272,6 +2285,7 @@ void CListenSocket::Process()
 		} else
 			cur_sock->CheckTimeOut();		// may call 'shutdown'
 	}
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	if ((GetOpenSockets() + 5 < thePrefs.GetMaxConnections() || theApp.serverconnect->IsConnecting()) && !bListening)
 		ReStartListening();
@@ -2323,6 +2337,7 @@ void CListenSocket::AddConnection()
 
 bool CListenSocket::TooManySockets(bool bIgnoreInterval)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	return GetOpenSockets() > thePrefs.GetMaxConnections()
 		|| (m_OpenSocketsInterval > thePrefs.GetMaxConperFive() * GetMaxConperFiveModifier() && !bIgnoreInterval)
 		|| (m_nHalfOpen >= thePrefs.GetMaxHalfConnections() && !bIgnoreInterval);
@@ -2336,6 +2351,7 @@ bool CListenSocket::IsValidSocket(CClientReqSocket *totest)
 #ifdef _DEBUG
 void CListenSocket::Debug_ClientDeleted(CUpDownClient *deleted)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	for (POSITION pos = socket_list.GetHeadPosition(); pos != NULL;) {
 		CClientReqSocket *cur_sock = socket_list.GetNext(pos);
 		if (!AfxIsValidAddress(cur_sock, sizeof(CClientReqSocket)))
@@ -2351,7 +2367,7 @@ void CListenSocket::Debug_ClientDeleted(CUpDownClient *deleted)
 void CListenSocket::UpdateConnectionsStatus()
 {
 	activeconnections = GetOpenSockets();
-
+	CPreferences& thePrefs = CPreferences::Instance();
 	// Update statistics for 'peak connections'
 	if (peakconnections < activeconnections)
 		peakconnections = activeconnections;
@@ -2384,7 +2400,7 @@ float CListenSocket::GetMaxConperFiveModifier()
 	float SpikeSize = GetOpenSockets() - averageconnections;
 	if (SpikeSize < 1.0F)
 		return 1.0f;
-
+	CPreferences& thePrefs = CPreferences::Instance();
 	float SpikeTolerance = 25.0F * (float)thePrefs.GetMaxConperFive() / 10.0F;
 	if (SpikeSize > SpikeTolerance)
 		return 0.0f;

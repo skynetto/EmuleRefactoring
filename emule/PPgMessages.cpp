@@ -59,6 +59,7 @@ void CPPgMessages::DoDataExchange(CDataExchange *pDX)
 
 void CPPgMessages::LoadSettings()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	CheckDlgButton(IDC_MSGONLYFRIENDS, static_cast<UINT>(thePrefs.msgonlyfriends));
 	CheckDlgButton(IDC_ADVSPAMFILTER, static_cast<UINT>(thePrefs.m_bAdvancedSpamfilter));
 	CheckDlgButton(IDC_INDICATERATINGS, static_cast<UINT>(thePrefs.indicateratings));
@@ -84,6 +85,7 @@ BOOL CPPgMessages::OnInitDialog()
 
 BOOL CPPgMessages::OnApply()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	thePrefs.msgonlyfriends = IsDlgButtonChecked(IDC_MSGONLYFRIENDS) != 0;
 	thePrefs.m_bAdvancedSpamfilter = IsDlgButtonChecked(IDC_ADVSPAMFILTER) != 0;

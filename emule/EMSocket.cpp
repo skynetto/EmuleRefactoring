@@ -162,6 +162,7 @@ void CEMSocket::InitProxySupport()
 	m_bProxyConnectFailed = false;
 
 	// Proxy Initialization
+	CPreferences& thePrefs = CPreferences::Instance();
 	const ProxySettings &settings = thePrefs.GetProxySettings();
 	if (settings.bUseProxy && settings.type != PROXYTYPE_NOPROXY) {
 		m_bUseOverlappedSend = false;
@@ -1024,6 +1025,7 @@ void CEMSocket::RemoveAllLayers()
 
 int CEMSocket::OnLayerCallback(std::list<t_callbackMsg> &callbacks)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	for (std::list<t_callbackMsg>::const_iterator iter = callbacks.begin(); iter != callbacks.end(); ++iter) {
 		if (iter->nType == LAYERCALLBACK_LAYERSPECIFIC) {
 			if (iter->pLayer == m_pProxyLayer) {

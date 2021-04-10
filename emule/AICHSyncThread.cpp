@@ -49,7 +49,7 @@ int CAICHSyncThread::Run()
 {
 	if (theApp.IsClosing())
 		return 0;
-
+	CPreferences& thePrefs = CPreferences::Instance();
 	// we collect all masterhashes which we find in the known2.met and store them in a list
 	CArray<CAICHHash> aKnown2Hashes;
 	CArray<ULONGLONG> aKnown2HashesFilePos;
@@ -315,6 +315,7 @@ int CAICHSyncThread::Run()
 
 bool CAICHSyncThread::ConvertToKnown2ToKnown264(CSafeFile *pTargetFile)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	// converting known2.met to known2_64.met to support large files
 	// changing hashcount from uint16 to uint32
 

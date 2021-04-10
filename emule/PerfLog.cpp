@@ -53,6 +53,7 @@ void CPerfLog::Startup()
 {
 	if (m_bInitialized)
 		return;
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	CIni ini(thePrefs.GetConfigFile(), _T("PerfLog"));
 

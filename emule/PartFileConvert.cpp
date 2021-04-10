@@ -206,6 +206,7 @@ int CPartFileConvert::performConvertToeMule(const CString &folder)
 	CString newfilename;
 	CFileFind finder;
 	CString buffer;
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (pfconverting->partmettype == PMT_SPLITTED) {
 		try {
 			CByteArray ba;
@@ -641,6 +642,7 @@ void CPartFileConvertDlg::OnAddFolder()
 		if ((pidlRoot = SHBrowseForFolder(&bi)) != NULL) {
 			int reply = IDNO;
 
+			CPreferences& thePrefs = CPreferences::Instance();
 			if (thePrefs.IsExtControlsEnabled())
 				reply = LocMessageBox(IDS_IMP_DELSRC, MB_YESNOCANCEL | MB_DEFBUTTON2, 0);
 

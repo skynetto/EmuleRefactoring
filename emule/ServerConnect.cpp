@@ -44,6 +44,8 @@ static char THIS_FILE[] = __FILE__;
 
 void CServerConnect::TryAnotherConnectionRequest()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (connectionattemps.GetCount() < (thePrefs.IsSafeServerConnectEnabled() ? 1 : 2)) {
 		CServer *next_server = theApp.serverlist->GetNextServer(m_bTryObfuscated);
 		if (next_server == NULL) {
@@ -77,6 +79,8 @@ void CServerConnect::ConnectToAnyServer(UINT startAt, bool prioSort, bool isAuto
 	connecting = true;
 	singleconnecting = false;
 	theApp.emuledlg->ShowConnectionState();
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	m_bTryObfuscated = thePrefs.IsServerCryptLayerTCPRequested() && !bNoCrypt;
 
 	// Barry - Only auto-connect to static server option
@@ -120,6 +124,9 @@ void CServerConnect::ConnectToServer(CServer *server, bool multiconnect, bool bN
 		StopConnectionTry();
 		Disconnect();
 	}
+
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	connecting = true;
 	singleconnecting = !multiconnect;
 	theApp.emuledlg->ShowConnectionState();
@@ -161,6 +168,7 @@ void CServerConnect::ConnectionEstablished(CServerSocket *sender)
 		return;
 	}
 
+	CPreferences& thePrefs = CPreferences::Instance();
 	CStatistics& theStats = CStatistics::Instance();
 
 	InitLocalIP();
@@ -308,6 +316,7 @@ void CServerConnect::ConnectionFailed(CServerSocket *sender)
 	// because it will delete itself after this function!
 	sender->m_bIsDeleting = true;
 
+	CPreferences& thePrefs = CPreferences::Instance();
 	CStatistics& theStats = CStatistics::Instance();
 
 	switch (sender->GetConnectionState()) {
@@ -386,6 +395,8 @@ void CServerConnect::ConnectionFailed(CServerSocket *sender)
 
 VOID CALLBACK CServerConnect::RetryConnectTimer(HWND /*hWnd*/, UINT /*nMsg*/, UINT_PTR /*nId*/, DWORD /*dwTime*/) noexcept
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	// NOTE: Always handle all type of MFC exceptions in TimerProcs - otherwise we'll get mem leaks
 	try {
 		CServerConnect *_this = theApp.serverconnect;
@@ -404,6 +415,7 @@ VOID CALLBACK CServerConnect::RetryConnectTimer(HWND /*hWnd*/, UINT /*nMsg*/, UI
 
 void CServerConnect::CheckForTimeout()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	DWORD dwServerConnectTimeout = CONSERVTIMEOUT;
 	// If we are using a proxy, increase server connection timeout to default connection timeout
 	if (thePrefs.GetProxySettings().bUseProxy)
@@ -462,12 +474,13 @@ CServerConnect::CServerConnect()
 	, connectedsocket()
 	, m_idRetryTimer()
 	, m_uStartAutoConnectPos()
-	, max_simcons(thePrefs.IsSafeServerConnectEnabled() ? 1 : 2)
 	, connecting()
 	, singleconnecting()
 	, connected()
 	, m_bTryObfuscated()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+	max_simcons = thePrefs.IsSafeServerConnectEnabled() ? 1 : 2;
 	if (thePrefs.GetServerUDPPort() != 0) {
 		udpsocket = new CUDPSocket(); // initialize socket for udp packets
 		if (!udpsocket->Create()) {
@@ -532,6 +545,7 @@ bool CServerConnect::IsLocalServer(uint32 dwIP, uint16 nPort) const
 void CServerConnect::InitLocalIP()
 {
 	m_nLocalIP = 0;
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	// Using 'gethostname/gethostbyname' does not solve the problem when we have more than
 	// one IP address. Using 'gethostname/gethostbyname' even seems to return the last IP
@@ -569,6 +583,8 @@ void CServerConnect::InitLocalIP()
 
 void CServerConnect::KeepConnectionAlive()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	DWORD dwServerKeepAliveTimeout = thePrefs.GetServerKeepAliveTimeout();
 	CStatistics& theStats = CStatistics::Instance();
 

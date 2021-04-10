@@ -60,6 +60,7 @@ BOOL CAddFriend::OnInitDialog()
 	CDialog::OnInitDialog();
 	InitWindowStyles(this);
 	Localize();
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (m_pShowFriend) {
 		SetIcon(m_icoWnd = theApp.LoadIcon(_T("ClientDetails")), FALSE);
 		SendDlgItemMessage(IDC_IP, EM_SETREADONLY, TRUE);
@@ -138,7 +139,7 @@ void CAddFriend::OnAddBtn()
 				return;
 			}
 		}
-
+		CPreferences& thePrefs = CPreferences::Instance();
 		CString strUserName;
 		GetDlgItemText(IDC_USERNAME, strUserName);
 		strUserName = strUserName.Trim().Left(thePrefs.GetMaxUserNickLength());

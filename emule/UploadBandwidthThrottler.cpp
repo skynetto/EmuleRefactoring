@@ -379,6 +379,9 @@ UINT UploadBandwidthThrottler::RunInternal()
 
 	DWORD lastLoopTick = timeGetTime();
 	DWORD lastTickReachedBandwidth = lastLoopTick;
+
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	while (doRun) {
 		pauseEvent->Lock();
 

@@ -42,8 +42,9 @@ END_MESSAGE_MAP()
 CSMTPserverDlg::CSMTPserverDlg(CWnd *pParent /*=NULL*/)
 	: CDialog(CSMTPserverDlg::IDD, pParent)
 	, m_icoWnd()
-	, m_mail(thePrefs.GetEmailSettings())
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+	m_mail = thePrefs.GetEmailSettings();
 }
 
 CSMTPserverDlg::~CSMTPserverDlg()
@@ -81,6 +82,7 @@ void CSMTPserverDlg::OnBnClickedOk()
 	} else
 		m_mail.sPass.Empty();
 
+	CPreferences& thePrefs = CPreferences::Instance();
 	thePrefs.SetEmailSettings(m_mail);
 	CDialog::OnOK();
 }

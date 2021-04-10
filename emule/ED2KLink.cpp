@@ -138,6 +138,7 @@ CED2KFileLink::CED2KFileLink(LPCTSTR pszName, LPCTSTR pszSize, LPCTSTR pszHash
 		throw GetResString(IDS_ERR_NOTAFILELINK);
 	if ((uint64)iSize > MAX_EMULE_FILE_SIZE)
 		throw GetResString(IDS_ERR_TOOLARGEFILE);
+	CPreferences& thePrefs = CPreferences::Instance();
 	if ((uint64)iSize > OLD_MAX_EMULE_FILE_SIZE && !thePrefs.CanFSHandleLargeFiles(0))
 		throw GetResString(IDS_ERR_FSCANTHANDLEFILE);
 	if (!strmd4(pszHash, m_hash))

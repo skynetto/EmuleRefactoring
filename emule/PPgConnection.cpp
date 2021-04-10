@@ -96,6 +96,7 @@ void CPPgConnection::ChangePorts(uint8 iWhat)
 {
 	UINT tcp = GetDlgItemInt(IDC_PORT, NULL, FALSE);
 	UINT udp = GetDlgItemInt(IDC_UDPPORT, NULL, FALSE);
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	GetDlgItem(IDC_STARTTEST)->EnableWindow(
 		GetDlgItemInt(IDC_PORT, NULL, FALSE) == theApp.listensocket->GetConnectedPort()
@@ -114,6 +115,7 @@ bool CPPgConnection::ChangeUDP()
 {
 	bool bDisabled = IsDlgButtonChecked(IDC_UDPDISABLE) != 0;
 	GetDlgItem(IDC_UDPPORT)->EnableWindow(!bDisabled);
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	uint16 newVal, oldVal = (uint16)GetDlgItemInt(IDC_UDPPORT, NULL, FALSE);
 	if (oldVal)
@@ -129,6 +131,7 @@ bool CPPgConnection::ChangeUDP()
 
 void CPPgConnection::OnEnChangeUDPDisable()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	SetModified();
 	bool bDisabled = ChangeUDP();
 	CheckDlgButton(IDC_NETWORK_KADEMLIA, static_cast<UINT>(thePrefs.networkkademlia && !bDisabled)); // don't use GetNetworkKademlia here
@@ -154,6 +157,7 @@ BOOL CPPgConnection::OnInitDialog()
 
 void CPPgConnection::LoadSettings()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (m_hWnd) {
 		if (thePrefs.m_maxupload != 0)
 			thePrefs.m_maxdownload = thePrefs.GetMaxDownload();
@@ -224,6 +228,8 @@ BOOL CPPgConnection::OnApply()
 		GetDlgItem(IDC_UPLOAD_CAP)->SetFocus();
 		return FALSE;
 	}
+
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	int lastmaxgu = thePrefs.maxGraphUploadRate; //save the values
 	int lastmaxgd = thePrefs.maxGraphDownloadRate;
@@ -313,7 +319,7 @@ BOOL CPPgConnection::OnApply()
 	if (u <= 0)
 		tempcon = thePrefs.maxconnections;
 	else
-		tempcon = (u >= INT_MAX ? CPreferences::GetRecommendedMaxConnections() : u);
+		tempcon = (u >= INT_MAX ? thePrefs.GetRecommendedMaxConnections() : u);
 
 	if (tempcon > (UINT)GetMaxWindowsTCPConnections()) {
 		CString strMessage;
@@ -388,6 +394,8 @@ void CPPgConnection::OnBnClickedWizard()
 
 bool CPPgConnection::CheckUp(uint32 mUp, uint32 &mDown)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (thePrefs.maxGraphDownloadRate <= 0)
 		return false;
 	uint32 uDown = mDown;
@@ -406,6 +414,8 @@ bool CPPgConnection::CheckUp(uint32 mUp, uint32 &mDown)
 
 bool CPPgConnection::CheckDown(uint32 &mUp, uint32 mDown)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (thePrefs.maxGraphUploadRate <= 0)
 		return false;
 	uint32 uUp = mUp;
@@ -495,6 +505,8 @@ void CPPgConnection::OnBnClickedOpenports()
 	OnApply();
 	theApp.m_pFirewallOpener->RemoveRule(EMULE_DEFAULTRULENAME_UDP);
 	theApp.m_pFirewallOpener->RemoveRule(EMULE_DEFAULTRULENAME_TCP);
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	bool bAlreadyExisted = theApp.m_pFirewallOpener->DoesRuleExist(thePrefs.GetPort(), NAT_PROTOCOL_TCP)
 		|| theApp.m_pFirewallOpener->DoesRuleExist(thePrefs.GetUDPPort(), NAT_PROTOCOL_UDP);
 	bool bResult = theApp.m_pFirewallOpener->OpenPort(thePrefs.GetPort(), NAT_PROTOCOL_TCP, EMULE_DEFAULTRULENAME_TCP, false);

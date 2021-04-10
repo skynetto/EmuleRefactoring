@@ -1416,6 +1416,7 @@ bool CGetMediaInfoThread::GetMediaInfo(HWND hWndOwner, const CShareableFile *pFi
 	bool bGiveMediaInfoLibHint = false;
 	// check again for AV type; MediaDet object has trouble with RAR files (?)
 	EED2KFileType eFileType = GetED2KFileTypeID(pFile->GetFileName());
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (thePrefs.GetInspectAllFileTypes() || eFileType == ED2KFT_AUDIO || eFileType == ED2KFT_VIDEO) {
 		/////////////////////////////////////////////////////////////////////////////
 		// Try MediaInfo lib

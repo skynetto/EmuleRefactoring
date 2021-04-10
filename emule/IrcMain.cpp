@@ -68,6 +68,7 @@ CIrcMain::CIrcMain()
 
 void CIrcMain::PreParseMessage(const char *pszBufferA)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	try {
 		m_sPreParseBufferA += pszBufferA;
 		int iIndex = m_sPreParseBufferA.Find('\n');
@@ -93,6 +94,7 @@ void CIrcMain::PreParseMessage(const char *pszBufferA)
 
 void CIrcMain::ProcessLink(const CString &sED2KLink)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	try {
 		const CString &sLink(OptUtf8ToStr(URLDecode(sED2KLink)));
 		CED2KLink *pLink = CED2KLink::CreateLinkFromUrl(sLink);
@@ -142,6 +144,7 @@ void CIrcMain::ProcessLink(const CString &sED2KLink)
 
 void CIrcMain::ParseMessage(const CString &sRawMessage)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	try {
 		if (sRawMessage.GetLength() < 6) {
 			//TODO : We probably should disconnect here as I don't know of anything that should
@@ -1458,6 +1461,7 @@ void CIrcMain::ParseMessage(const CString &sRawMessage)
 
 void CIrcMain::SendLogin()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	try {
 		m_pIRCSocket->SendString(m_sUser);
 		m_pIRCSocket->SendString(_T("NICK ") + m_sNick);
@@ -1467,6 +1471,9 @@ void CIrcMain::SendLogin()
 
 void CIrcMain::ParsePerform()
 {
+
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	//We need to do the perform first and separate from the help option.
 	//This allows you to do all your passwords and stuff before joining the
 	//help channel and to keep both options from interfering with each other.
@@ -1486,6 +1493,8 @@ void CIrcMain::ParsePerform()
 
 void CIrcMain::Connect()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	try {
 		const CString &sHash(md4str(thePrefs.GetUserHash()));
 		CString sIdent;
@@ -1508,6 +1517,7 @@ void CIrcMain::Connect()
 
 void CIrcMain::Disconnect(bool bIsShuttingDown)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	try {
 		m_pIRCSocket->Close();
 		delete m_pIRCSocket;
@@ -1521,6 +1531,7 @@ void CIrcMain::Disconnect(bool bIsShuttingDown)
 
 void CIrcMain::SetConnectStatus(bool bConnected)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	try {
 		m_pwndIRC->SetConnectStatus(bConnected);
 	} CATCH_DFLT_EXCEPTIONS(_T(__FUNCTION__))
@@ -1550,6 +1561,7 @@ CString CIrcMain::GetNick() const
 
 void CIrcMain::PerformString(const CString &sPerform)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	try {
 		for (int iPos = 0; iPos >= 0;) {
 			CString sCommand(sPerform.Tokenize(_T("|"), iPos));

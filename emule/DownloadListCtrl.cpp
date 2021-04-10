@@ -112,6 +112,8 @@ CDownloadListCtrl::~CDownloadListCtrl()
 
 void CDownloadListCtrl::Init()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	SetPrefsKey(_T("DownloadListCtrl"));
 	SetStyle();
 	ASSERT((GetStyle() & LVS_SINGLESEL) == 0);
@@ -418,6 +420,8 @@ void CDownloadListCtrl::DrawFileItem(CDC *dc, int nColumn, LPCRECT lpRect, UINT 
 	/*const*/ CPartFile *pPartFile = static_cast<CPartFile*>(pCtrlItem->value);
 	const CString &sItem(GetFileItemDisplayText(pPartFile, nColumn));
 	CRect rcDraw(lpRect);
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	switch (nColumn) {
 	case 0: // file name
 		{
@@ -479,6 +483,8 @@ void CDownloadListCtrl::DrawFileItem(CDC *dc, int nColumn, LPCRECT lpRect, UINT 
 
 CString CDownloadListCtrl::GetSourceItemDisplayText(const CtrlItem_Struct *pCtrlItem, int iSubItem)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	CString sText;
 	const CUpDownClient *pClient = static_cast<CUpDownClient*>(pCtrlItem->value);
 	switch (iSubItem) {
@@ -580,6 +586,7 @@ CString CDownloadListCtrl::GetSourceItemDisplayText(const CtrlItem_Struct *pCtrl
 
 void CDownloadListCtrl::DrawSourceItem(CDC *dc, int nColumn, LPCRECT lpRect, UINT uDrawTextAlignment, CtrlItem_Struct *pCtrlItem)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	const CUpDownClient *pClient = static_cast<CUpDownClient*>(pCtrlItem->value);
 	const CString &sItem(GetSourceItemDisplayText(pCtrlItem, nColumn));
 	switch (nColumn) {
@@ -725,6 +732,8 @@ void CDownloadListCtrl::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct)
 	int iCount = pHeaderCtrl->GetItemCount();
 	rcItem.right = rcItem.left - sm_iLabelOffset;
 	rcItem.left += sm_iIconOffset;
+
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	if (content->type == FILE_TYPE) {
 		if (!g_bLowColorDesktop && (lpDrawItemStruct->itemState & ODS_SELECTED) == 0) {
@@ -941,7 +950,7 @@ void CDownloadListCtrl::ExpandCollapseItem(int iItem, int iAction, bool bCollaps
 void CDownloadListCtrl::OnLvnItemActivate(LPNMHDR pNMHDR, LRESULT *pResult)
 {
 	LPNMITEMACTIVATE pNMIA = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
-
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (thePrefs.IsDoubleClickEnabled() || pNMIA->iSubItem > 0)
 		ExpandCollapseItem(pNMIA->iItem, EXPAND_COLLAPSE);
 	*pResult = 0;
@@ -950,6 +959,7 @@ void CDownloadListCtrl::OnLvnItemActivate(LPNMHDR pNMHDR, LRESULT *pResult)
 void CDownloadListCtrl::OnContextMenu(CWnd*, CPoint point)
 {
 	int iSel = GetNextItem(-1, LVIS_SELECTED);
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (iSel >= 0) {
 		const CtrlItem_Struct *content = reinterpret_cast<CtrlItem_Struct*>(GetItemData(iSel));
 		if (content != NULL && content->type == FILE_TYPE) {
@@ -1230,6 +1240,7 @@ void CDownloadListCtrl::FillCatsMenu(CMenu &rCatsMenu, int iFilesInCats)
 	label.Remove('(');
 	label.Remove(')'); // Remove braces without having to put a new/changed resource string in
 	rCatsMenu.AppendMenu(MF_STRING | ((iFilesInCats == 0) ? MF_GRAYED : MF_ENABLED), MP_ASSIGNCAT, label);
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (thePrefs.GetCatCount() > 1) {
 		rCatsMenu.AppendMenu(MF_SEPARATOR);
 		for (int i = 1; i < thePrefs.GetCatCount(); ++i) {
@@ -1283,6 +1294,7 @@ CTitleMenu* CDownloadListCtrl::GetPrioMenu()
 BOOL CDownloadListCtrl::OnCommand(WPARAM wParam, LPARAM)
 {
 	wParam = LOWORD(wParam);
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	switch (wParam) {
 	case MP_PASTE:
@@ -1668,10 +1680,12 @@ void CDownloadListCtrl::OnLvnColumnClick(LPNMHDR pNMHDR, LRESULT *pResult)
 		SetSortArrow(pNMListView->iSubItem, sortAscending ? arrowDoubleUp : arrowDoubleDown);
 	if (!sortAscending)
 		adder += 100;
+
 	UpdateSortHistory(pNMListView->iSubItem + adder);
 	SortItems(SortProc, pNMListView->iSubItem + adder);
 
 	// Save new preferences
+	CPreferences& thePrefs = CPreferences::Instance();
 	thePrefs.TransferlistRemainSortStyle(m_bRemainSort);
 
 	*pResult = 0;
@@ -1741,6 +1755,7 @@ void CDownloadListCtrl::ClearCompleted(int incat)
 					it = m_ListItems.begin();
 		}
 	}
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (thePrefs.ShowCatTabInfos())
 		theApp.emuledlg->transferwnd->UpdateCatTabTitles();
 }
@@ -1762,6 +1777,7 @@ void CDownloadListCtrl::ClearCompleted(const CPartFile *pFile)
 
 void CDownloadListCtrl::SetStyle()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (thePrefs.IsDoubleClickEnabled())
 		SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_INFOTIP);
 	else
@@ -1781,6 +1797,7 @@ void CDownloadListCtrl::OnListModified(LPNMHDR pNMHDR, LRESULT* /*pResult*/)
 
 int CDownloadListCtrl::Compare(const CPartFile *file1, const CPartFile *file2, LPARAM lParamSort)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	switch (lParamSort) {
 	case 0: //filename asc
 		return CompareLocaleStringNoCase(file1->GetFileName(), file2->GetFileName());
@@ -1895,6 +1912,7 @@ int CDownloadListCtrl::Compare(const CUpDownClient *client1, const CUpDownClient
 
 void CDownloadListCtrl::OnNmDblClk(LPNMHDR, LRESULT *pResult)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	int iSel = GetSelectionMark();
 	if (iSel >= 0) {
 		const CtrlItem_Struct *content = reinterpret_cast<CtrlItem_Struct*>(GetItemData(iSel));
@@ -1974,6 +1992,8 @@ void CDownloadListCtrl::CreateMenus()
 	m_FileMenu.AppendMenu(MF_SEPARATOR);
 
 	m_FileMenu.AppendMenu(MF_STRING, MP_OPEN, GetResString(IDS_DL_OPEN), _T("OPENFILE"));
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	// Extended: Submenu with Preview options, Normal: Preview and possibly 'Preview with' item
 	if (thePrefs.IsExtControlsEnabled()) {
 		m_PreviewMenu.CreateMenu();
@@ -2070,6 +2090,8 @@ int CDownloadListCtrl::GetFilesCountInCurCat()
 CString CDownloadListCtrl::GetFileItemDisplayText(const CPartFile *lpPartFile, int iSubItem)
 {
 	CString sText;
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	switch (iSubItem) {
 	case 0: //file name
 		sText = lpPartFile->GetFileName();
@@ -2195,6 +2217,7 @@ void CDownloadListCtrl::ShowSelectedFileDetails()
 	if (content != NULL)
 		if (content->type == FILE_TYPE) {
 			const CPartFile *file = static_cast<CPartFile*>(content->value);
+			CPreferences& thePrefs = CPreferences::Instance();
 			bool b = (thePrefs.ShowRatingIndicator()
 				&& (file->HasComment() || file->HasRating() || file->IsKadCommentSearchRunning())
 				&& point.x >= sm_iIconOffset + theApp.GetSmallSytemIconSize().cx
@@ -2381,6 +2404,7 @@ void CDownloadListCtrl::OnLvnGetInfoTip(LPNMHDR pNMHDR, LRESULT *pResult)
 				pGetInfoTip->pszText[0] = _T('\0');
 			return;
 		}
+		CPreferences& thePrefs = CPreferences::Instance();
 
 		const CtrlItem_Struct *content = reinterpret_cast<CtrlItem_Struct*>(GetItemData(pGetInfoTip->iItem));
 		if (content && pGetInfoTip->pszText && pGetInfoTip->cchTextMax > 0) {

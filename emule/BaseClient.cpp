@@ -386,6 +386,7 @@ bool CUpDownClient::ProcessHelloAnswer(const uchar *pachPacket, uint32 nSize)
 
 bool CUpDownClient::ProcessHelloTypePacket(CSafeMemFile *data)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	bool bDbgInfo = thePrefs.GetUseDebugDevice();
 	m_strHelloInfo.Empty();
 	// clear hello properties which can be changed _only_ on receiving OP_Hello/OP_HelloAnswer
@@ -708,6 +709,7 @@ void CUpDownClient::SendHelloPacket()
 		ASSERT(0);
 		return;
 	}
+	CPreferences& thePrefs = CPreferences::Instance();
 	CStatistics& theStats = CStatistics::Instance();
 	CSafeMemFile data(128);
 	data.WriteUInt8(16); // size of userhash
@@ -728,6 +730,7 @@ void CUpDownClient::SendMuleInfoPacket(bool bAnswer)
 		ASSERT(0);
 		return;
 	}
+	CPreferences& thePrefs = CPreferences::Instance();
 	CStatistics& theStats = CStatistics::Instance();
 	CSafeMemFile data(128);
 	data.WriteUInt8((uint8)theApp.m_uCurVersionShort);
@@ -763,6 +766,7 @@ void CUpDownClient::SendMuleInfoPacket(bool bAnswer)
 
 void CUpDownClient::ProcessMuleInfoPacket(const uchar *pachPacket, uint32 nSize)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	bool bDbgInfo = thePrefs.GetUseDebugDevice();
 	m_strMuleInfo.Empty();
 	CSafeMemFile data(pachPacket, nSize);
@@ -922,6 +926,7 @@ void CUpDownClient::SendHelloAnswer()
 		ASSERT(0);
 		return;
 	}
+	CPreferences& thePrefs = CPreferences::Instance();
 	CStatistics& theStats = CStatistics::Instance();
 	CSafeMemFile data(128);
 	SendHelloTypePacket(&data);
@@ -940,6 +945,7 @@ void CUpDownClient::SendHelloAnswer()
 
 void CUpDownClient::SendHelloTypePacket(CSafeMemFile *data)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	data->WriteHash16(thePrefs.GetUserHash());
 	data->WriteUInt32(theApp.GetID());
 	data->WriteUInt16(thePrefs.GetPort());
@@ -1083,6 +1089,7 @@ void CUpDownClient::SendHelloTypePacket(CSafeMemFile *data)
 
 void CUpDownClient::ProcessMuleCommentPacket(const uchar *pachPacket, uint32 nSize)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (m_reqfile && m_reqfile->IsPartFile()) {
 		CSafeMemFile data(pachPacket, nSize);
 		uint8 uRating = data.ReadUInt8();
@@ -1131,6 +1138,7 @@ void CUpDownClient::ProcessMuleCommentPacket(const uchar *pachPacket, uint32 nSi
 bool CUpDownClient::Disconnected(LPCTSTR pszReason, bool bFromSocket)
 {
 	ASSERT(theApp.clientlist->IsValidClient(this));
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	/*// TODO LOGREMOVE
 	if (m_nConnectingState == CCS_DIRECTCALLBACK)
@@ -1282,7 +1290,9 @@ bool CUpDownClient::Disconnected(LPCTSTR pszReason, bool bFromSocket)
 //true means the client was not deleted!
 bool CUpDownClient::TryToConnect(bool bIgnoreMaxCon, bool bNoCallbacks, CRuntimeClass *pClassSocket)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	CStatistics& theStats = CStatistics::Instance();
+
 	// There are 7 possible ways how we are going to connect in this function, sorted by priority:
 	// 1) Already Connected/Connecting
 	//		We are already connected or try to connect right now. Abort, no additional Disconnect() call will be done
@@ -1527,6 +1537,7 @@ bool CUpDownClient::TryToConnect(bool bIgnoreMaxCon, bool bNoCallbacks, CRuntime
 
 void CUpDownClient::Connect()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	// enable or disable encryption based on our and the remote clients preference
 	if (HasValidHash() && SupportsCryptLayer() && thePrefs.IsClientCryptLayerSupported() && (RequestsCryptLayer() || thePrefs.IsClientCryptLayerRequested())) {
 		//DebugLog(_T("Enabling CryptLayer on outgoing connection to client %s"), (LPCTSTR)DbgGetClientInfo()); // to be removed later
@@ -1546,6 +1557,7 @@ void CUpDownClient::Connect()
 
 void CUpDownClient::ConnectionEstablished()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	CStatistics& theStats = CStatistics::Instance();
 	// OK we have a connection, lets see if we want anything from this client
 
@@ -1872,6 +1884,8 @@ void CUpDownClient::SendPublicKeyPacket()
 		ASSERT(0);
 		return;
 	}
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (!theApp.clientcredits->CryptoAvailable())
 		return;
 	CStatistics& theStats = CStatistics::Instance();
@@ -1892,6 +1906,7 @@ void CUpDownClient::SendSignaturePacket()
 		ASSERT(0);
 		return;
 	}
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	if (!theApp.clientcredits->CryptoAvailable())
 		return;
@@ -1944,6 +1959,7 @@ void CUpDownClient::SendSignaturePacket()
 void CUpDownClient::ProcessPublicKeyPacket(const uchar *pachPacket, uint32 nSize)
 {
 	theApp.clientlist->AddTrackClient(this);
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	if (socket == NULL || credits == NULL || pachPacket[0] != nSize - 1 || nSize < 10 || nSize > 250) {
 		//ASSERT ( false ); on network malfunction eMule crashed while hanging in this assert's messagebox. Also 451 bytes packet were seen in the wild.
@@ -1968,7 +1984,7 @@ void CUpDownClient::ProcessPublicKeyPacket(const uchar *pachPacket, uint32 nSize
 void CUpDownClient::ProcessSignaturePacket(const uchar *pachPacket, uint32 nSize)
 {
 	// here we spread the good guys from the bad ones ;)
-
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (socket == NULL || credits == NULL || nSize > 250 || nSize < 10) {
 		//ASSERT ( false ); I have seen size 0x181; just a return should be sufficient
 		return;
@@ -2027,6 +2043,7 @@ void CUpDownClient::ProcessSignaturePacket(const uchar *pachPacket, uint32 nSize
 
 void CUpDownClient::SendSecIdentStatePacket()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	CStatistics& theStats = CStatistics::Instance();
 	// check if we need public key and signature
 	if (credits) {
@@ -2109,6 +2126,7 @@ bool CUpDownClient::IsBanned() const
 
 void CUpDownClient::SendPreviewRequest(const CAbstractFile *pForFile)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	CStatistics& theStats = CStatistics::Instance();
 	if (m_fPreviewReqPending == 0) {
 		m_fPreviewReqPending = 1;
@@ -2125,6 +2143,7 @@ void CUpDownClient::SendPreviewRequest(const CAbstractFile *pForFile)
 void CUpDownClient::SendPreviewAnswer(const CKnownFile *pForFile, CxImage **imgFrames, uint8 nCount)
 {
 	CStatistics& theStats = CStatistics::Instance();
+	CPreferences& thePrefs = CPreferences::Instance();
 	m_fPreviewAnsPending = 0;
 	CSafeMemFile data(1024);
 	if (pForFile)
@@ -2164,6 +2183,7 @@ void CUpDownClient::SendPreviewAnswer(const CKnownFile *pForFile, CxImage **imgF
 
 void CUpDownClient::ProcessPreviewReq(const uchar *pachPacket, uint32 nSize)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (nSize < 16)
 		throw GetResString(IDS_ERR_WRONGPACKETSIZE);
 
@@ -2486,6 +2506,8 @@ void CUpDownClient::OnSocketConnected(int /*nErrorCode*/)
 CString CUpDownClient::GetDownloadStateDisplayString() const
 {
 	UINT uid;
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	switch (GetDownloadState()) {
 	case DS_CONNECTING:
 		uid = IDS_CONNECTING;
@@ -2555,6 +2577,7 @@ CString CUpDownClient::GetDownloadStateDisplayString() const
 
 CString CUpDownClient::GetUploadStateDisplayString() const
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	UINT uid;
 	switch (GetUploadState()) {
 	case US_ONUPLOADQUEUE:
@@ -2606,6 +2629,7 @@ CString CUpDownClient::GetUploadStateDisplayString() const
 void CUpDownClient::SendPublicIPRequest()
 {
 	CStatistics& theStats = CStatistics::Instance();
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (socket && socket->IsConnected()) {
 		if (thePrefs.GetDebugClientTCPLevel() > 0)
 			DebugSend("OP_PublicIPReq", this);
@@ -2632,6 +2656,7 @@ void CUpDownClient::CheckFailedFileIdReqs(const uchar *aucFileHash)
 {
 	if (aucFileHash != NULL && (theApp.sharedfiles->IsUnsharedFile(aucFileHash) || theApp.downloadqueue->GetFileByID(aucFileHash)))
 		return;
+	CPreferences& thePrefs = CPreferences::Instance();
 	//if (GetDownloadState() != DS_DOWNLOADING) // filereq floods are never allowed!
 	{
 		if (m_fFailedFileIdReqs < 6)// NOTE: Do not increase this counter without increasing the bits for 'm_fFailedFileIdReqs'
@@ -2674,6 +2699,7 @@ bool  CUpDownClient::IsObfuscatedConnectionEstablished() const
 
 bool CUpDownClient::ShouldReceiveCryptUDPPackets() const
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	return thePrefs.IsClientCryptLayerSupported() && SupportsCryptLayer() && theApp.GetPublicIP() != 0
 		&& HasValidHash() && (thePrefs.IsClientCryptLayerRequested() || RequestsCryptLayer());
 }
@@ -2717,7 +2743,9 @@ void CUpDownClient::GetDisplayImage(int &iImage, UINT &uOverlayImage) const
 
 void CUpDownClient::ProcessChatMessage(CSafeMemFile *data, uint32 nLength)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	CStatistics& theStats = CStatistics::Instance();
+
 	//filter me?
 	if ((thePrefs.MsgOnlyFriends() && !IsFriend()) || (thePrefs.MsgOnlySecure() && GetUserName() == NULL)) {
 		if (!GetMessageFiltered())
@@ -2959,6 +2987,8 @@ void CUpDownClient::ProcessFirewallCheckUDPRequest(CSafeMemFile *data)
 		DebugLogWarning(_T("Ignored Kad Firewall request UDP because Kad is not running (%s)"), (LPCTSTR)DbgGetClientInfo());
 		return;
 	}
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	// first search if we know this IP already, if so the result might be biased and we need tell the requester
 	bool bErrorAlreadyKnown = GetUploadState() != US_NONE || GetDownloadState() != DS_NONE || GetChatState() != MS_NONE
 		|| (Kademlia::CKademlia::GetRoutingZone()->GetContact(ntohl(GetConnectIP()), 0, false) != NULL);
@@ -3007,6 +3037,7 @@ void CUpDownClient::SendSharedDirectories()
 	//TODO: Don't send shared directories which do not contain any files
 	// add shared directories
 	CStringArray arFolders;
+	CPreferences& thePrefs = CPreferences::Instance();
 	for (POSITION pos = thePrefs.shareddir_list.GetHeadPosition(); pos != NULL;) {
 		const CString &strDir(theApp.sharedfiles->GetPseudoDirName(thePrefs.shareddir_list.GetNext(pos)));
 		if (!strDir.IsEmpty())

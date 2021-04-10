@@ -188,6 +188,8 @@ void CUploadDiskIOThread::StartCreateNextBlockPackage(UploadingToClient_Struct *
 		return; // the buffered data is large enough already
 	}
 
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	try {
 		// Buffer new data if current buffer is less than nBufferLimit Bytes
 		while (!pUploadClientStruct->m_BlockRequests_queue.IsEmpty()
@@ -332,6 +334,9 @@ void CUploadDiskIOThread::ReadCompletionRoutine(DWORD dwErrorCode, DWORD dwBytes
 		ASSERT(0);
 		return;
 	}
+
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (m_bRun) {
 		if (dwBytesRead == 0)
 			dwBytesRead = pOverlappedExStruct->dwRead;
@@ -446,6 +451,8 @@ bool CUploadDiskIOThread::ShouldCompressBasedOnFilename(const CString &strFileNa
 	if (pos < 0)
 		return true;
 	const CString &strExt(strFileName.Mid(pos + 1).MakeLower());
+
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (strExt == _T("avi"))
 		return !thePrefs.GetDontCompressAvi();
 	return strExt != _T("zip") && strExt != _T("7z") && strExt != _T("rar") && strExt != _T("cbz") && strExt != _T("cbr") && strExt != _T("ace") && strExt != _T("ogm");
@@ -456,6 +463,7 @@ void CUploadDiskIOThread::CreateStandardPackets(byte *pbyData, uint64 uStartOffs
 	uint32 togo = (uint32)(uEndOffset - uStartOffset);
 	CMemFile memfile((BYTE*)pbyData, togo);
 	uint32 nPacketSize = (togo > 10240u) ? togo / (togo / 10240u) : togo;
+	CPreferences& thePrefs = CPreferences::Instance();
 	CStatistics& theStats = CStatistics::Instance();
 
 
@@ -510,6 +518,7 @@ void CUploadDiskIOThread::CreatePackedPackets(byte *pbyData, uint64 uStartOffset
 	uint32 nPacketSize = (togo > 10240u) ? togo / (togo / 10240u) : togo;
 
 	uint32 totalPayloadSize = 0;
+	CPreferences& thePrefs = CPreferences::Instance();
 	CStatistics& theStats = CStatistics::Instance();
 
 

@@ -427,6 +427,7 @@ void CMiniMule::UpdateContent(UINT uUpDatarate, UINT uDownDatarate)
 	SetElementHtml(_T("upRate"), CComBSTR(theApp.emuledlg->GetUpDatarateString(uUpDatarate)));
 	SetElementHtml(_T("downRate"), CComBSTR(theApp.emuledlg->GetDownDatarateString(uDownDatarate)));
 	UINT uCompleted = 0;
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (thePrefs.GetRemoveFinishedDownloads())
 		uCompleted = thePrefs.GetDownSessionCompletedFiles();
 	else if (theApp.emuledlg->transferwnd && theApp.emuledlg->transferwnd->GetDownloadList()->m_hWnd) {

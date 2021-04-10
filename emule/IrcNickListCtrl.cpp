@@ -236,6 +236,7 @@ void CIrcNickListCtrl::DeleteAllNick(Channel *pChannel)
 
 void CIrcNickListCtrl::DeleteNickInAll(const CString &sNick, const CString &sMessage)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	for (POSITION pos = m_pParent->m_wndChanSel.m_lstChannels.GetHeadPosition(); pos != NULL;) {
 		Channel *pChannel = m_pParent->m_wndChanSel.m_lstChannels.GetNext(pos);
 		if (RemoveNick(pChannel->m_sName, sNick)) {
@@ -312,6 +313,8 @@ bool CIrcNickListCtrl::ChangeNickMode(const CString &sChannel, const CString &sN
 
 bool CIrcNickListCtrl::ChangeAllNick(const CString &sOldNick, const CString &sNewNick)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+	
 	bool bChanged = false;
 	//Change the nick in ALL channels.
 	Channel *pChannel = m_pParent->m_wndChanSel.FindChannelByName(sOldNick);
@@ -379,6 +382,7 @@ BOOL CIrcNickListCtrl::OnCommand(WPARAM wParam, LPARAM)
 	item.mask = TCIF_PARAM;
 	m_pParent->m_wndChanSel.GetItem(iChanItem, &item);
 	Channel *pChannel = reinterpret_cast<Channel*>(item.lParam);
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	switch (wParam) {
 	case Irc_Priv:

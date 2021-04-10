@@ -43,8 +43,9 @@ END_MESSAGE_MAP()
 
 CPPgProxy::CPPgProxy()
 	: CPropertyPage(CPPgProxy::IDD)
-	, proxy(thePrefs.GetProxySettings())
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+	proxy = thePrefs.GetProxySettings();
 }
 
 void CPPgProxy::DoDataExchange(CDataExchange *pDX)
@@ -100,6 +101,8 @@ BOOL CPPgProxy::OnApply()
 		proxy.password.Empty();
 		proxy.bEnablePassword = false;
 	}
+
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	thePrefs.SetProxySettings(proxy);
 	LoadSettings();

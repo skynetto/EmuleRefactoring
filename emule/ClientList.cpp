@@ -195,6 +195,8 @@ bool CClientList::AttachToAlreadyKnown(CUpDownClient **client, CClientReqSocket 
 	CUpDownClient *tocheck = *client;
 	CUpDownClient *found_client = NULL;
 	CUpDownClient *found_client2 = NULL;
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	for (POSITION pos = list.GetHeadPosition(); pos != NULL;) {
 		CUpDownClient *cur_client = list.GetNext(pos);
 		if (tocheck->Compare(cur_client, false)) //matching userhash
@@ -460,6 +462,7 @@ void CClientList::Process()
 	}
 
 	CStatistics& theStats = CStatistics::Instance();
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	///////////////////////////////////////////////////////////////////////////
 	// Cleanup tracked client list
@@ -653,6 +656,7 @@ void CClientList::Process()
 #ifdef _DEBUG
 void CClientList::Debug_SocketDeleted(CClientReqSocket *deleted) const
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	for (POSITION pos = list.GetHeadPosition(); pos != NULL;) {
 		CUpDownClient *cur_client = list.GetNext(pos);
 		if (!AfxIsValidAddress(cur_client, sizeof CUpDownClient))
@@ -667,6 +671,7 @@ void CClientList::Debug_SocketDeleted(CClientReqSocket *deleted) const
 
 bool CClientList::IsValidClient(CUpDownClient *tocheck) const
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (thePrefs.m_iDbgHeap >= 2)
 		ASSERT_VALID(tocheck);
 	return list.Find(tocheck) != NULL;
@@ -679,6 +684,7 @@ bool CClientList::IsValidClient(CUpDownClient *tocheck) const
 bool CClientList::RequestTCP(Kademlia::CContact *contact, uint8 byConnectOptions)
 {
 	uint32 nContactIP = contact->GetNetIP();
+	CPreferences& thePrefs = CPreferences::Instance();
 	// don't connect ourself
 	if (theApp.serverconnect->GetLocalIP() == nContactIP && thePrefs.GetPort() == contact->GetTCPPort())
 		return false;
@@ -711,6 +717,7 @@ bool CClientList::RequestTCP(Kademlia::CContact *contact, uint8 byConnectOptions
 void CClientList::RequestBuddy(Kademlia::CContact *contact, uint8 byConnectOptions)
 {
 	uint32 nContactIP = contact->GetNetIP();
+	CPreferences& thePrefs = CPreferences::Instance();
 	// don't connect to ourself
 	if (theApp.serverconnect->GetLocalIP() == nContactIP && thePrefs.GetPort() == contact->GetTCPPort())
 		return;
@@ -738,6 +745,7 @@ void CClientList::RequestBuddy(Kademlia::CContact *contact, uint8 byConnectOptio
 bool CClientList::IncomingBuddy(Kademlia::CContact *contact, Kademlia::CUInt128 *buddyID)
 {
 	uint32 nContactIP = contact->GetNetIP();
+	CPreferences& thePrefs = CPreferences::Instance();
 	//If eMule already knows this client, abort this. It could cause conflicts.
 	//Although the odds of this happening is very small, it could still happen.
 	if (FindClientByIP(nContactIP, contact->GetTCPPort()))

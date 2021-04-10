@@ -358,6 +358,7 @@ void DialogCreateIndirect(CDialog *pWnd, UINT uID)
 
 BOOL CemuleDlg::OnInitDialog()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 #ifdef HAVE_WIN7_SDK_H
 	// allow the TaskbarButtonCreated- & (tbb-)WM_COMMAND message to be sent to our window if our app is running elevated
 	if (thePrefs.GetWindowsVersion() >= _WINVER_7_) {
@@ -643,6 +644,8 @@ BOOL CemuleDlg::OnInitDialog()
 // modders: don't remove or change the original version check! (additional are OK)
 void CemuleDlg::DoVersioncheck(bool manual)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 #ifndef _DEVBUILD
 	if (!manual && thePrefs.GetLastVC() != 0) {
 		CTime last(thePrefs.GetLastVC());
@@ -671,6 +674,7 @@ void CemuleDlg::DoVersioncheck(bool manual)
 
 void CALLBACK CemuleDlg::StartupTimer(HWND /*hwnd*/, UINT /*uiMsg*/, UINT_PTR /*idEvent*/, DWORD /*dwTime*/) noexcept
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	// NOTE: Always handle all type of MFC exceptions in TimerProcs - otherwise we'll get mem leaks
 	try {
 		switch (theApp.emuledlg->status) {
@@ -754,6 +758,8 @@ void CALLBACK CemuleDlg::StartupTimer(HWND /*hwnd*/, UINT /*uiMsg*/, UINT_PTR /*
 
 void CemuleDlg::StopTimer()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (m_hTimer) {
 		VERIFY(::KillTimer(NULL, m_hTimer));
 		m_hTimer = 0;
@@ -816,6 +822,7 @@ void CemuleDlg::OnSysCommand(UINT nID, LPARAM lParam)
 
 void CemuleDlg::PostStartupMinimized()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (!m_bStartMinimizedChecked) {
 		//TODO: Use full initialized 'WINDOWPLACEMENT' and remove the 'OnCancel' call...
 		// Isn't that easy. Read comments in OnInitDialog.
@@ -885,6 +892,7 @@ void CemuleDlg::AddLogText(UINT uFlags, LPCTSTR pszText)
 		theApp.QueueLogLineEx(uFlags, _T("%s"), pszText);
 		return;
 	}
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	if (uFlags & LOG_STATUSBAR) {
 		if (statusbar->m_hWnd) {
@@ -1084,7 +1092,7 @@ CString CemuleDlg::GetUpDatarateString(UINT uUpDatarate)
 	m_uUpDatarate = (uUpDatarate != UINT_MAX) ? uUpDatarate : theApp.uploadqueue->GetDatarate();
 	CString szBuff;
 	CStatistics& theStats = CStatistics::Instance();
-
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (thePrefs.ShowOverhead())
 		szBuff.Format(_T("%.1f (%.1f)"), m_uUpDatarate / 1024.0, theStats.GetUpDatarateOverhead() / 1024.0);
 	else
@@ -1096,6 +1104,7 @@ CString CemuleDlg::GetDownDatarateString(UINT uDownDatarate)
 {
 	m_uDownDatarate = uDownDatarate != UINT_MAX ? uDownDatarate : theApp.downloadqueue->GetDatarate();
 	CString szBuff;
+	CPreferences& thePrefs = CPreferences::Instance();
 	CStatistics& theStats = CStatistics::Instance();
 	if (thePrefs.ShowOverhead())
 		szBuff.Format(_T("%.1f (%.1f)"), m_uDownDatarate / 1024.0, theStats.GetDownDatarateOverhead() / 1024.0);
@@ -1107,6 +1116,7 @@ CString CemuleDlg::GetDownDatarateString(UINT uDownDatarate)
 CString CemuleDlg::GetTransferRateString()
 {
 	CString szBuff;
+	CPreferences& thePrefs = CPreferences::Instance();
 	CStatistics& theStats = CStatistics::Instance();
 	if (thePrefs.ShowOverhead())
 		szBuff.Format(GetResString(IDS_UPDOWN)
@@ -1124,7 +1134,7 @@ void CemuleDlg::ShowTransferRate(bool bForceAll)
 
 	m_uDownDatarate = theApp.downloadqueue->GetDatarate();
 	m_uUpDatarate = theApp.uploadqueue->GetDatarate();
-
+	CPreferences& thePrefs = CPreferences::Instance();
 	const CString &strTransferRate = GetTransferRateString();
 	if (TrayIsVisible() || bForceAll) {
 		// set tray icon
@@ -1157,6 +1167,8 @@ void CemuleDlg::ShowTransferRate(bool bForceAll)
 
 void CemuleDlg::ShowPing()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (IsWindowVisible()) {
 		if (thePrefs.IsDynUpEnabled()) {
 			CString buffer;
@@ -1179,12 +1191,14 @@ void CemuleDlg::OnOK()
 
 void CemuleDlg::OnCancel()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (!thePrefs.GetStraightWindowStyles())
 		MinimizeWindow();
 }
 
 void CemuleDlg::MinimizeWindow()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (*thePrefs.GetMinTrayPTR()) {
 		TrayShow();
 		ShowWindow(SW_HIDE);
@@ -1199,6 +1213,7 @@ void CemuleDlg::SetActiveDialog(CWnd *dlg)
 {
 	if (dlg == activewnd)
 		return;
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (activewnd)
 		activewnd->ShowWindow(SW_HIDE);
 	dlg->ShowWindow(SW_SHOW);
@@ -1220,6 +1235,7 @@ void CemuleDlg::SetStatusBarPartsSize()
 {
 	RECT rect;
 	statusbar->GetClientRect(&rect);
+	CPreferences& thePrefs = CPreferences::Instance();
 	int ussShift;
 	if (thePrefs.IsDynUpEnabled())
 		ussShift = thePrefs.IsDynUpUseMillisecondPingTolerance() ? 65 : 110;
@@ -1248,6 +1264,8 @@ void CemuleDlg::OnSize(UINT nType, int cx, int cy)
 
 void CemuleDlg::ProcessED2KLink(LPCTSTR pszData)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	try {
 		CString link2(pszData);
 		link2.Replace(_T("%7c"), _T("|"));
@@ -1327,6 +1345,8 @@ LRESULT CemuleDlg::OnWMData(WPARAM, LPARAM lParam)
 {
 	PCOPYDATASTRUCT data = (PCOPYDATASTRUCT)lParam;
 	ULONG_PTR op = data->dwData;
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if ((op == OP_ED2KLINK && thePrefs.IsBringToFront()) || op == OP_COLLECTION) {
 		FlashWindow(TRUE);
 		if (IsIconic())
@@ -1620,6 +1640,8 @@ void CemuleDlg::OnDestroy()
 
 bool CemuleDlg::CanClose()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (theApp.m_app_state == APP_STATE_RUNNING && thePrefs.IsConfirmExitEnabled()) {
 		theApp.m_app_state = APP_STATE_ASKCLOSE; //disable tray menu
 		if (IsIconic())
@@ -1637,6 +1659,8 @@ bool CemuleDlg::CanClose()
 
 void CemuleDlg::OnClose()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	static LONG closing = 0;
 	if (InterlockedExchange(&closing, 1))
 		return; //already closing
@@ -1821,6 +1845,8 @@ void CemuleDlg::OnTrayLButtonUp(CPoint)
 		return;
 	}
 
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (thePrefs.GetEnableMiniMule()) {
 		try {
 			TRACE("%s - m_pMiniMule = new CMiniMule(this);\n", __FUNCTION__);
@@ -1869,7 +1895,7 @@ void CemuleDlg::OnTrayRButtonUp(CPoint pt)
 		m_pSystrayDlg->BringWindowToTop();
 		return;
 	}
-
+	CPreferences& thePrefs = CPreferences::Instance();
 	try {
 		m_pSystrayDlg = new CMuleSystrayDlg(this, pt
 			, thePrefs.GetMaxGraphUploadRate(true), thePrefs.GetMaxGraphDownloadRate()
@@ -1911,6 +1937,7 @@ void CemuleDlg::AddSpeedSelectorMenus(CMenu *addToMenu)
 	const CString &kbyps = GetResString(IDS_KBYTESPERSEC);
 	// Create UploadPopup Menu
 	ASSERT(m_menuUploadCtrl.m_hMenu == NULL);
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (m_menuUploadCtrl.CreateMenu()) {
 		int rate = thePrefs.GetMaxGraphUploadRate(true);
 		text.Format(_T("20%%\t%i %s"), (int)(rate*0.2), (LPCTSTR)kbyps);
@@ -1974,6 +2001,7 @@ void CemuleDlg::StartConnection()
 			m_hUPnPTimeOutTimer = 0;
 		}
 		AddLogLine(true, GetResString(IDS_CONNECTING));
+		CPreferences& thePrefs = CPreferences::Instance();
 
 		// ed2k
 		if ((thePrefs.GetNetworkED2K() || m_bEd2kSuspendDisconnect) && !theApp.serverconnect->IsConnecting() && !theApp.serverconnect->IsConnected())
@@ -2040,6 +2068,7 @@ void CemuleDlg::UpdateTrayIcon(int iPercent)
 	m_uLastSysTrayIconCookie = uSysTrayIconCookie;
 
 	// prepare it up
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (m_iMsgIcon != 0 && thePrefs.DoFlashOnNewMessage()) {
 		m_iMsgBlinkState = !m_iMsgBlinkState;
 
@@ -2095,6 +2124,7 @@ void CemuleDlg::ShowNotifier(LPCTSTR pszText, TbnMsg nMsgType, LPCTSTR pszLink, 
 	LPCTSTR pszSoundEvent = NULL;
 	int iSoundPrio = 0;
 	bool bShowIt = false;
+	CPreferences& thePrefs = CPreferences::Instance();
 	switch (nMsgType) {
 	case TBN_CHAT:
 		if (thePrefs.GetNotifierOnChat()) {
@@ -2178,7 +2208,7 @@ LRESULT CemuleDlg::OnTaskbarNotifierClicked(WPARAM, LPARAM lParam)
 		ShellDefaultVerb((LPTSTR)lParam);
 		free((void*)lParam);
 	}
-
+	CPreferences& thePrefs = CPreferences::Instance();
 	switch (m_wndTaskbarNotifier->GetMessageType()) {
 	case TBN_CHAT:
 		RestoreWindow();
@@ -2314,6 +2344,7 @@ void CemuleDlg::SetAllIcons()
 void CemuleDlg::Localize()
 {
 	CMenu *pSysMenu = GetSystemMenu(FALSE);
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (pSysMenu) {
 		VERIFY(pSysMenu->ModifyMenu(MP_ABOUTBOX, MF_BYCOMMAND | MF_STRING, MP_ABOUTBOX, GetResString(IDS_ABOUTBOX)));
 		VERIFY(pSysMenu->ModifyMenu(MP_VERSIONCHECK, MF_BYCOMMAND | MF_STRING, MP_VERSIONCHECK, GetResString(IDS_VERSIONCHECK)));
@@ -2372,6 +2403,7 @@ void CemuleDlg::ShowUserStateIcon()
 
 void CemuleDlg::QuickSpeedOther(UINT nID)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (nID == MP_QS_PA) {
 		thePrefs.SetMaxUpload(1);
 		thePrefs.SetMaxDownload(1);
@@ -2384,6 +2416,8 @@ void CemuleDlg::QuickSpeedOther(UINT nID)
 
 void CemuleDlg::QuickSpeedUpload(UINT nID)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	switch (nID) {
 	case MP_QS_U10:
 		nID = 1;
@@ -2428,6 +2462,8 @@ void CemuleDlg::QuickSpeedUpload(UINT nID)
 
 void CemuleDlg::QuickSpeedDownload(UINT nID)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	switch (nID) {
 	case MP_QS_D10:
 		nID = 1;
@@ -2470,6 +2506,7 @@ void CemuleDlg::QuickSpeedDownload(UINT nID)
 // quick-speed changer -- based on xrmb
 int CemuleDlg::GetRecMaxUpload()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	int rate = thePrefs.GetMaxGraphUploadRate(true);
 	if (rate < 7)
 		return 0;
@@ -2480,6 +2517,8 @@ int CemuleDlg::GetRecMaxUpload()
 
 BOOL CemuleDlg::OnCommand(WPARAM wParam, LPARAM lParam)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	switch (wParam) {
 	case TBBTN_CONNECT:
 	case MP_HM_CON:
@@ -2624,7 +2663,7 @@ void CemuleDlg::ShowToolPopup(bool toolsonly)
 	theWebServices.GetGeneralMenuEntries(&Links);
 	Links.InsertMenu(3, MF_BYPOSITION | MF_SEPARATOR);
 	Links.AppendMenu(MF_STRING, MP_WEBSVC_EDIT, GetResString(IDS_WEBSVEDIT));
-
+	CPreferences& thePrefs = CPreferences::Instance();
 	CMenu scheduler;
 	scheduler.CreateMenu();
 	const CString &schedonoff = GetResString(thePrefs.IsSchedulerEnabled() ? IDS_HM_SCHED_OFF : IDS_HM_SCHED_ON);
@@ -2680,6 +2719,7 @@ void CemuleDlg::ShowToolPopup(bool toolsonly)
 
 void CemuleDlg::ApplyHyperTextFont(LPLOGFONT pFont)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	theApp.m_fontHyperText.DeleteObject();
 	if (theApp.m_fontHyperText.CreateFontIndirect(pFont)) {
 		thePrefs.SetHyperTextFont(pFont);
@@ -2691,6 +2731,7 @@ void CemuleDlg::ApplyHyperTextFont(LPLOGFONT pFont)
 
 void CemuleDlg::ApplyLogFont(LPLOGFONT pFont)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	theApp.m_fontLog.DeleteObject();
 	if (theApp.m_fontLog.CreateFontIndirect(pFont)) {
 		thePrefs.SetLogFont(pFont);
@@ -2766,6 +2807,7 @@ void FlatWindowStyles(CWnd *pWnd)
 
 void InitWindowStyles(CWnd *pWnd)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	//ApplySystemFont(pWnd);
 	if (thePrefs.GetStraightWindowStyles() < 0)
 		return;
@@ -2780,6 +2822,7 @@ void InitWindowStyles(CWnd *pWnd)
 
 LRESULT CemuleDlg::OnVersionCheckResponse(WPARAM, LPARAM lParam)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (WSAGETASYNCERROR(lParam) == 0) {
 		WORD iBufLen = WSAGETASYNCBUFLEN(lParam);
 		if (iBufLen >= sizeof(HOSTENT)) {
@@ -3096,6 +3139,7 @@ void CemuleDlg::HtmlHelp(DWORD_PTR dwData, UINT nCmd)
 	if (bHelpError) {
 		CString msg;
 		msg.Format(_T("%s\n\n%s\n\n%s"), pApp->m_pszHelpFilePath, (LPCTSTR)strHelpError, (LPCTSTR)GetResString(IDS_ERR_NOHELP));
+		CPreferences& thePrefs = CPreferences::Instance();
 		if (AfxMessageBox(msg, MB_YESNO | MB_ICONERROR) == IDYES)
 			BrowserOpen(thePrefs.GetHomepageBaseURL() + _T("/home/perl/help.cgi"), thePrefs.GetMuleDirectory(EMULE_EXECUTABLEDIR));
 	}
@@ -3131,6 +3175,7 @@ LPCTSTR CemuleDlg::GetIconFromCmdId(UINT uId)
 BOOL CemuleDlg::OnChevronPushed(UINT id, LPNMHDR pNMHDR, LRESULT *plResult)
 {
 	UNREFERENCED_PARAMETER(id);
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (!thePrefs.GetUseReBarToolbar())
 		return FALSE;
 
@@ -3273,6 +3318,7 @@ LRESULT CemuleDlg::OnWebServerFileRename(WPARAM wParam, LPARAM lParam)
 
 LRESULT CemuleDlg::OnWebGUIInteraction(WPARAM wParam, LPARAM lParam)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	switch (wParam) {
 	case WEBGUIIA_UPDATEMYINFO:
@@ -3380,6 +3426,7 @@ LRESULT CemuleDlg::OnWebGUIInteraction(WPARAM wParam, LPARAM lParam)
 void CemuleDlg::TrayMinimizeToTrayChange()
 {
 	CMenu *pSysMenu = GetSystemMenu(FALSE);
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (pSysMenu != NULL) {
 		if (!thePrefs.GetMinToTray()) {
 			// just for safety, ensure that we are not adding duplicate menu entries
@@ -3410,6 +3457,8 @@ LRESULT CemuleDlg::OnUPnPResult(WPARAM wParam, LPARAM lParam)
 {
 	bool bWasRefresh = lParam != 0;
 	CUPnPImpl *impl = theApp.m_pUPnPFinder->GetImplementation();
+
+	CPreferences& thePrefs = CPreferences::Instance();
 
 //>>> WiZaRd - handle "UPNP_TIMEOUT" events!
 	if (!bWasRefresh && wParam != CUPnPImpl::UPNP_OK) {
@@ -3468,6 +3517,8 @@ LRESULT CemuleDlg::OnPowerBroadcast(WPARAM wParam, LPARAM lParam)
 
 void CemuleDlg::StartUPnP(bool bReset, uint16 nForceTCPPort, uint16 nForceUDPPort)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (theApp.m_pUPnPFinder != NULL && (m_hUPnPTimeOutTimer == 0 || !bReset)) {
 		if (bReset) {
 			theApp.m_pUPnPFinder->Reset();
@@ -3494,6 +3545,7 @@ void CemuleDlg::StartUPnP(bool bReset, uint16 nForceTCPPort, uint16 nForceUDPPor
 
 void CemuleDlg::RefreshUPnP(bool bRequestAnswer)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (!thePrefs.IsUPnPEnabled())
 		return;
 	if (theApp.m_pUPnPFinder != NULL && m_hUPnPTimeOutTimer == 0) {
@@ -3657,6 +3709,7 @@ void CemuleDlg::OnTBBPressed(UINT id)
 // When Windows tells us, the taskbarbutton was created, it is safe to initialize our taskbar stuff
 LRESULT CemuleDlg::OnTaskbarBtnCreated(WPARAM, LPARAM)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	// Sanity check that the OS is Win 7 or later
 	if (!theApp.IsClosing() && thePrefs.GetWindowsVersion() >= _WINVER_7_) {
 		if (m_pTaskbarList)
@@ -3695,6 +3748,7 @@ void CemuleDlg::EnableTaskbarGoodies(bool enable)
 
 void CemuleDlg::UpdateStatusBarProgress()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	CStatistics& theStats = CStatistics::Instance();
 	if (m_pTaskbarList && thePrefs.IsWin7TaskbarGoodiesEnabled()) {
 		// calc global progress & status
@@ -3755,6 +3809,7 @@ void CemuleDlg::SetTaskbarIconColor()
 	bool bBrightTaskbarIconSpeed = false;
 	bool bTransparent = false;
 	COLORREF cr = RGB(0, 0, 0);
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (thePrefs.IsRunningAeroGlassTheme()) {
 		HMODULE hDWMAPI = LoadLibrary(_T("dwmapi.dll"));
 		if (hDWMAPI) {

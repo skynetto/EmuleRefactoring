@@ -67,9 +67,10 @@ CUPnPImplWinServ::CUPnPImplWinServ()
 	, m_bAsyncFindRunning()
 	, m_bSecondTry()
 	, m_bServiceStartedByEmule()
-	, m_bDisableWANIPSetup(thePrefs.GetSkipWANIPSetup())
-	, m_bDisableWANPPPSetup(thePrefs.GetSkipWANPPPSetup())
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+	m_bDisableWANIPSetup = thePrefs.GetSkipWANIPSetup();
+	m_bDisableWANPPPSetup = thePrefs.GetSkipWANPPPSetup();
 	m_tLastEvent = ::GetTickCount();
 }
 
@@ -140,6 +141,8 @@ CUPnPImplWinServ::~CUPnPImplWinServ()
 // ToDo: Add a support for WinME.
 bool CUPnPImplWinServ::IsReady()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	switch (thePrefs.GetWindowsVersion()) {
 	case _WINVER_ME_:
 		return true;
@@ -263,6 +266,7 @@ void CUPnPImplWinServ::ProcessAsyncFind(CComBSTR bsSearchType)
 // Helper function for stopping the async find if proceeding
 void CUPnPImplWinServ::StopAsyncFind()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	// This will stop the async find if it is in progress
 	// ToDo: Locks up in WinME, cancelling is required <- critical
 
@@ -521,6 +525,7 @@ HRESULT CUPnPImplWinServ::SaveServices(EnumUnknownPtr pEU, const LONG nTotalItem
 HRESULT CUPnPImplWinServ::MapPort(const ServicePointer &service)
 {
 	CComBSTR bsServiceId;
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	HRESULT hr = service->get_Id(&bsServiceId);
 	if (FAILED(hr))
@@ -602,6 +607,8 @@ HRESULT CUPnPImplWinServ::MapPort(const ServicePointer &service)
 }
 void CUPnPImplWinServ::StartPortMapping()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	for (std::vector<ServicePointer>::const_iterator Iter = m_pServices.begin(); Iter != m_pServices.end(); ++Iter)
 		MapPort(*Iter);
 

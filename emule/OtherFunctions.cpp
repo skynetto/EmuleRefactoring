@@ -117,6 +117,8 @@ CString CastItoXBytes(float count, bool isK, bool isPerSec, uint32 decimal)
 
 CString CastItoXBytes(double count, bool isK, bool isPerSec, uint32 decimal)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (count <= 0.0) {
 		UINT uid;
 		if (isPerSec)
@@ -264,6 +266,7 @@ CString CastSecondsToLngHM(time_t tSeconds)
 
 bool CheckFileOpen(LPCTSTR pszFilePath, LPCTSTR pszFileTitle)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (thePrefs.GetCheckFileOpen() && !PathIsURL(pszFilePath) && GetDRM(pszFilePath)) {
 		CString strWarning;
 		strWarning.Format(GetResString(IDS_FILE_WARNING_DRM), pszFileTitle != NULL ? pszFileTitle : pszFilePath);
@@ -297,6 +300,8 @@ bool ShellDeleteFile(LPCTSTR pszFilePath)
 {
 	if (!PathFileExists(pszFilePath))
 		return true;
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (thePrefs.GetRemoveToBin()) {
 		TCHAR todel[MAX_PATH + 1] = {};
 		_tcsncpy(todel, pszFilePath, _countof(todel) - 2);
@@ -540,6 +545,8 @@ bool Ask4RegFix(bool checkOnly, bool dontAsk, bool bAutoTakeCollections)
 		regkey.Close();
 	}
 
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (!bGlobalSet) {
 		// we actually need to change the registry and write an entry for HKCU
 		if (checkOnly)
@@ -582,6 +589,7 @@ void BackupReg()
 	//		Win98: Reading a non existent value returns an empty string (which gets saved and restored by our code).
 	//		This means that saving/restoring existent registry keys works completely differently in Win98/XP.
 	//		Actually it works correctly under Win98 and is broken in WinXP+. Though, did someone notice it at all?
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	HKEY hkeyCR = thePrefs.GetWindowsVersion() < _WINVER_2K_ ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;
 	// Look for pre-existing old ed2k links
@@ -607,6 +615,8 @@ void BackupReg()
 // Barry - Restore previous values
 void RevertReg()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	HKEY hkeyCR = thePrefs.GetWindowsVersion() < _WINVER_2K_ ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;
 	// restore previous ed2k links before being assigned to emule
 	CRegKey regkey;
@@ -758,6 +768,8 @@ bool IsRunningXPSP2()
 
 bool IsRunningXPSP2OrHigher()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	WORD wv = thePrefs.GetWindowsVersion();
 	if (wv == _WINVER_XP_)
 		return IsRunningXPSP2();
@@ -963,6 +975,8 @@ CWebServices::CWebServices()
 
 CString CWebServices::GetDefaultServicesFile() const
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	return thePrefs.GetMuleDirectory(EMULE_CONFIGDIR) + _T("webservices.dat");
 }
 
@@ -1049,6 +1063,7 @@ int CWebServices::GetAllMenuEntries(CTitleMenu *pMenu, DWORD dwFlags)
 
 bool CWebServices::RunURL(const CAbstractFile *file, UINT uMenuID)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	for (int i = 0; i < m_aServices.GetCount(); ++i) {
 		const SEd2kLinkService &rSvc(m_aServices[i]);
 		if (rSvc.uMenuID == uMenuID) {
@@ -1088,6 +1103,7 @@ bool CWebServices::RunURL(const CAbstractFile *file, UINT uMenuID)
 
 void CWebServices::Edit()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	CString sDat;
 	sDat.Format(_T("\"%swebservices.dat\""), (LPCTSTR)thePrefs.GetMuleDirectory(EMULE_CONFIGDIR));
 	ShellOpen(thePrefs.GetTxtEditor(), sDat);
@@ -1267,6 +1283,7 @@ CString ValidFilename(const CString &filename)
 CString CleanupFilename(const CString &filename, bool bExtension)
 {
 	CString sClean(URLDecode(filename).MakeLower());
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	//remove substrings, defined in the preferences (.ini)
 	CString strlink(thePrefs.GetFilenameCleanups());
@@ -2082,6 +2099,7 @@ int CompareDirectory(const CString &rstrDir1, const CString &rstrDir2)
 
 bool IsGoodIP(uint32 nIP, bool forceCheck)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	// always filter following IP's
 	// -------------------------------------------
 	// 0.0.0.0							invalid
@@ -2818,6 +2836,7 @@ bool IsAutoDaylightTimeSetActive()
 
 bool AdjustNTFSDaylightFileTime(time_t &ruFileDate, LPCTSTR pszFilePath)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (!thePrefs.GetAdjustNTFSDaylightFileTime())
 		return false;
 	if (ruFileDate == 0 || ruFileDate == (time_t)-1)
@@ -2975,6 +2994,7 @@ HWND ReplaceRichEditCtrl(CWnd *pwndRE, CWnd *pwndParent, CFont *pFont)
 
 void InstallSkin(LPCTSTR pszSkinPackage)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (thePrefs.GetMuleDirectory(EMULE_SKINDIR).IsEmpty() || _taccess(thePrefs.GetMuleDirectory(EMULE_SKINDIR), 0) != 0) {
 		LocMessageBox(IDS_INSTALL_SKIN_NODIR, MB_ICONERROR, 0);
 		return;
@@ -3095,6 +3115,7 @@ void InstallSkin(LPCTSTR pszSkinPackage)
 void TriggerPortTest(uint16 tcp, uint16 udp)
 {
 	CString m_sTestURL;
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	// do not alter the connection test, this is a manual test only.
 	// If you want to change the behaviour, use your server!
@@ -3372,6 +3393,7 @@ int GetPathDriveNumber(const CString &path)
 
 uint64 GetFreeTempSpace(INT_PTR tempdirindex)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (tempdirindex >= thePrefs.GetTempDirCount() || tempdirindex < -1) {
 		ASSERT(0);
 		return 0;
@@ -3402,6 +3424,7 @@ uint64 GetFreeTempSpace(INT_PTR tempdirindex)
 
 bool DoCollectionRegFix(bool checkOnly)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	TCHAR modbuffer[MAX_PATH];
 	DWORD dwModPathLen = ::GetModuleFileName(NULL, modbuffer, _countof(modbuffer));
 	if (dwModPathLen == 0 || dwModPathLen == _countof(modbuffer))
@@ -3789,6 +3812,8 @@ uint8 GetMyConnectOptions(bool bEncryption, bool bCallback)
 	// 1 CryptLayer Required
 	// 1 CryptLayer Requested
 	// 1 CryptLayer Supported
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	const uint8 uSupportsCryptLayer = static_cast<uint8>(thePrefs.IsClientCryptLayerSupported() && bEncryption);
 	const uint8 uRequestsCryptLayer = static_cast<uint8>(thePrefs.IsClientCryptLayerRequested() && bEncryption);
 	const uint8 uRequiresCryptLayer = static_cast<uint8>(thePrefs.IsClientCryptLayerRequired() && bEncryption);

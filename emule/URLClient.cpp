@@ -175,6 +175,8 @@ bool CUrlClient::SendHttpBlockRequests()
 		, m_uReqStart, m_uReqEnd
 		, (LPCSTR)m_strHostA);
 
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (thePrefs.GetDebugClientTCPLevel() > 0)
 		Debug(_T("Sending HTTP request:\n%hs"), (LPCSTR)strHttpRequest);
 	CRawPacket *pHttpPacket = new CRawPacket(strHttpRequest);
@@ -319,6 +321,8 @@ bool CUrlClient::ProcessHttpDownResponse(const CStringAArray &astrHeaders)
 									// and which is no longer attached to us) to disconnect.
 	}
 
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (!bValidContentRange) {
 		if (thePrefs.GetDebugClientTCPLevel() <= 0)
 			DebugHttpHeaders(astrHeaders);
@@ -371,6 +375,7 @@ void CUpDownClient::ProcessHttpBlockPacket(const BYTE *pucData, UINT uSize)
 	if (nEndPos <= nStartPos)
 		throw CString(_T("Failed to process HTTP data block - Invalid block start/end offsets"));
 
+	CPreferences& thePrefs = CPreferences::Instance();
 	thePrefs.Add2SessionTransferData(GetClientSoft(), (UINT)((GetClientSoft() == SO_URL) ? -2 : -1), false, false, uSize);
 	m_nDownDataRateMS += uSize;
 	if (credits)

@@ -238,6 +238,7 @@ void CPPgTweaks::DoDataExchange(CDataExchange *pDX)
 		/////////////////////////////////////////////////////////////////////////////
 		// Logging group
 		//
+		CPreferences& thePrefs = CPreferences::Instance();
 		m_htiLog2Disk = m_ctrlTreeOptions.InsertCheckBox(GetResString(IDS_LOG2DISK), TVI_ROOT, m_bLog2Disk);
 		if (thePrefs.GetEnableVerboseOptions()) {
 			m_htiVerboseGroup = m_ctrlTreeOptions.InsertGroup(GetResString(IDS_VERBOSE), iImgLog, TVI_ROOT);
@@ -321,6 +322,8 @@ void CPPgTweaks::DoDataExchange(CDataExchange *pDX)
 	/////////////////////////////////////////////////////////////////////////////
 	// Miscellaneous group
 	//
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	DDX_TreeCheck(pDX, IDC_EXT_OPTS, m_htiAutoTakeEd2kLinks, m_bAutoTakeEd2kLinks);
 	DDX_TreeCheck(pDX, IDC_EXT_OPTS, m_htiCreditSystem, m_bCreditSystem);
 	DDX_TreeCheck(pDX, IDC_EXT_OPTS, m_htiFirewallStartup, m_bFirewallStartup);
@@ -426,6 +429,8 @@ void CPPgTweaks::DoDataExchange(CDataExchange *pDX)
 
 BOOL CPPgTweaks::OnInitDialog()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	m_iMaxConnPerFive = thePrefs.GetMaxConperFive();
 	m_iMaxHalfOpen = thePrefs.GetMaxHalfConnections();
 	m_bConditionalTCPAccept = thePrefs.GetConditionalTCPAccept();
@@ -520,6 +525,8 @@ BOOL CPPgTweaks::OnApply()
 
 	if (!UpdateData())
 		return FALSE;
+
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	thePrefs.SetMaxConsPerFive(m_iMaxConnPerFive ? m_iMaxConnPerFive : DFLT_MAXCONPERFIVE);
 	theApp.scheduler->original_cons5s = thePrefs.GetMaxConperFive();
@@ -789,6 +796,8 @@ void CPPgTweaks::OnDestroy()
 
 LRESULT CPPgTweaks::OnTreeOptsCtrlNotify(WPARAM wParam, LPARAM lParam)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (wParam == IDC_EXT_OPTS) {
 		TREEOPTSCTRLNOTIFY *pton = (TREEOPTSCTRLNOTIFY*)lParam;
 		if (m_htiVerbose && pton->hItem == m_htiVerbose) {
@@ -851,5 +860,6 @@ BOOL CPPgTweaks::OnHelpInfo(HELPINFO*)
 
 void CPPgTweaks::OnBnClickedOpenprefini()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	ShellOpenFile(thePrefs.GetMuleDirectory(EMULE_CONFIGDIR) + _T("preferences.ini"));
 }

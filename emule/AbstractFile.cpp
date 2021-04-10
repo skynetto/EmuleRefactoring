@@ -125,6 +125,7 @@ const CString& CAbstractFile::GetFileComment()
 
 void CAbstractFile::LoadComment()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	CIni ini(thePrefs.GetFileCommentsFilePath(), md4str(GetFileHash()));
 	m_strComment = ini.GetStringUTF8(_T("Comment")).Left(MAXFILECOMMENTLEN);
 	m_uRating = ini.GetInt(_T("Rate"), 0);
@@ -387,6 +388,7 @@ void CAbstractFile::SetKadCommentSearchRunning(bool bVal)
 
 void CAbstractFile::RefilterKadNotes(bool bUpdate)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	const CString &cfilter(thePrefs.GetCommentFilter());
 	// check all available comments against our filter again
 	if (cfilter.IsEmpty())
@@ -439,6 +441,7 @@ CString CAbstractFile::GetED2kLink(bool bHashset, bool bHTML, bool bHostname, bo
 		strLink.AppendFormat(_T("h=%s|"), (LPCTSTR)GetFileIdentifierC().GetAICHHash().GetString());
 
 	strLink += _T('/');
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (bHostname && thePrefs.GetYourHostname().Find(_T('.')) >= 0)
 		strLink.AppendFormat(_T("|sources,%s:%i|/"), (LPCTSTR)thePrefs.GetYourHostname(), thePrefs.GetPort());
 	else if (bSource && dwSourceIP != 0)

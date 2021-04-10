@@ -79,6 +79,7 @@ void CPPgSecurity::DoDataExchange(CDataExchange *pDX)
 
 void CPPgSecurity::LoadSettings()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	SetDlgItemInt(IDC_FILTERLEVEL, thePrefs.filterlevel);
 	CheckDlgButton(IDC_FILTERSERVERBYIPFILTER, thePrefs.filterserverbyip);
 
@@ -114,6 +115,8 @@ BOOL CPPgSecurity::OnInitDialog()
 	LoadSettings();
 	Localize();
 
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (thePrefs.GetUseAutocompletion()) {
 		if (!m_pacIPFilterURL) {
 			m_pacIPFilterURL = new CCustomAutoComplete();
@@ -136,6 +139,8 @@ BOOL CPPgSecurity::OnInitDialog()
 BOOL CPPgSecurity::OnApply()
 {
 	bool bIPFilterSettingsChanged = false;
+
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	UINT iNewFilterLevel = GetDlgItemInt(IDC_FILTERLEVEL, NULL, FALSE);
 	if (iNewFilterLevel != thePrefs.filterlevel) {
@@ -204,6 +209,7 @@ void CPPgSecurity::Localize()
 
 void CPPgSecurity::OnReloadIPFilter()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	CWaitCursor curHourglass;
 	theApp.ipfilter->LoadFromDefaultFile();
 	if (thePrefs.GetFilterServerByIP())
@@ -212,6 +218,7 @@ void CPPgSecurity::OnReloadIPFilter()
 
 void CPPgSecurity::OnEditIPFilter()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	ShellOpen(thePrefs.GetTxtEditor(), _T('\"') + thePrefs.GetMuleDirectory(EMULE_CONFIGDIR) + DFLT_IPFILTER_FILENAME + _T('\"'));
 }
 
@@ -220,6 +227,8 @@ void CPPgSecurity::OnLoadIPFFromURL()
 	bool bHaveNewFilterFile = false;
 	CString url;
 	GetDlgItemText(IDC_UPDATEURL, url);
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (!url.IsEmpty()) {
 		// add entered URL to LRU list even if it's not yet known whether we can download from this URL (it's just more convenient this way)
 		if (m_pacIPFilterURL && m_pacIPFilterURL->IsBound())
@@ -416,6 +425,7 @@ void CPPgSecurity::OnDestroy()
 
 void CPPgSecurity::DeleteDDB()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (m_pacIPFilterURL) {
 		m_pacIPFilterURL->SaveList(thePrefs.GetMuleDirectory(EMULE_CONFIGDIR) + IPFILTERUPDATEURL_STRINGS_PROFILE);
 		m_pacIPFilterURL->Unbind();

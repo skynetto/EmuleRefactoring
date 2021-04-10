@@ -536,6 +536,7 @@ UINT LastCommonRouteFinder::RunInternal()
 						pingLocker.Unlock();
 
 						// PENDING: this may not be thread safe
+						CPreferences& thePrefs = CPreferences::Instance();
 						thePrefs.SetDynUpEnabled(false);
 					}
 				}

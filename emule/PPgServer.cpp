@@ -71,6 +71,7 @@ BOOL CPPgServer::OnInitDialog()
 
 void CPPgServer::LoadSettings()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	SetDlgItemInt(IDC_SERVERRETRIES, thePrefs.m_uDeadServerRetries, FALSE);
 	CheckDlgButton(IDC_AUTOSERVER, thePrefs.m_bAutoUpdateServerList);
 	CheckDlgButton(IDC_UPDATESERVERCONNECT, thePrefs.m_bAddServersFromServer);
@@ -84,6 +85,7 @@ void CPPgServer::LoadSettings()
 
 BOOL CPPgServer::OnApply()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	UINT uCurDeadServerRetries = thePrefs.m_uDeadServerRetries;
 	thePrefs.m_uDeadServerRetries = GetDlgItemInt(IDC_SERVERRETRIES, NULL, FALSE);
 	if (thePrefs.m_uDeadServerRetries < 1)
@@ -131,6 +133,7 @@ void CPPgServer::Localize()
 
 void CPPgServer::OnBnClickedEditadr()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	CString sDat;
 	sDat.Format(_T("\"%saddresses.dat\""), (LPCTSTR)thePrefs.GetMuleDirectory(EMULE_CONFIGDIR));
 	ShellOpen(thePrefs.GetTxtEditor(), sDat);

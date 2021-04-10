@@ -128,6 +128,8 @@ CUDPSocket::~CUDPSocket()
 
 bool CUDPSocket::Create()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (thePrefs.GetServerUDPPort()) {
 		VERIFY(m_udpwnd.CreateEx(0, AfxRegisterWndClass(0), _T("eMule Async DNS Resolve Socket Wnd #1"), WS_OVERLAPPED, 0, 0, 0, 0, HWND_MESSAGE, NULL));
 		m_hWndResolveMessage = m_udpwnd.m_hWnd;
@@ -141,6 +143,8 @@ bool CUDPSocket::Create()
 
 void CUDPSocket::OnReceive(int nErrorCode)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (nErrorCode) {
 		if (thePrefs.GetDebugServerUDPLevel() > 0)
 			Debug(_T("Error: Server UDP socket: Receive failed - %s\n"), (LPCTSTR)GetErrorMessage(nErrorCode, 1));
@@ -212,6 +216,7 @@ void CUDPSocket::OnReceive(int nErrorCode)
 
 bool CUDPSocket::ProcessPacket(const BYTE *packet, UINT size, UINT opcode, uint32 nIP, uint16 nUDPPort)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	CStatistics& theStats = CStatistics::Instance();
 
 	try {
@@ -547,6 +552,7 @@ bool CUDPSocket::ProcessPacket(const BYTE *packet, UINT size, UINT opcode, uint3
 
 void CUDPSocket::ProcessPacketError(UINT size, UINT opcode, uint32 nIP, uint16 nUDPPort, LPCTSTR pszError)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (thePrefs.GetVerbose()) {
 		CString strName;
 		CServer *pServer = theApp.serverlist->GetServerByIPUDP(nIP, nUDPPort);
@@ -572,6 +578,8 @@ void CUDPSocket::DnsLookupDone(WPARAM wp, LPARAM lp)
 			break;
 		}
 	}
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (pDNSReq == NULL) {
 		if (thePrefs.GetVerbose())
 			DebugLogError(_T("Error: Server UDP socket: Unknown DNS task completed"));
@@ -648,6 +656,7 @@ void CUDPSocket::DnsLookupDone(WPARAM wp, LPARAM lp)
 
 void CUDPSocket::OnSend(int nErrorCode)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (nErrorCode) {
 		if (thePrefs.GetVerbose())
 			DebugLogError(_T("Error: Server UDP socket: Failed to send packet - %s"), (LPCTSTR)GetErrorMessage(nErrorCode, 1));
@@ -698,6 +707,8 @@ SocketSentBytes CUDPSocket::SendControlData(uint32 maxNumberOfBytesToSend, uint3
 
 int CUDPSocket::SendTo(BYTE *lpBuf, int nBufLen, uint32 dwIP, uint16 nPort)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	// NOTE: *** This function is invoked from a *different* thread!
 	//Currently called only locally; sendLocker must be locked by the caller
 	int result = CAsyncSocket::SendTo(lpBuf, nBufLen, nPort, ipstr(dwIP));
@@ -742,6 +753,8 @@ void CUDPSocket::SendPacket(Packet *packet, CServer *pServer, uint16 nSpecialPor
 			m_aDNSReqs.RemoveAt(posPrev);
 		}
 	}
+
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	// Create raw UDP packet
 	BYTE *pRawPacket;

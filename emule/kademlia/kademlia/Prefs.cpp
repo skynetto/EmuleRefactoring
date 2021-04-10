@@ -54,6 +54,7 @@ using namespace Kademlia;
 
 CPrefs::CPrefs()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	Init(thePrefs.GetMuleDirectory(EMULE_CONFIGDIR) + _T("preferencesKad.dat"));
 }
 
@@ -76,6 +77,7 @@ void CPrefs::Init(LPCTSTR szFilename)
 	m_uTotalNotes = 0;
 	m_uTotalStoreNotes = 0;
 	m_bPublish = false;
+	CPreferences& thePrefs = CPreferences::Instance();
 	m_uClientHash.SetValue(CUInt128(thePrefs.GetUserHash()));
 	m_uIP = 0;
 	m_uIPLast = 0;
@@ -396,6 +398,7 @@ void CPrefs::SetFindBuddy(bool bVal)
 
 uint32 CPrefs::GetUDPVerifyKey(uint32 dwTargetIP)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	uint64 ui64Buffer = thePrefs.GetKadUDPKey();
 	ui64Buffer <<= 32;
 	ui64Buffer |= dwTargetIP;
@@ -448,6 +451,7 @@ void CPrefs::SetExternKadPort(uint16 uVal, uint32 uFromIP)
 
 uint16 CPrefs::GetInternKadPort()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	return thePrefs.GetUDPPort();
 }
 

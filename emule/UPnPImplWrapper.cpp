@@ -30,6 +30,7 @@ static char THIS_FILE[] = __FILE__;
 
 CUPnPImplWrapper::CUPnPImplWrapper()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (!thePrefs.IsWinServUPnPImplDisabled())
 		m_liAvailable.AddTail(new CUPnPImplWinServ());
 	if (!thePrefs.IsMinilibUPnPImplDisabled())
@@ -48,6 +49,7 @@ CUPnPImplWrapper::~CUPnPImplWrapper()
 }
 void CUPnPImplWrapper::Init()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	ASSERT(!m_liAvailable.IsEmpty());
 	m_pActiveImpl = NULL;
 

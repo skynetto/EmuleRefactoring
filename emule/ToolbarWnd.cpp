@@ -209,6 +209,8 @@ LRESULT CToolbarWnd::OnInitDialog(WPARAM, LPARAM)
 	// Initialize the toolbar
 	CImageList iml;
 	int nFlags = theApp.m_iDfltImageListColorFlags;
+
+	CPreferences& thePrefs = CPreferences::Instance();
 	// older Windows versions image lists cannot create monochrome (disabled) icons which have alpha support
 	// so we have to take care of this ourself
 	bool bNeedMonoIcons = thePrefs.GetWindowsVersion() < _WINVER_VISTA_ && nFlags != ILC_COLOR4;
@@ -436,6 +438,8 @@ void CToolbarWnd::OnAvailableCommandsChanged(CList<int> *liCommands)
 
 BOOL CToolbarWnd::OnCommand(WPARAM wParam, LPARAM)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (LOWORD(wParam) == MP_TOGGLEDTOOLBAR) {
 		theApp.emuledlg->transferwnd->ShowToolbar(false);
 		thePrefs.SetDownloadToolbar(false);
@@ -475,6 +479,8 @@ void CToolbarWnd::OnContextMenu(CWnd*, CPoint point)
 
 void CToolbarWnd::DelayShow(BOOL bShow)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	// Yes, it is somewhat ugly but still the best way (without partially rewriting 3 MFC classes)
 	// to know if the user clicked on the Close-Button of our floating Bar
 	if (!bShow && m_pDockSite != NULL && m_pDockBar != NULL) {

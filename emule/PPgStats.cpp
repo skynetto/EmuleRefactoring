@@ -86,6 +86,8 @@ BOOL CPPgStats::OnInitDialog()
 
 	static_cast<CSliderCtrl*>(GetDlgItem(IDC_SLIDER))->SetRange(0, 200, TRUE);
 
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	m_ctlGraphsUpdate.SetPos(thePrefs.GetTrafficOMeterInterval());
 	m_ctlGraphsUpdate.SetTicFreq(10);
 	m_ctlGraphsUpdate.SetPageSize(10);
@@ -134,6 +136,8 @@ BOOL CPPgStats::OnInitDialog()
 BOOL CPPgStats::OnApply()
 {
 	//TODO: cache all parameters. stats should be redrawn (deleted) only if really needed
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (m_bModified) {
 		bool bInvalidateGraphs = false;
 

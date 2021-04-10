@@ -53,6 +53,7 @@ void CBarShader::Reset()
 
 void CBarShader::BuildModifiers()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	delete[] m_Modifiers;
 	m_Modifiers = NULL; // 'new' may throw an exception
 
@@ -210,6 +211,7 @@ void CBarShader::FillBarRect(CDC *dc, LPRECT rectSpan, COLORREF color, bool bFla
 
 void CBarShader::FillBarRect(CDC *dc, LPRECT rectSpan, float fRed, float fGreen, float fBlue, bool bFlat)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (bFlat)
 		dc->FillSolidRect(rectSpan, RGB((int)(fRed + .5f), (int)(fGreen + .5f), (int)(fBlue + .5f)));
 	else {

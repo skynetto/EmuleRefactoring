@@ -189,6 +189,7 @@ int CEncryptedDatagramSocket::DecryptReceivedClient(BYTE *pbyBufIn, int nBufLen,
 	}
 	bool bKadRecvKeyUsed = false;
 	bool bKad = false;
+	CPreferences& thePrefs = CPreferences::Instance();
 	do {
 		--byTries;
 		MD5Sum md5;
@@ -288,6 +289,7 @@ int CEncryptedDatagramSocket::DecryptReceivedClient(BYTE *pbyBufIn, int nBufLen,
 // else																-> ASSERT
 uint32 CEncryptedDatagramSocket::EncryptSendClient(uchar *pbyBuf, uint32 nBufLen, const uchar *pachClientHashOrKadID, bool bKad, uint32 nReceiverVerifyKey, uint32 nSenderVerifyKey)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	ASSERT(theApp.GetPublicIP() != 0 || bKad);
 	ASSERT(thePrefs.IsClientCryptLayerSupported());
 	ASSERT(pachClientHashOrKadID != NULL || nReceiverVerifyKey != 0);
@@ -379,6 +381,8 @@ int CEncryptedDatagramSocket::DecryptReceivedServer(BYTE *pbyBufIn, int nBufLen,
 	int nResult = nBufLen;
 	*ppbyBufOut = pbyBufIn;
 
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (nResult <= CRYPT_HEADER_SIZE || !thePrefs.IsServerCryptLayerUDPEnabled() || dwBaseKey == 0)
 		return nResult;
 
@@ -423,6 +427,7 @@ int CEncryptedDatagramSocket::DecryptReceivedServer(BYTE *pbyBufIn, int nBufLen,
 
 uint32 CEncryptedDatagramSocket::EncryptSendServer(uchar *pbyBuf, uint32 nBufLen, uint32 dwBaseKey)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	ASSERT(thePrefs.IsServerCryptLayerUDPEnabled());
 	ASSERT(dwBaseKey != 0);
 

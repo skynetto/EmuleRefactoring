@@ -157,6 +157,8 @@ CStringW CSecRunAsUser::CreateRandomPW()
 
 bool CSecRunAsUser::SetDirectoryPermissions()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 #define FULLACCESS ADS_RIGHT_GENERIC_ALL
 	// shared files list: read permission only
 	// we odnt check for success here, for emule will also run if one dir fails for some reason
@@ -513,6 +515,7 @@ eResult CSecRunAsUser::RestartAsRestricted()
 eResult CSecRunAsUser::RestartSecure()
 {
 	eResult res;
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	if (!thePrefs.IsPreferingRestrictedOverUser()) {
 		res = PrepareUser();

@@ -81,6 +81,7 @@ void CDownloadQueue::Init()
 	// find all part files, read & hash them if needed and store into a list
 	CFileFind ff;
 	int count = 0;
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	for (INT_PTR i = 0; i < thePrefs.GetTempDirCount(); ++i) {
 		CString searchPath;
@@ -162,6 +163,8 @@ void CDownloadQueue::AddSearchToDownload(CSearchFile *toadd, uint8 paused, int c
 	if (!(uint64)toadd->GetFileSize() || IsFileExisting(toadd->GetFileHash()))
 		return;
 
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (toadd->GetFileSize() > OLD_MAX_EMULE_FILE_SIZE && !thePrefs.CanFSHandleLargeFiles(cat)) {
 		LogError(LOG_STATUSBAR, GetResString(IDS_ERR_FSCANTHANDLEFILE));
 		return;
@@ -213,6 +216,7 @@ void CDownloadQueue::AddSearchToDownload(CSearchFile *toadd, uint8 paused, int c
 void CDownloadQueue::AddSearchToDownload(const CString &link, uint8 paused, int cat)
 {
 	CPartFile *newfile = new CPartFile(link, cat);
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (newfile->GetStatus() == PS_ERROR) {
 		delete newfile;
 		return;
@@ -225,6 +229,7 @@ void CDownloadQueue::AddSearchToDownload(const CString &link, uint8 paused, int 
 
 void CDownloadQueue::StartNextFileIfPrefs(int cat)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	int i = thePrefs.StartNextFile();
 	if (i)
 		StartNextFile((i > 1 ? cat : -1), (i != 3));
@@ -233,6 +238,7 @@ void CDownloadQueue::StartNextFileIfPrefs(int cat)
 void CDownloadQueue::StartNextFile(int cat, bool force)
 {
 	CPartFile *pfile = NULL;
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	if (cat != -1) {
 		// try to find in specified category
@@ -267,6 +273,8 @@ void CDownloadQueue::StartNextFile(int cat, bool force)
 void CDownloadQueue::AddFileLinkToDownload(CED2KFileLink *pLink, int cat)
 {
 	CPartFile *newfile = new CPartFile(pLink, cat);
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (newfile->GetStatus() == PS_ERROR) {
 		delete newfile;
 		newfile = NULL;
@@ -350,6 +358,7 @@ bool CDownloadQueue::IsFileExisting(const uchar *fileid, bool bLogWarnings) cons
 void CDownloadQueue::Process()
 {
 	ProcessLocalRequests(); // send src requests to local server
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	uint32 downspeed;
 	uint64 maxDownload = thePrefs.GetMaxDownloadInBytesPerSec(true);
@@ -465,6 +474,8 @@ bool CDownloadQueue::CheckAndAddSource(CPartFile *sender, CUpDownClient *source)
 		return false;
 	}
 
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (source->HasValidHash()) {
 		if (md4equ(source->GetUserHash(), thePrefs.GetUserHash())) {
 			if (thePrefs.GetVerbose())
@@ -549,6 +560,7 @@ bool CDownloadQueue::CheckAndAddKnownSource(CPartFile *sender, CUpDownClient *so
 {
 	if (sender->IsStopped())
 		return false;
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	// filter sources which are known to be temporarily dead/useless
 	if ((theApp.clientlist->m_globDeadSourceList.IsDeadSource(source) && !bIgnoreGlobDeadList) || sender->m_DeadSourceList.IsDeadSource(source)) {
@@ -730,6 +742,7 @@ bool CDownloadQueue::IsMaxFilesPerUDPServerPacketReached(uint32 nFiles, uint32 n
 bool CDownloadQueue::SendGlobGetSourcesUDPPacket(CSafeMemFile *data, bool bExt2Packet, uint32 nFiles, uint32 nIncludedLargeFiles)
 {
 	bool bSentPacket = false;
+	CPreferences& thePrefs = CPreferences::Instance();
 	CStatistics& theStats = CStatistics::Instance();
 	if (cur_udpserver) {
 #ifdef _DEBUG
@@ -764,6 +777,8 @@ bool CDownloadQueue::SendGlobGetSourcesUDPPacket(CSafeMemFile *data, bool bExt2P
 
 bool CDownloadQueue::SendNextUDPPacket()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (filelist.IsEmpty()
 		|| !theApp.serverconnect->IsUDPSocketAvailable()
 		|| !theApp.serverconnect->IsConnected()
@@ -977,6 +992,7 @@ void CDownloadQueue::CheckDiskspace(bool bNotEnoughSpaceLeft)
 	//SortByPriority();
 
 	// If disabled, resume any previously paused files
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (!thePrefs.IsCheckDiskspaceEnabled()) {
 		if (!bNotEnoughSpaceLeft) // avoid worse case, if we already had 'disk full'
 			for (POSITION pos = filelist.GetHeadPosition(); pos != NULL;) {
@@ -1265,6 +1281,7 @@ UINT CDownloadQueue::GetPausedFileCount() const
 
 void CDownloadQueue::SetAutoCat(CPartFile *newfile)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (thePrefs.GetCatCount() < 2 || newfile->GetCategory() > 0)
 		return;
 
@@ -1326,6 +1343,7 @@ void CDownloadQueue::RemoveLocalServerRequest(CPartFile *pFile)
 
 void CDownloadQueue::ProcessLocalRequests()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (!m_localServerReqQueue.IsEmpty() && ::GetTickCount() >= m_dwNextTCPSrcReq) {
 		CSafeMemFile dataTcpFrame(22);
 		const int iMaxFilesPerTcpFrame = 15;
@@ -1539,6 +1557,7 @@ void CDownloadQueue::KademliaSearchFile(uint32 searchID, const Kademlia::CUInt12
 	//Do we need more sources?
 	if (temp->IsStopped() || temp->GetMaxSources() <= temp->GetSourceCount())
 		return;
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	uint32 ED2Kip = htonl(ip);
 	if (theApp.ipfilter->IsFiltered(ED2Kip)) {
@@ -1633,6 +1652,7 @@ void CDownloadQueue::KademliaSearchFile(uint32 searchID, const Kademlia::CUInt12
 
 void CDownloadQueue::ExportPartMetFilesOverview() const
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	CString strFileListPath(thePrefs.GetMuleDirectory(EMULE_CONFIGDIR) + _T("downloads.txt"));
 
 	CString strTmpFileListPath = strFileListPath;
@@ -1714,6 +1734,7 @@ void CDownloadQueue::OnConnectionState(bool bConnected)
 CString CDownloadQueue::GetOptimalTempDir(UINT nCat, EMFileSize nFileSize)
 {
 	// shortcut
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (thePrefs.GetTempDirCount() == 1)
 		return thePrefs.GetTempDir();
 

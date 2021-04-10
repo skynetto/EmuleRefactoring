@@ -162,6 +162,7 @@ CClientCreditsList::~CClientCreditsList()
 
 void CClientCreditsList::LoadList()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	CString strFileName(thePrefs.GetMuleDirectory(EMULE_CONFIGDIR) + CLIENTS_MET_FILENAME);
 	const int iOpenFlags = CFile::modeRead | CFile::osSequentialScan | CFile::typeBinary | CFile::shareDenyWrite;
 	CSafeBufferedFile file;
@@ -261,6 +262,7 @@ void CClientCreditsList::LoadList()
 
 void CClientCreditsList::SaveList()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (thePrefs.GetLogFileSaving())
 		AddDebugLogLine(false, _T("Saving clients credit list file \"%s\""), CLIENTS_MET_FILENAME);
 	m_nLastSaved = ::GetTickCount();
@@ -345,6 +347,7 @@ void CClientCredits::InitalizeIdent()
 
 void CClientCredits::Verified(uint32 dwForIP)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	m_dwIdentIP = dwForIP;
 	// client was verified, copy the key to store him if not done already
 	if (m_pCredits->nKeySize == 0) {
@@ -388,6 +391,7 @@ using namespace CryptoPP;
 
 void CClientCreditsList::InitalizeCrypting()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	m_nMyPublicKeyLen = 0;
 	memset(m_abyMyPublicKey, 0, sizeof m_abyMyPublicKey); // not really needed; better for debugging tho
 	m_pSignkey = NULL;
@@ -428,6 +432,7 @@ void CClientCreditsList::InitalizeCrypting()
 
 bool CClientCreditsList::CreateKeyPair()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	try {
 		AutoSeededRandomPool rng;
 		InvertibleRSAFunction privkey;
@@ -498,6 +503,7 @@ bool CClientCreditsList::VerifyIdent(CClientCredits *pTarget, const uchar *pachS
 		pTarget->IdentState = IS_NOTAVAILABLE;
 		return false;
 	}
+	CPreferences& thePrefs = CPreferences::Instance();
 	bool bResult;
 	try {
 		StringSource ss_Pubkey((byte*)pTarget->GetSecureIdent(), pTarget->GetSecIDKeyLen(), true, 0);
@@ -554,6 +560,7 @@ bool CClientCreditsList::VerifyIdent(CClientCredits *pTarget, const uchar *pachS
 
 bool CClientCreditsList::CryptoAvailable() const
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	return m_nMyPublicKeyLen > 0 && m_pSignkey != NULL && thePrefs.IsSecureIdentEnabled();
 }
 

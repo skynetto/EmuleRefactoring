@@ -95,6 +95,8 @@ bool Encrypt(const CStringA &rstrContentA, CByteArray &raEncrypted, LPCWSTR pwsz
 
 	static LPCTSTR const pszCertStore = _T("AddressBook");
 	HCERTSTORE hStoreHandle = CertOpenSystemStore(hCryptProv, pszCertStore);
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (hStoreHandle) {
 		PCCERT_CONTEXT pRecipientCert = CertFindCertificateInStore(hStoreHandle, PKCS_7_ASN_ENCODING | X509_ASN_ENCODING, 0, CERT_FIND_SUBJECT_STR, pwszCertSubject, NULL);
 		if (pRecipientCert) {
@@ -520,6 +522,7 @@ int CNotifierMailThread::write_data(mbedtls_ssl_context *ssl, const char *buf, s
 
 void CemuleDlg::SendNotificationMail(TbnMsg nMsgType, LPCTSTR pszText)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (!thePrefs.IsNotifierSendMailEnabled())
 		return;
 

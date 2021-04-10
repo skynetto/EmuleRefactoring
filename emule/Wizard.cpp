@@ -68,6 +68,8 @@ void CConnectionWizardDlg::DoDataExchange(CDataExchange *pDX)
 
 void CConnectionWizardDlg::OnBnClickedApply()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (m_provider.GetSelectionMark() == 0) {
 		// change the upload/download to unlimited and don't touch other stuff, keep the default values
 		thePrefs.maxGraphUploadRate = UNLIMITED;
@@ -208,6 +210,7 @@ BOOL CConnectionWizardDlg::OnInitDialog()
 	InitWindowStyles(this);
 
 	SetIcon(m_icoWnd = theApp.LoadIcon(_T("Wizard")), FALSE);
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	switch (thePrefs.GetWindowsVersion()) {
 	case _WINVER_95_:
@@ -263,6 +266,7 @@ BOOL CConnectionWizardDlg::OnInitDialog()
 
 void CConnectionWizardDlg::OnNmClickProviders(LPNMHDR, LRESULT *pResult)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	SetCustomItemsActivation();
 	int i = m_provider.GetSelectionMark();
 	if (i < 0 || i > 17)

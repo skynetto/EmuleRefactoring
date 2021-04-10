@@ -126,6 +126,7 @@ void CUPnPImplMiniLib::GetOldPorts()
 
 void CUPnPImplMiniLib::DeletePorts(bool bSkipLock)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	// this function can be blocking when called when eMule exits, and we need to wait for it to finish
 	// before going on anyway. It might be called from the non-blocking StartDiscovery() function too however
 	CSingleLock lockTest(&m_mutBusy);

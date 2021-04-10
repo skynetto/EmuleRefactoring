@@ -79,6 +79,7 @@ void CHttpClientReqSocket::DataReceived(const BYTE *pucData, UINT uSize)
 {
 	bool bResult = false;
 	CString strError;
+	CPreferences& thePrefs = CPreferences::Instance();
 	try {
 		bResult = ProcessHttpPacket(pucData, uSize);
 	} catch (CMemoryException *ex) {
@@ -124,6 +125,7 @@ void CHttpClientReqSocket::DataReceived(const BYTE *pucData, UINT uSize)
 
 bool CHttpClientReqSocket::ProcessHttpPacket(const BYTE *pucData, UINT uSize)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	CStatistics& theStats = CStatistics::Instance();
 
 	if (GetHttpState() == HttpStateRecvExpected || GetHttpState() == HttpStateRecvHeaders) {

@@ -721,6 +721,7 @@ bool CAICHRecoveryHashSet::SaveHashSet()
 	if (!lockKnown2Met.Lock(SEC2MS(5)))
 		return false;
 
+	CPreferences& thePrefs = CPreferences::Instance();
 	CString fullpath(thePrefs.GetMuleDirectory(EMULE_CONFIGDIR) + KNOWN2_MET_FILENAME);
 	CSafeFile file;
 	CFileException fexp;
@@ -801,6 +802,7 @@ bool CAICHRecoveryHashSet::LoadHashSet()
 		ASSERT(0);
 		return false;
 	}
+	CPreferences& thePrefs = CPreferences::Instance();
 	CString fullpath(thePrefs.GetMuleDirectory(EMULE_CONFIGDIR) + KNOWN2_MET_FILENAME);
 	CSafeFile file;
 	CFileException fexp;
@@ -983,6 +985,8 @@ void CAICHRecoveryHashSet::UntrustedHashReceived(const CAICHHash &Hash, uint32 d
 		ASSERT(0);
 		return;
 	}
+
+	CPreferences& thePrefs = CPreferences::Instance();
 	// the check if we trust any hash
 	if (thePrefs.IsTrustingEveryHash()
 		|| (nMostTrustedIPs >= MINUNIQUEIPS_TOTRUST && (100 * nMostTrustedIPs) / nSigningIPsTotal >= MINPERCENTAGE_TOTRUST))

@@ -188,6 +188,7 @@ void CCommentDialogLst::OnBnClickedSearchKad()
 
 void CCommentDialogLst::OnBnClickedFilter()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	InputBox inputbox;
 	inputbox.SetLabels(GetResString(IDS_EDITSPAMFILTERCOMMENTS), GetResString(IDS_FILTERCOMMENTSLABEL), thePrefs.GetCommentFilter());
 	inputbox.DoModal();

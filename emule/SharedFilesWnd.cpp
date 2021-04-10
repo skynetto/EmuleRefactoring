@@ -87,6 +87,8 @@ BOOL CSharedFilesWnd::OnInitDialog()
 	InitWindowStyles(this);
 	SetAllIcons();
 	sharedfilesctrl.Init();
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	m_ctlSharedDirTree.Initialize(&sharedfilesctrl);
 	if (thePrefs.GetUseSystemFontForMainControls())
 		m_ctlSharedDirTree.SendMessage(WM_SETFONT, NULL, FALSE);
@@ -155,6 +157,7 @@ void CSharedFilesWnd::DoResize(int iDelta)
 	RECT rcSpl;
 	m_wndSplitter.GetWindowRect(&rcSpl);
 	ScreenToClient(&rcSpl);
+	CPreferences& thePrefs = CPreferences::Instance();
 	thePrefs.SetSplitterbarPositionShared(rcSpl.left);
 
 	RemoveAnchor(m_wndSplitter);
@@ -399,6 +402,7 @@ void CSharedFilesWnd::ShowSelectedFilesDetails(bool bForce)
 
 void CSharedFilesWnd::ShowDetailsPanel(bool bShow)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	m_bDetailsVisible = bShow;
 	thePrefs.SetShowSharedFilesDetails(bShow);
 	RemoveAnchor(sharedfilesctrl);
@@ -513,6 +517,7 @@ CSharedFileDetailsModelessSheet::CSharedFileDetailsModelessSheet()
 	m_wndMetaData.m_psp.dwFlags |= PSP_USEICONID;
 	m_wndMetaData.m_psp.pszIcon = _T("METADATA");
 	m_wndMetaData.SetFiles(&m_aItems);
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (thePrefs.IsExtControlsEnabled())
 		AddPage(&m_wndMetaData);
 

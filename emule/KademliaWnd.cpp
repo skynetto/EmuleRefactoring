@@ -112,6 +112,7 @@ CKademliaWnd::~CKademliaWnd()
 
 BOOL CKademliaWnd::SaveAllSettings()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (m_pacONBSIPs)
 		m_pacONBSIPs->SaveList(thePrefs.GetMuleDirectory(EMULE_CONFIGDIR) + ONBOOTSTRAP_STRINGS_PROFILE);
 
@@ -200,6 +201,7 @@ BOOL CKademliaWnd::OnInitDialog()
 	searchList->UpdateKadSearchCount();
 	m_contactListCtrl->UpdateKadContactCount();
 
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (thePrefs.GetUseAutocompletion()) {
 		m_pacONBSIPs = new CCustomAutoComplete();
 		m_pacONBSIPs->AddRef();
@@ -447,6 +449,7 @@ void CKademliaWnd::ContactRef(const Kademlia::CContact *contact)
 
 void CKademliaWnd::UpdateNodesDatFromURL(const CString &strURL)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	CString strTempFilename;
 	strTempFilename.Format(_T("%stemp-%lu-nodes.dat"), (LPCTSTR)thePrefs.GetMuleDirectory(EMULE_CONFIGDIR), ::GetTickCount());
 
@@ -506,6 +509,7 @@ void CKademliaWnd::SetSearchGraph(Kademlia::CLookupHistory *pLookupHistory, bool
 
 void CKademliaWnd::OnNMDblclkSearchlist(LPNMHDR pNMHDR, LRESULT *pResult)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	LPNMITEMACTIVATE pItemInfo = (LPNMITEMACTIVATE)pNMHDR;
 	if (pItemInfo->iItem >= 0) {
 		Kademlia::CSearch *pSearch = (Kademlia::CSearch*)searchList->GetItemData(pItemInfo->iItem);

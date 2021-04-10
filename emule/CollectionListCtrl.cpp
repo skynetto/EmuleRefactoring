@@ -77,6 +77,7 @@ CCollectionFileDetailsSheet::CCollectionFileDetailsSheet(CTypedPtrList<CPtrList,
 	m_wndMetaData.m_psp.dwFlags &= ~PSP_HASHELP;
 	m_wndMetaData.m_psp.dwFlags |= PSP_USEICONID;
 	m_wndMetaData.m_psp.pszIcon = _T("METADATA");
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (thePrefs.IsExtControlsEnabled() && m_aItems.GetSize() == 1) {
 		m_wndMetaData.SetFiles(&m_aItems);
 		AddPage(&m_wndMetaData);

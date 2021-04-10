@@ -51,6 +51,7 @@ void ExitBox::OnOK()
 {
 	CDialog::OnOK();
 	m_cancel = false;
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (IsDlgButtonChecked(IDC_DONOTASKAGAIN))
 		thePrefs.SetConfirmExit(false);
 }

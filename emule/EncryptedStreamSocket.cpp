@@ -118,7 +118,6 @@ CEncryptedStreamSocket::CEncryptedStreamSocket()
 	: m_dbgbyEncryptionSupported(0xff)
 	, m_dbgbyEncryptionRequested(0xff)
 	, m_dbgbyEncryptionMethodSet(0xff)
-	, m_StreamCryptState(thePrefs.IsClientCryptLayerSupported() ? ECS_UNKNOWN : ECS_NONE)
 	, m_EncryptionMethod(ENM_OBFUSCATION)
 	, m_bFullReceive(true)
 	, m_bServerCrypt()
@@ -131,6 +130,8 @@ CEncryptedStreamSocket::CEncryptedStreamSocket()
 	, m_nObfuscatedBytesReceived()
 	, m_NegotiatingState(ONS_NONE)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+	m_StreamCryptState = thePrefs.IsClientCryptLayerSupported() ? ECS_UNKNOWN : ECS_NONE;
 };
 
 CEncryptedStreamSocket::~CEncryptedStreamSocket()
@@ -233,6 +234,8 @@ int CEncryptedStreamSocket::Receive(void *lpBuf, int nBufLen, int nFlags)
 	if (m_nObfuscatedBytesReceived == SOCKET_ERROR || m_nObfuscatedBytesReceived <= 0)
 		return m_nObfuscatedBytesReceived;
 
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	switch (m_StreamCryptState) {
 	case ECS_NONE: // disabled, just pass it through
 		break;
@@ -267,6 +270,7 @@ int CEncryptedStreamSocket::Receive(void *lpBuf, int nBufLen, int nFlags)
 		// if we require an encrypted connection, cut the connection here.
 		// This shouldn't happen that often at least with other up-to-date eMule clients
 		// because they check for incompatibility before connecting if possible
+
 		if (thePrefs.IsClientCryptLayerRequired()) {
 			// TODO: Remove me when i have been solved
 			// Even if the Require option is enabled, we currently have to accept unencrypted connection
@@ -377,6 +381,7 @@ void CEncryptedStreamSocket::OnSend(int)
 
 void CEncryptedStreamSocket::StartNegotiation(bool bOutgoing)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	if (!bOutgoing) {
 		m_NegotiatingState = ONS_BASIC_CLIENTA_RANDOMPART;
@@ -436,6 +441,7 @@ void CEncryptedStreamSocket::StartNegotiation(bool bOutgoing)
 int CEncryptedStreamSocket::Negotiate(const uchar *pBuffer, int nLen)
 {
 	ASSERT(m_nReceiveBytesWanted > 0);
+	CPreferences& thePrefs = CPreferences::Instance();
 	try {
 		int nRead = 0;
 		while (m_NegotiatingState != ONS_COMPLETE && m_nReceiveBytesWanted > 0) {

@@ -126,6 +126,8 @@ CSharedFileDetailsSheet::CSharedFileDetailsSheet(CTypedPtrList<CPtrList, CSharea
 	: CListViewWalkerPropertySheet(pListCtrl)
 	, m_uInvokePage(uInvokePage)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	for (POSITION pos = aFiles.GetHeadPosition(); pos != NULL;)
 		m_aItems.Add(aFiles.GetNext(pos));
 	m_psh.dwFlags &= ~PSH_HASHELP;
@@ -297,6 +299,8 @@ void CSharedFilesCtrl::Init()
 	SetSortArrow();
 	SortItems(SortProc, GetSortItem() + (GetSortAscending() ? 0 : 20) + (GetSortSecondValue() ? 100 : 0));
 
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	CToolTipCtrl *tooltip = GetToolTips();
 	if (tooltip) {
 		m_pToolTip->SetFileIconToolTip(true);
@@ -370,6 +374,9 @@ void CSharedFilesCtrl::AddFile(const CShareableFile *file)
 {
 	if (theApp.IsClosing())
 		return;
+
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	// check filter conditions if we should show this file right now
 	if (m_pDirectoryFilter != NULL) {
 		ASSERT(file->IsKindOf(RUNTIME_CLASS(CKnownFile)) || m_pDirectoryFilter->m_eItemType == SDI_UNSHAREDDIRECTORY);
@@ -520,6 +527,8 @@ void CSharedFilesCtrl::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct)
 	GetClientRect(&rcClient);
 	CShareableFile *file = reinterpret_cast<CShareableFile*>(lpDrawItemStruct->itemData);
 	CKnownFile *pKnownFile = file->IsKindOf(RUNTIME_CLASS(CKnownFile)) ? static_cast<CKnownFile*>(file) : NULL;
+
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	CHeaderCtrl *pHeaderCtrl = GetHeaderCtrl();
 	int iCount = pHeaderCtrl->GetItemCount();
@@ -784,6 +793,10 @@ void CSharedFilesCtrl::OnContextMenu(CWnd*, CPoint point)
 		if (m_SharedFilesMenu.InsertMenuItem(MP_OPENFOLDER, &mii, FALSE))
 			uInsertedMenuItem = mii.wID;
 	}
+
+	CPreferences& thePrefs = CPreferences::Instance();
+
+
 	m_SharedFilesMenu.EnableMenuItem(MP_OPENFOLDER, bSingleCompleteFileSelected ? MF_ENABLED : MF_GRAYED);
 	m_SharedFilesMenu.EnableMenuItem(MP_RENAME, (!bContainsShareableFiles && bSingleCompleteFileSelected) ? MF_ENABLED : MF_GRAYED);
 	m_SharedFilesMenu.EnableMenuItem(MP_REMOVE, iCompleteFileSelected > 0 ? MF_ENABLED : MF_GRAYED);
@@ -1329,6 +1342,8 @@ void CSharedFilesCtrl::CreateMenus()
 	m_SharedFilesMenu.CreatePopupMenu();
 	m_SharedFilesMenu.AddMenuTitle(GetResString(IDS_SHAREDFILES), true);
 
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	m_SharedFilesMenu.AppendMenu(MF_STRING, MP_OPEN, GetResString(IDS_OPENFILE), _T("OPENFILE"));
 	m_SharedFilesMenu.AppendMenu(MF_STRING, MP_OPENFOLDER, GetResString(IDS_OPENFOLDER), _T("OPENFOLDER"));
 	m_SharedFilesMenu.AppendMenu(MF_STRING, MP_RENAME, GetResString(IDS_RENAME) + _T("..."), _T("FILERENAME"));
@@ -1522,6 +1537,8 @@ void CSharedFilesCtrl::AddShareableFiles(const CString &strFromDir)
 		return;
 	}
 
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	SetRedraw(FALSE);
 	while (!end) {
 		end = !ff.FindNextFile();
@@ -1624,6 +1641,9 @@ void CSharedFilesCtrl::CheckBoxClicked(int iItem)
 		ASSERT(0);
 		return;
 	}
+
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	// check which state the checkbox (should) currently have
 	const CShareableFile *pFile = reinterpret_cast<CShareableFile*>(GetItemData(iItem));
 	if (pFile->IsShellLinked())
@@ -1726,6 +1746,8 @@ DROPEFFECT CSharedFilesCtrl::CShareDropTarget::OnDragOver(CWnd*, COleDataObject 
 
 BOOL CSharedFilesCtrl::CShareDropTarget::OnDrop(CWnd*, COleDataObject *pDataObject, DROPEFFECT dropEffect, CPoint point)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	HGLOBAL hGlobal = pDataObject->GetGlobalData(CF_HDROP);
 	if (hGlobal != NULL) {
 		HDROP hDrop = (HDROP)GlobalLock(hGlobal);

@@ -251,6 +251,7 @@ void CCollection::WriteToFileAddShared(CryptoPP::RSASSA_PKCS1v15_SHA_Signer *pSi
 {
 	using namespace CryptoPP;
 
+	CPreferences& thePrefs = CPreferences::Instance();
 	CString sFilePath;
 	sFilePath.Format(_T("%s\\%s%s"), (LPCTSTR)thePrefs.GetMuleDirectory(EMULE_INCOMINGDIR), (LPCTSTR)m_sCollectionName, COLLECTION_FILEEXTENSION);
 

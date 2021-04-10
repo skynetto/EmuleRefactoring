@@ -201,6 +201,8 @@ UINT CSearchList::ProcessSearchAnswer(const uchar *in_packet, uint32 size
 		AddToList(toadd, true);
 	}
 
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (pbMoreResultsAvailable)
 		*pbMoreResultsAvailable = false;
 	int iAddData = static_cast<int>(packet.GetLength() - packet.GetPosition());
@@ -240,6 +242,8 @@ UINT CSearchList::ProcessSearchAnswer(const uchar *in_packet, uint32 size, bool 
 		}
 		AddToList(toadd, false);
 	}
+
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	if (pbMoreResultsAvailable)
 		*pbMoreResultsAvailable = false;
@@ -409,6 +413,9 @@ bool CSearchList::AddToList(CSearchFile *toadd, bool bClientResponse, uint32 dwF
 		}
 	}
 	toadd->SetNameWithoutKeyword(strNameWithoutKeyword);
+
+	CPreferences& thePrefs = CPreferences::Instance();
+
 
 	// search for a 'parent' with same file hash and search-id as the new search result entry
 	for (POSITION pos = list->GetHeadPosition(); pos != NULL;) {
@@ -682,6 +689,9 @@ void CSearchList::AddResultCount(uint32 nSearchID, const uchar *hash, UINT nCoun
 	if (!m_foundSourcesCount.Lookup(nSearchID, tempValue))
 		tempValue = 0;
 
+	CPreferences& thePrefs = CPreferences::Instance();
+
+
 	// spam files count as max 5 availability
 	m_foundSourcesCount.SetAt(nSearchID, tempValue
 		+ ((bSpam && thePrefs.IsSearchSpamFilterEnabled()) ? min(nCount, 5) : nCount));
@@ -848,6 +858,9 @@ void CSearchList::DoSpamRating(CSearchFile *pSearchFile, bool bIsClientFile, boo
 	bMarkAsNoSpam = true: Will remove all stored characteristics which would add to a positive spam score for this file
 	*/
 	ASSERT(!bRecalculateAll || bMarkAsNoSpam);
+
+	CPreferences& thePrefs = CPreferences::Instance();
+
 
 	if (!thePrefs.IsSearchSpamFilterEnabled())
 		return;
@@ -1240,6 +1253,9 @@ void CSearchList::LoadSpamFilter()
 
 	m_bSpamFilterLoaded = true;
 
+	CPreferences& thePrefs = CPreferences::Instance();
+
+
 	const CString &fullpath(thePrefs.GetMuleDirectory(EMULE_CONFIGDIR) + SPAMFILTER_FILENAME);
 	CSafeBufferedFile file;
 	CFileException fexp;
@@ -1352,6 +1368,8 @@ void CSearchList::SaveSpamFilter()
 	if (!m_bSpamFilterLoaded)
 		return;
 
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	const CString &fullpath(thePrefs.GetMuleDirectory(EMULE_CONFIGDIR) + SPAMFILTER_FILENAME);
 	CSafeBufferedFile file;
 	CFileException fexp;
@@ -1449,6 +1467,8 @@ void CSearchList::SaveSpamFilter()
 
 void CSearchList::StoreSearches()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	// store open searches on shutdown to restore them on the next startup
 	const CString &fullpath(thePrefs.GetMuleDirectory(EMULE_CONFIGDIR) + STOREDSEARCHES_FILENAME);
 
@@ -1508,6 +1528,8 @@ void CSearchList::StoreSearches()
 void CSearchList::LoadSearches()
 {
 	ASSERT(m_listFileLists.IsEmpty());
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	const CString &fullpath(thePrefs.GetMuleDirectory(EMULE_CONFIGDIR) + STOREDSEARCHES_FILENAME);
 	CSafeBufferedFile file;
 	CFileException fexp;

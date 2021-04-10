@@ -83,6 +83,7 @@ void CDirectDownloadDlg::OnOK()
 {
 	CString strLinks;
 	GetDlgItemText(IDC_ELINK, strLinks);
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	for (int iPos = 0; iPos >= 0;) {
 		const CString &sToken(strLinks.Tokenize(_T(" \t\r\n"), iPos)); //tokenize by whitespace
@@ -116,6 +117,7 @@ void CDirectDownloadDlg::OnOK()
 BOOL CDirectDownloadDlg::OnInitDialog()
 {
 	CResizableDialog::OnInitDialog();
+	CPreferences& thePrefs = CPreferences::Instance();
 	InitWindowStyles(this);
 	SetIcon(m_icoWnd = theApp.LoadIcon(_T("PasteLink")), FALSE);
 
@@ -163,6 +165,7 @@ void CDirectDownloadDlg::UpdateCatTabs()
 {
 	int oldsel = m_cattabs.GetCurSel();
 	m_cattabs.DeleteAllItems();
+	CPreferences& thePrefs = CPreferences::Instance();
 	for (int ix = 0; ix < thePrefs.GetCatCount(); ++ix) {
 		CString label = (ix == 0) ? GetResString(IDS_ALL) : thePrefs.GetCategory(ix)->strTitle;
 		label.Replace(_T("&"), _T("&&"));

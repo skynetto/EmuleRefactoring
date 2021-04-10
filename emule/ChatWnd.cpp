@@ -220,6 +220,7 @@ BOOL CChatWnd::OnInitDialog()
 	AddAnchor(m_wndClose, BOTTOM_RIGHT);
 
 	int iPosStatInit = rcSpl.left;
+	CPreferences& thePrefs = CPreferences::Instance();
 	int iPosStatNew = thePrefs.GetSplitterbarPositionFriend();
 	if (iPosStatNew > SPLITTER_HORZ_RANGE_MAX)
 		iPosStatNew = SPLITTER_HORZ_RANGE_MAX;
@@ -261,6 +262,7 @@ void CChatWnd::DoResize(int iDelta)
 	RECT rcSpl;
 	m_wndSplitterHorz.GetWindowRect(&rcSpl);
 	ScreenToClient(&rcSpl);
+	CPreferences& thePrefs = CPreferences::Instance();
 	thePrefs.SetSplitterbarPositionFriend(rcSpl.left);
 
 	RemoveAnchor(m_FriendListCtrl);

@@ -618,6 +618,7 @@ uint32 CKademlia::CalculateKadUsersNew()
 
 bool CKademlia::IsRunningInLANMode()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (thePrefs.FilterLANIPs() || !IsRunning() || GetRoutingZone() == NULL)
 		return false;
 	if (time(NULL) >= m_tLANModeCheck + 10) {

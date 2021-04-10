@@ -72,6 +72,9 @@ void CUploadListCtrl::Init()
 	SetPrefsKey(_T("UploadListCtrl"));
 	SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_INFOTIP);
 
+	CPreferences& thePrefs = CPreferences::Instance();
+
+
 	CToolTipCtrl *tooltip = GetToolTips();
 	if (tooltip) {
 		m_tooltip->SubclassWindow(tooltip->m_hWnd);
@@ -136,6 +139,9 @@ void CUploadListCtrl::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct)
 	if (theApp.IsClosing() || !lpDrawItemStruct->itemData)
 		return;
 
+	CPreferences& thePrefs = CPreferences::Instance();
+
+
 	CMemoryDC dc(CDC::FromHandle(lpDrawItemStruct->hDC), &lpDrawItemStruct->rcItem);
 	BOOL bCtrlFocused;
 	InitItemMemDC(dc, lpDrawItemStruct, bCtrlFocused);
@@ -145,6 +151,7 @@ void CUploadListCtrl::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct)
 	const CUpDownClient *client = reinterpret_cast<CUpDownClient*>(lpDrawItemStruct->itemData);
 	if (client->GetSlotNumber() > (UINT)theApp.uploadqueue->GetActiveUploadsCount())
 		dc.SetTextColor(::GetSysColor(COLOR_GRAYTEXT));
+
 
 	CHeaderCtrl *pHeaderCtrl = GetHeaderCtrl();
 	int iCount = pHeaderCtrl->GetItemCount();
@@ -196,6 +203,7 @@ void CUploadListCtrl::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct)
 CString  CUploadListCtrl::GetItemDisplayText(const CUpDownClient *client, int iSubItem) const
 {
 	CString sText;
+	CPreferences& thePrefs = CPreferences::Instance();
 	switch (iSubItem) {
 	case 0:
 		if (client->GetUserName() != NULL)
@@ -327,6 +335,9 @@ int CALLBACK CUploadListCtrl::SortProc(LPARAM lParam1, LPARAM lParam2, LPARAM lP
 	const CUpDownClient *item2 = reinterpret_cast<CUpDownClient*>(lParam2);
 	LPARAM iColumn = (lParamSort >= 100) ? lParamSort - 100 : lParamSort;
 	int iResult = 0;
+
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	switch (iColumn) {
 	case 0:
 		if (item1->GetUserName() && item2->GetUserName())

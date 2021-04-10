@@ -306,6 +306,8 @@ BOOL CPPgWebServer::OnInitDialog()
 
 void CPPgWebServer::LoadSettings()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	CheckDlgButton(IDC_WSENABLED, static_cast<UINT>(thePrefs.GetWSIsEnabled()));
 	CheckDlgButton(IDC_WS_GZIP, static_cast<UINT>(thePrefs.GetWebUseGzip()));
 
@@ -336,6 +338,8 @@ void CPPgWebServer::OnDataChange()
 
 BOOL CPPgWebServer::OnApply()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (m_bModified) {
 		CString sBuf;
 		bool bUPnP = thePrefs.GetWSUseUPnP();
@@ -456,6 +460,7 @@ void CPPgWebServer::Localize()
 
 void CPPgWebServer::SetUPnPState()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	GetDlgItem(IDC_WSUPNP)->EnableWindow(thePrefs.IsUPnPEnabled() && IsDlgButtonChecked(IDC_WSENABLED));
 }
 
@@ -513,7 +518,7 @@ void CPPgWebServer::OnGenerateCertificate()
 	if (InterlockedExchange(&m_generating, 1))
 		return;
 	CWaitCursor curWaiting;
-
+	CPreferences& thePrefs = CPreferences::Instance();
 	const CString &confdir(thePrefs.GetMuleDirectory(EMULE_CONFIGDIR));
 	const CString &fkey(confdir + _T("cert.key"));
 	const CString &fcrt(confdir + _T("cert.crt"));
@@ -573,7 +578,7 @@ void CPPgWebServer::SetTmplButtonState()
 {
 	CString buffer;
 	GetDlgItemText(IDC_TMPLPATH, buffer);
-
+	CPreferences& thePrefs = CPreferences::Instance();
 	GetDlgItem(IDC_WSRELOADTMPL)->EnableWindow(IsDlgButtonChecked(IDC_WSENABLED) && (buffer.CompareNoCase(thePrefs.GetTemplate()) == 0));
 }
 

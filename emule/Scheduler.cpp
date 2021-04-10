@@ -46,7 +46,7 @@ CScheduler::~CScheduler()
 
 int CScheduler::LoadFromFile()
 {
-
+	CPreferences& thePrefs = CPreferences::Instance();
 	CString strName;
 	strName.Format(_T("%spreferences.ini"), (LPCTSTR)thePrefs.GetMuleDirectory(EMULE_CONFIGDIR));
 	CIni ini(strName, _T("Scheduler"));
@@ -73,6 +73,7 @@ int CScheduler::LoadFromFile()
 
 void CScheduler::SaveToFile()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	CIni ini(thePrefs.GetConfigFile(), _T("Scheduler"));
 	ini.WriteInt(_T("Count"), (int)GetCount());
 
@@ -113,6 +114,8 @@ INT_PTR CScheduler::AddSchedule(Schedule_Struct *schedule)
 
 int CScheduler::Check(bool forcecheck)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (!thePrefs.IsSchedulerEnabled()
 		|| theApp.scheduler->GetCount() == 0
 		|| theApp.IsClosing())
@@ -200,6 +203,7 @@ int CScheduler::Check(bool forcecheck)
 
 void CScheduler::SaveOriginals()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	original_upload = thePrefs.GetMaxUpload();
 	original_download = thePrefs.GetMaxDownload();
 	original_connections = thePrefs.GetMaxConnections();
@@ -209,6 +213,7 @@ void CScheduler::SaveOriginals()
 
 void CScheduler::RestoreOriginals()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	thePrefs.SetMaxUpload(original_upload);
 	thePrefs.SetMaxDownload(original_download);
 	thePrefs.SetMaxConnections(original_connections);
@@ -218,6 +223,7 @@ void CScheduler::RestoreOriginals()
 
 void CScheduler::ActivateSchedule(INT_PTR index, bool makedefault)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	Schedule_Struct *schedule = GetSchedule(index);
 
 	for (int ai = 0; ai < 16 && schedule->actions[ai]; ++ai) {

@@ -65,6 +65,8 @@ CServerList::~CServerList()
 
 void CServerList::AutoUpdate()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (thePrefs.addresses_list.IsEmpty()) {
 		LocMessageBox(IDS_ERR_EMPTYADDRESSESDAT, MB_ICONASTERISK, 0);
 		return;
@@ -103,6 +105,8 @@ void CServerList::AutoUpdate()
 
 bool CServerList::Init()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	// auto update the list by using a URL
 	if (thePrefs.GetAutoUpdateServerList())
 		AutoUpdate();
@@ -212,6 +216,8 @@ bool CServerList::AddServerMetToList(const CString &strFile, bool bMerge)
 
 bool CServerList::AddServer(const CServer *pServer, bool bAddTail)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (!IsGoodServerIP(pServer)) { // check for 0-IP, localhost and optionally for LAN addresses
 		if (thePrefs.GetLogFilteredIPs())
 			AddDebugLogLine(false, _T("IPFilter(AddServer): Filtered server \"%s\" (IP=%s) - Invalid IP or LAN address."), (LPCTSTR)pServer->GetListName(), (LPCTSTR)ipstr(pServer->GetIP()));
@@ -257,6 +263,7 @@ bool CServerList::GiveServersForTraceRoute()
 
 void CServerList::ServerStats()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	CStatistics& theStats = CStatistics::Instance();
 
 	// Update the server list even if we are connected to Kademlia only.
@@ -600,6 +607,7 @@ CServer* CServerList::GetServerByIPUDP(uint32 nIP, uint16 nUDPPort, bool bObfusc
 
 bool CServerList::SaveServermetToFile()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (thePrefs.GetLogFileSaving())
 		AddDebugLogLine(false, _T("Saving servers list file \"%s\""), SERVER_MET_FILENAME);
 	m_nLastSaved = ::GetTickCount();
@@ -857,6 +865,8 @@ void CServerList::AddServersFromTextFile(const CString &strFilename) const
 
 bool CServerList::SaveStaticServers()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	FILE *fpStaticServers = _tfsopen(thePrefs.GetMuleDirectory(EMULE_CONFIGDIR) + _T("staticservers.dat"), _T("wb"), _SH_DENYWR);
 	if (fpStaticServers == NULL) {
 		LogError(LOG_STATUSBAR, GetResString(IDS_ERROR_SSF));
@@ -927,6 +937,7 @@ void CServerList::RemoveDuplicatesByIP(const CServer *pExceptThis)
 
 void CServerList::CheckForExpiredUDPKeys()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (!thePrefs.IsServerCryptLayerUDPEnabled())
 		return;
 

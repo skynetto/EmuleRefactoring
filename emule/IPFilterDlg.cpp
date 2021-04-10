@@ -322,6 +322,8 @@ void CIPFilterDlg::OnBnClickedAppend()
 	if (dwCurDirLen == 0 || dwCurDirLen >= _countof(szCurDir))
 		szCurDir[0] = _T('\0');
 
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	CString strFilePath;			  // Do NOT localize that string
 	if (DialogBrowseFile(strFilePath, _T("All IP Filter Files (*ipfilter.dat;*ip.prefix;*.p2b;*.p2p;*.p2p.txt;*.zip;*.gz;*.rar)|*ipfilter.dat;*ip.prefix;*.p2b;*.p2p;*.p2p.txt;*.zip;*.gz;*.rar|eMule IP Filter Files (*ipfilter.dat;*ip.prefix)|*ipfilter.dat;*ip.prefix|Peer Guardian Files (*.p2b;*.p2p;*.p2p.txt)|*.p2b;*.p2p;*.p2p.txt|Text Files (*.txt)|*.txt|ZIP Files (*.zip;*.gz)|*.zip;*.gz|RAR Files (*.rar)|*.rar|All Files (*.*)|*.*||"))) {
 		CWaitCursor curWait;

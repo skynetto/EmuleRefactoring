@@ -44,6 +44,7 @@ CFirewallOpener::~CFirewallOpener()
 
 bool CFirewallOpener::Init(bool bPreInit)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (!m_bInited) {
 		ASSERT(m_liAddedRules.IsEmpty());
 		if (thePrefs.GetWindowsVersion() != _WINVER_XP_ || !SUCCEEDED(CoInitialize(NULL)))

@@ -86,6 +86,7 @@ CWebServer::CWebServer()
 	, m_bSearchAsc()
 	, m_bIsTempDisabled()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	CIni ini(thePrefs.GetConfigFile(), _T("WebServer"));
 
 	ini.SerGet(true, WSdownloadColumnHidden, _countof(WSdownloadColumnHidden), _T("downloadColumnHidden"));
@@ -114,6 +115,7 @@ CWebServer::CWebServer()
 
 CWebServer::~CWebServer()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	// save layout settings
 	CIni ini(thePrefs.GetConfigFile(), _T("WebServer"));
 
@@ -139,6 +141,7 @@ CWebServer::~CWebServer()
 
 void CWebServer::_SaveWIConfigArray(BOOL *array, int size, LPCTSTR key)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	CIni ini(thePrefs.GetConfigFile(), _T("WebServer"));
 	ini.SerGet(false, array, size, key);
 }
@@ -153,6 +156,7 @@ bool CWebServer::ReloadTemplates()
 	m_Params.sETag = MD5Sum(m_Params.sLastModified).GetHashString();
 	_tsetlocale(LC_TIME, sPrevLocale);
 
+	CPreferences& thePrefs = CPreferences::Instance();
 	const CString &sFile(thePrefs.GetTemplate());
 
 	CStdioFile file;
@@ -262,6 +266,7 @@ void CWebServer::RestartSockets()
 
 void CWebServer::StartServer()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (m_bServerWorking == thePrefs.GetWSIsEnabled())
 		return;
 	m_bServerWorking = thePrefs.GetWSIsEnabled();
@@ -289,6 +294,7 @@ void CWebServer::StopServer()
 		StopSockets();
 		m_bServerWorking = false;
 	}
+	CPreferences& thePrefs = CPreferences::Instance();
 	thePrefs.SetWSIsEnabled(false);
 }
 
@@ -351,6 +357,7 @@ void CWebServer::_ProcessURL(const ThreadData &Data)
 	if (pThis == NULL)
 		return;
 
+	CPreferences& thePrefs = CPreferences::Instance();
 	SetThreadLocale(thePrefs.GetLanguageID());
 
 	//(0.29b)//////////////////////////////////////////////////////////////////
@@ -678,6 +685,8 @@ CString CWebServer::_GetHeader(const ThreadData &Data, long lSession)
 	const CWebServer *pThis = reinterpret_cast<CWebServer*>(Data.pThis);
 	if (pThis == NULL)
 		return CString();
+
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	CString sSession;
 	sSession.Format(_T("%ld"), lSession);
@@ -1374,6 +1383,8 @@ CString CWebServer::_GetTransferList(const ThreadData &Data)
 		sCat.Format(_T("&amp;cat=%i"), cat);
 
 	CString Out;
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (thePrefs.GetCatCount() > 1)
 		_InsertCatBox(Out, cat, CString(), true, true, sSession, CString());
 	else
@@ -2112,6 +2123,8 @@ void CWebServer::_MakeTransferList(CString &Out, CWebServer *pThis, const Thread
 	CString HTTPTemp;
 	LPCTSTR pcTmp;
 	double fTotalSize = 0, fTotalTransferred = 0, fTotalSpeed = 0;
+
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	CString OutE = pThis->m_Templates.sTransferDownLine;
 	for (INT_PTR i = 0; i < FilesArray->GetCount(); ++i) {
@@ -2913,6 +2926,9 @@ CString CWebServer::_GetSharedFilesList(const ThreadData &Data)
 	SortParams prm{ (int)pThis->m_Params.SharedSort, pThis->m_Params.bSharedSortReverse };
 	qsort_s(SharedArray.GetData(), SharedArray.GetCount(), sizeof(SharedFiles), &_SharedCmp, &prm);
 
+
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	// Displaying
 	CString sSharedList;
 	for (INT_PTR i = 0; i < SharedArray.GetCount(); ++i) {
@@ -3055,6 +3071,8 @@ CString CWebServer::_GetGraphs(const ThreadData &Data)
 		strGraphCons.AppendFormat(pszFmt, (uint32)(pt.connections));
 		pszFmt = _T(",%u");
 	}
+
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	Out.Replace(_T("[GraphDownload]"), strGraphDownload);
 	Out.Replace(_T("[GraphUpload]"), strGraphUpload);
@@ -3346,6 +3364,8 @@ CString CWebServer::_GetPreferences(const ThreadData &Data)
 
 	CString Out = pThis->m_Templates.sPreferences;
 	Out.Replace(_T("[Session]"), sSession);
+
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	if ((_ParseURL(Data.sURL, _T("saveprefs")) == _T("true")) && _IsSessionAdmin(Data, sSession)) {
 		CString strTmp = _ParseURL(Data.sURL, _T("gzip"));
@@ -3862,6 +3882,8 @@ CString CWebServer::_GetSearch(const ThreadData &Data)
 		);
 	}
 
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (thePrefs.GetCatCount() > 1)
 		_InsertCatBox(Out, 0, pThis->m_Templates.sCatArrow, false, false, sSession, _T(""));
 	else
@@ -3943,6 +3965,7 @@ CString CWebServer::_GetSearch(const ThreadData &Data)
 
 INT_PTR CWebServer::UpdateSessionCount()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	if (thePrefs.GetWebTimeoutMins() > 0) {
 		INT_PTR oldvalue = m_Params.Sessions.GetCount();
 		CTime curTime(CTime::GetCurrentTime());
@@ -3960,6 +3983,7 @@ INT_PTR CWebServer::UpdateSessionCount()
 
 void CWebServer::_InsertCatBox(CString &Out, int preselect, const CString &boxlabel, bool jump, bool extraCats, const CString &sSession, const CString &sFileHash, bool ed2kbox)
 {
+	CPreferences& thePrefs = CPreferences::Instance();
 	CString tempBuf;
 	tempBuf.Format(_T("<form action=\"\">%s<select name=\"cat\" size=\"1\"%s>")
 		, (LPCTSTR)boxlabel
@@ -4146,6 +4170,8 @@ void CWebServer::_ProcessFileReq(const ThreadData &Data)
 		else if (ext == _T("js"))
 			contenttype = _T("Content-Type: text/javascript\r\n");
 	}
+
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	contenttype.AppendFormat(_T("Last-Modified: %s\r\nETag: %s\r\n"), (LPCTSTR)pThis->m_Params.sLastModified, (LPCTSTR)pThis->m_Params.sETag);
 

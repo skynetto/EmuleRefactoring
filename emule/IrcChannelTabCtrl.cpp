@@ -158,6 +158,9 @@ Channel* CIrcChannelTabCtrl::FindOrCreateChannel(const CString &sChannel)
 {
 	if (sChannel.IsEmpty())
 		return NULL;
+
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	Channel *pChannel = FindChannelByName(sChannel);
 	if (!pChannel) {
 		if (sChannel[0] == _T('#'))
@@ -182,6 +185,9 @@ Channel* CIrcChannelTabCtrl::NewChannel(const CString &sChannel, Channel::EType 
 	pChannel->m_eType = eType;
 	pChannel->m_iHistoryPos = 0;
 	pChannel->m_bDetached = false;
+
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (eType != Channel::ctChannelList) {
 		RECT rcChannelPane;
 		m_pParent->m_wndChanList.GetWindowRect(&rcChannelPane);
@@ -542,6 +548,9 @@ void CIrcChannelTabCtrl::ChatSend(CString sSend)
 {
 	if (sSend.IsEmpty() || !m_pParent->IsConnected())
 		return;
+
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	m_pCurrentChannel->m_sTabd.Empty();
 	m_pCurrentChannel->m_sTyped.Empty();
 	if (m_pCurrentChannel->m_astrHistory.GetCount() == thePrefs.GetMaxChatHistoryLines())

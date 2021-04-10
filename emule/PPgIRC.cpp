@@ -91,6 +91,8 @@ void CPPgIRC::DoDataExchange(CDataExchange *pDX)
 {
 	CPropertyPage::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_MISC_IRC, m_ctrlTreeOptions);
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	if (!m_bInitializedTreeOpts) {
 		m_htiHelpChannel = m_ctrlTreeOptions.InsertCheckBox(GetResString(IDS_IRC_HELPCHANNEL), TVI_ROOT, m_bHelpChannel);
 		m_htiChannelsOnConnect = m_ctrlTreeOptions.InsertCheckBox(GetResString(IDS_IRC_LOADCHANNELLISTONCON), TVI_ROOT, m_bChannelsOnConnect);
@@ -143,6 +145,8 @@ void CPPgIRC::DoDataExchange(CDataExchange *pDX)
 
 BOOL CPPgIRC::OnInitDialog()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	m_bTimeStamp = thePrefs.GetIRCAddTimeStamp();
 	m_bSoundEvents = thePrefs.GetIRCPlaySoundEvents();
 	m_bMiscMessage = thePrefs.GetIRCIgnoreMiscMessages();
@@ -187,6 +191,8 @@ BOOL CPPgIRC::OnKillActive()
 
 void CPPgIRC::LoadSettings()
 {
+	CPreferences& thePrefs = CPreferences::Instance();
+
 	CheckDlgButton(IDC_IRC_USECHANFILTER, static_cast<UINT>(thePrefs.m_bIRCUseChannelFilter));
 	CheckDlgButton(IDC_IRC_USEPERFORM, static_cast<UINT>(thePrefs.m_bIRCUsePerform));
 
@@ -205,6 +211,8 @@ BOOL CPPgIRC::OnApply()
 
 	if (!UpdateData())
 		return FALSE;
+
+	CPreferences& thePrefs = CPreferences::Instance();
 
 	thePrefs.m_bIRCAddTimeStamp = m_bTimeStamp;
 	thePrefs.m_bIRCPlaySoundEvents = m_bSoundEvents;
