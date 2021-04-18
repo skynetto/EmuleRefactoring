@@ -16,6 +16,7 @@
 //Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 #pragma once
+#include <vector>
 
 class CUpDownClient;
 
@@ -43,7 +44,7 @@ public:
 	EBBRStatus	m_BBRStatus;
 };
 
-typedef CArray<CCBBRecord> CRecordArray;
+typedef std::vector<CCBBRecord> CRecordArray;
 
 
 class CCorruptionBlackBox
@@ -59,5 +60,5 @@ public:
 	void	EvaluateData(uint16 nPart);
 
 private:
-	CArray<CRecordArray> m_aaRecords;
+	std::vector<CRecordArray> m_aaRecords;
 };

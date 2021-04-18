@@ -47,15 +47,21 @@ static char THIS_FILE[] = __FILE__;
 #endif
 
 CPreferences::CPreferences()
+: EmuleWindowPlacement{ 0 }
+, cumUpData_File{ 0 }
+, cumUpData_Partfile{ 0 }
+, sesUpData_File{ 0 }
+, sesUpData_Partfile{ 0 }
+, udpport{ 0 }
+, port{ 0 }
+, nServerUDPPort{ 0 }
+, userhash{ 0 }
 {
+
 #ifdef _DEBUG
 	m_iDbgHeap = 1;
 #endif
 
-	cumUpData_File = 0;
-	cumUpData_Partfile = 0; 
-	sesUpData_File = 0;
-	sesUpData_Partfile = 0;
 }
 
 CPreferences::~CPreferences()

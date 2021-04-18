@@ -17,6 +17,8 @@
 #include "KnownFile.h"
 #include "DeadSourceList.h"
 #include "CorruptionBlackBox.h"
+#include <list>
+#include <memory>
 
 enum EPartFileStatus
 {
@@ -106,6 +108,25 @@ struct PartFileBufferedData
 	uint64 end;						// Barry - This is the end offset of the data
 	BYTE *data;						// Barry - This is the data to be written
 	Requested_Block_Struct *block;	// Barry - This is the requested block that this data relates to
+	PartFileBufferedData()
+		: start{0}
+		, end{0}
+		, data{nullptr}
+		, block{nullptr}
+	{}
+
+	PartFileBufferedData(uint64 _start, uint64 _end, BYTE *_data, Requested_Block_Struct *_block)
+		: start{ _start }
+		, end{ _end }
+		, data{ _data }
+		, block{ _block }
+	{}
+
+	~PartFileBufferedData()
+	{
+		delete [] data;
+		//delete block;
+	}
 };
 
 typedef CTypedPtrList<CPtrList, CUpDownClient*> CUpDownClientPtrList;
@@ -353,7 +374,7 @@ private:
 	CTypedPtrList<CPtrList, Gap_Struct*> m_gaplist;
 	CTypedPtrList<CPtrList, Requested_Block_Struct*> requestedblocks_list;
 	// Barry - Buffered data to be written
-	CTypedPtrList<CPtrList, PartFileBufferedData*> m_BufferedData_list;
+	std::list<std::shared_ptr<PartFileBufferedData>> m_BufferedData_list;
 	CArray<uint16, uint16> m_SrcPartFrequency;
 	CList<uint16, uint16> corrupted_list;
 	CUpDownClientPtrList m_downloadingSourceList;

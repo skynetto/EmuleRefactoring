@@ -182,8 +182,8 @@ void CPartFile::InitializeFromLink(CED2KFileLink *fileLink, UINT cat)
 {
 	Init();
 	try {
-		CPartFile::SetFileName(fileLink->GetName(), true, true);
-		CPartFile::SetFileSize(fileLink->GetSize());
+		SetFileName(fileLink->GetName(), true, true);
+		SetFileSize(fileLink->GetSize());
 		m_FileIdentifier.SetMD4Hash(fileLink->GetHashKey());
 		if (fileLink->HasValidAICHHash()) {
 			m_FileIdentifier.SetAICHHash(fileLink->GetAICHHash());
@@ -315,11 +315,11 @@ CPartFile::~CPartFile()
 	while (!m_gaplist.IsEmpty())
 		delete m_gaplist.RemoveHead();
 
-	while (!m_BufferedData_list.IsEmpty()) {
+	/*while (!m_BufferedData_list.IsEmpty()) {
 		const PartFileBufferedData *cur_block = m_BufferedData_list.RemoveHead();
 		delete[] cur_block->data;
 		delete cur_block;
-	}
+	}*/
 	delete m_pAICHRecoveryHashSet;
 }
 
@@ -375,7 +375,7 @@ void CPartFile::AssertValid() const
 	(void)s_ChunkBar;
 	(void)m_lastRefreshedDLDisplay;
 	m_downloadingSourceList.AssertValid();
-	m_BufferedData_list.AssertValid();
+	//m_BufferedData_list.AssertValid();
 	(void)m_nTotalBufferData;
 	(void)m_nLastBufferFlushTime;
 	(void)m_category;
@@ -1236,7 +1236,7 @@ bool CPartFile::SavePartFile(bool bDontOverrideBak)
 		LogError(_T("%s"), (LPCTSTR)strError);
 		return false;
 	}
-	setvbuf(file.m_pStream, NULL, _IOFBF, 16384);
+	setvbuf(file.m_pStream, NULL, _IOFBF, 16384*2);
 
 	try {
 		//version
@@ -1436,11 +1436,49 @@ bool CPartFile::SavePartFile(bool bDontOverrideBak)
 		// (for example, on disk full errors)
 		// don't bother to merge everything, we do this on the next loading
 //		uint32 dbgMerged = 0;
-		for (POSITION pos = m_BufferedData_list.GetHeadPosition(); pos != NULL;) {
+		bool firstTime = true;
+		for (auto it = m_BufferedData_list.cbegin(); it != m_BufferedData_list.cend();)
+		{
+			if (firstTime)
+			{
+				firstTime = false;
+			}
+			else
+			{
+				++it;
+			}
+			const uint64 nStart = (*it)->start;
+			uint64 nEnd = (*it)->end;
+			for (; it != m_BufferedData_list.cend(); ++it)
+			{ 
+				// merge if obvious
+				if ((*it)->start != nEnd + 1)
+					break;
+				//				++dbgMerged;
+				nEnd = (*it)->end;
+			}
+			
+			_itoa(i_pos, number, 10);
+			namebuffer[0] = FT_GAPSTART;
+			CTag gapstarttag(namebuffer, nStart, IsLargeFile());
+			gapstarttag.WriteTagToFile(&file);
+			++uTagCount;
+
+			// gap start = first missing byte but gap ends = first non-missing byte in edonkey
+			// but I think its easier to user the real limits
+			namebuffer[0] = FT_GAPEND;
+			CTag gapendtag(namebuffer, nEnd + 1, IsLargeFile());
+			gapendtag.WriteTagToFile(&file);
+			++uTagCount;
+			++i_pos;
+		}
+		/*for (POSITION pos = m_BufferedData_list.GetHeadPosition(); pos != NULL;) 
+		{
 			const PartFileBufferedData *cur_block = m_BufferedData_list.GetNext(pos);
 			const uint64 nStart = cur_block->start;
 			uint64 nEnd = cur_block->end;
-			for (; pos != NULL; m_BufferedData_list.GetNext(pos)) { // merge if obvious
+			for (; pos != NULL; m_BufferedData_list.GetNext(pos)) 
+			{ // merge if obvious
 				cur_block = m_BufferedData_list.GetAt(pos);
 				if (cur_block->start != nEnd + 1)
 					break;
@@ -1461,7 +1499,7 @@ bool CPartFile::SavePartFile(bool bDontOverrideBak)
 			gapendtag.WriteTagToFile(&file);
 			++uTagCount;
 			++i_pos;
-		}
+		}*/
 //		DEBUG_ONLY( DebugLog(_T("Wrote %u buffered gaps (%u merged) for file %s"), m_BufferedData_list.GetCount(), dbgMerged, (LPCTSTR)GetFileName()) );
 
 		file.Seek(uTagCountFilePos, CFile::begin);
@@ -1656,6 +1694,12 @@ bool CPartFile::IsComplete(uint64 start, uint64 end, bool bIgnoreBufferedData) c
 	}
 
 	if (bIgnoreBufferedData)
+		for (auto it : m_BufferedData_list)
+		{
+			if (it->start > end)	break;
+			if (it->end >= start)   return false;
+		}
+	/*
 		for (POSITION pos = m_BufferedData_list.GetHeadPosition(); pos != NULL;) {
 			const PartFileBufferedData *cur_block = m_BufferedData_list.GetNext(pos);
 			if (cur_block->start > end)
@@ -1663,7 +1707,7 @@ bool CPartFile::IsComplete(uint64 start, uint64 end, bool bIgnoreBufferedData) c
 			if (cur_block->end >= start)
 				return false;
 		}
-
+	*/
 	return true;
 }
 
@@ -1699,7 +1743,16 @@ bool CPartFile::IsAlreadyRequested(uint64 start, uint64 end, bool bCheckBuffers)
 	}
 	// check our buffers
 	if (bCheckBuffers)
-		for (POSITION pos = m_BufferedData_list.GetHeadPosition(); pos != NULL;) {
+		for (auto it : m_BufferedData_list)
+		{
+			if (it->start > end) break;
+			if (it->end >= start)
+			{
+				DebugLogWarning(_T("CPartFile::IsAlreadyRequested, collision with buffered data found"));
+				return true;
+			}
+		}
+		/*for (POSITION pos = m_BufferedData_list.GetHeadPosition(); pos != NULL;) {
 			const PartFileBufferedData *cur_block = m_BufferedData_list.GetNext(pos);
 			if (cur_block->start > end)
 				break; //no intersections
@@ -1707,7 +1760,7 @@ bool CPartFile::IsAlreadyRequested(uint64 start, uint64 end, bool bCheckBuffers)
 				DebugLogWarning(_T("CPartFile::IsAlreadyRequested, collision with buffered data found"));
 				return true;
 			}
-		}
+		}*/
 
 	return false;
 }
@@ -1735,6 +1788,22 @@ bool CPartFile::ShrinkToAvoidAlreadyRequested(uint64 &start, uint64 &end) const
 
 	// has been shrunk to fit requested, if needed shrink it further to not collide with buffered data
 	// check our buffers
+	for (auto it : m_BufferedData_list)
+	{
+		if (it->start > end)
+			break;
+		if (it->end >= start) {
+			if (it->start > start)
+				end = it->start - 1;
+			else if (it->end < end)
+				start = it->end + 1;
+			else
+				return false;
+			if (start > end)
+				return false;
+		}
+	}
+	/*
 	for (POSITION pos = m_BufferedData_list.GetHeadPosition(); pos != NULL;) {
 		const PartFileBufferedData *cur_block = m_BufferedData_list.GetNext(pos);
 		if (cur_block->start > end)
@@ -1749,7 +1818,7 @@ bool CPartFile::ShrinkToAvoidAlreadyRequested(uint64 &start, uint64 &end) const
 			if (start > end)
 				return false;
 		}
-	}
+	}*/
 	ASSERT(start >= startOrig && start <= endOrig);
 	ASSERT(end >= startOrig && end <= endOrig);
 	return true;
@@ -3196,7 +3265,7 @@ void CPartFile::DeletePartFile()
 		LogError(LOG_STATUSBAR, sFmt, (LPCTSTR)TMPName);
 	}
 
-	delete this;
+	//delete this;
 }
 
 bool CPartFile::HashSinglePart(UINT partnumber, bool *pbAICHReportedOK)
@@ -4122,9 +4191,24 @@ uint32 CPartFile::WriteToBuffer(uint64 transize, const BYTE *data, uint64 start,
 	memcpy(buffer, data, lenData);
 
 	// Create a new buffered queue entry
-	PartFileBufferedData *item = new PartFileBufferedData{start, end, buffer, block};
+	PartFileBufferedData* item = new PartFileBufferedData( start, end, buffer, block );
 
 	// Add to the queue at the correct position (most likely the end)
+
+	auto after = m_BufferedData_list.rend();
+	for (auto it = m_BufferedData_list.rbegin(); it != m_BufferedData_list.rend(); ++it)
+	{
+		auto posLast = it;
+		if ((*it)->end < item->end) {
+			ASSERT((*it)->end < item->start); //the list is ordered, no overlaps
+			//if (cur_block->end >= item->start)
+			//	DebugLogError(_T("WriteToBuffer: (%I64u >= %I64u)"), cur_block->end, item->start);
+			after = posLast;
+			break;
+		}
+	}
+	
+		/*
 	POSITION after = NULL;
 	for (POSITION pos = m_BufferedData_list.GetTailPosition(); pos != NULL;) {
 		POSITION posLast = pos;
@@ -4136,11 +4220,13 @@ uint32 CPartFile::WriteToBuffer(uint64 transize, const BYTE *data, uint64 start,
 			after = posLast;
 			break;
 		}
-	}
-	if (after)
-		m_BufferedData_list.InsertAfter(after, item);
+	}*/
+	
+		
+		if(after != m_BufferedData_list.rend())
+		m_BufferedData_list.insert(after.base()--, std::shared_ptr<PartFileBufferedData>(item));
 	else
-		m_BufferedData_list.AddHead(item);
+		m_BufferedData_list.push_front(std::shared_ptr<PartFileBufferedData>(item));
 
 	// Increment buffer size marker
 	m_nTotalBufferData += lenData;
@@ -4167,7 +4253,7 @@ uint32 CPartFile::WriteToBuffer(uint64 transize, const BYTE *data, uint64 start,
 void CPartFile::FlushBuffer(bool forcewait, bool bForceICH, bool bNoAICH)
 {
 	m_nLastBufferFlushTime = ::GetTickCount();
-	if (m_BufferedData_list.IsEmpty())
+	if (m_BufferedData_list.empty())
 		return;
 
 	if (IsAllocating())
@@ -4199,7 +4285,7 @@ void CPartFile::FlushBuffer(bool forcewait, bool bForceICH, bool bNoAICH)
 		}
 
 		// Ensure file is big enough to write data to (the last item will be the furthest from the start)
-		PartFileBufferedData *item = m_BufferedData_list.GetTail();
+		PartFileBufferedData* item = m_BufferedData_list.back().get(); ;
 		if (m_hpartfile.GetLength() <= item->end) {
 			uint64 newsize = thePrefs.GetAllocCompleteMode() ? (uint64)GetFileSize() : (item->end + 1);
 			ULONGLONG uIncrease = newsize - m_hpartfile.GetLength();
@@ -4234,9 +4320,9 @@ void CPartFile::FlushBuffer(bool forcewait, bool bForceICH, bool bNoAICH)
 		}
 
 		// Loop through the queue
-		while (!m_BufferedData_list.IsEmpty()) {
+		while (!m_BufferedData_list.empty()) {
 			// Get the top item
-			item = m_BufferedData_list.GetHead();
+			item = m_BufferedData_list.front().get();
 
 			// SLUGFILLER: SafeHash - could be more than one part
 			for (uint32 curpart = (uint32)(item->start / PARTSIZE); curpart <= item->end / PARTSIZE; ++curpart)
@@ -4250,14 +4336,14 @@ void CPartFile::FlushBuffer(bool forcewait, bool bForceICH, bool bNoAICH)
 			m_hpartfile.Write(item->data, lenData);
 
 			// Remove item from queue
-			m_BufferedData_list.RemoveHead();
+			m_BufferedData_list.pop_front();
 
 			// Decrease buffer size
 			m_nTotalBufferData -= lenData;
 
 			// Release memory used by this item
-			delete[] item->data;
-			delete item;
+			//delete[] item->data;
+			//delete item;
 		}
 
 		// Partfile should never be too large

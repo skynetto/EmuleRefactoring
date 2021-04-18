@@ -75,13 +75,12 @@ bool CCBBRecord::CanMerge(uint64 nStartPos, uint64 nEndPos, uint32 dwIP, EBBRSta
 
 void CCorruptionBlackBox::Init(EMFileSize nFileSize)
 {
-	m_aaRecords.SetSize((INT_PTR)(((uint64)nFileSize + (PARTSIZE - 1)) / PARTSIZE));
+	m_aaRecords.resize((INT_PTR)(((uint64)nFileSize + (PARTSIZE - 1)) / PARTSIZE));
 }
 
 void CCorruptionBlackBox::Free()
 {
-	m_aaRecords.RemoveAll();
-	m_aaRecords.FreeExtra();
+	m_aaRecords.clear();
 }
 
 void CCorruptionBlackBox::TransferredData(uint64 nStartPos, uint64 nEndPos, const CUpDownClient *pSender)
@@ -110,13 +109,13 @@ void CCorruptionBlackBox::TransferredData(uint64 nStartPos, uint64 nEndPos, cons
 		ASSERT(nTmpStartPos % PARTSIZE == 0); // remove later
 		TransferredData(nTmpStartPos, nEndPos, pSender);
 	}
-	if ((INT_PTR)nPart >= m_aaRecords.GetCount()) {
+	if ((INT_PTR)nPart >= m_aaRecords.size()) {
 		//ASSERT( false );
-		m_aaRecords.SetSize(nPart + 1);
+		m_aaRecords.resize(static_cast<size_t>(nPart + 1));
 	}
 	INT_PTR posMerge = -1;
 	uint64 ndbgRewritten = 0;
-	for (INT_PTR i = 0; i < m_aaRecords[nPart].GetCount(); ++i) {
+	for (INT_PTR i = 0; i < m_aaRecords[nPart].size(); ++i) {
 		CCBBRecord &cbb = m_aaRecords[nPart][i];
 		if (cbb.CanMerge(nRelStartPos, nRelEndPos, dwSenderIP, BBR_NONE))
 			posMerge = i;
@@ -125,7 +124,7 @@ void CCorruptionBlackBox::TransferredData(uint64 nStartPos, uint64 nEndPos, cons
 			if (cbb.m_nStartPos >= nRelStartPos && cbb.m_nEndPos <= nRelEndPos) {
 				// old one is included in new one -> delete
 				ndbgRewritten += (cbb.m_nEndPos - cbb.m_nStartPos) + 1;
-				m_aaRecords[nPart].RemoveAt(i);
+				m_aaRecords[nPart].erase(m_aaRecords[nPart].begin() + i);
 				--i;
 			} else if (cbb.m_nStartPos < nRelStartPos && cbb.m_nEndPos > nRelEndPos) {
 				// old one includes new one
@@ -140,8 +139,8 @@ void CCorruptionBlackBox::TransferredData(uint64 nStartPos, uint64 nEndPos, cons
 					cbb.m_nEndPos = nRelEndPos;
 					uint32 dwOldIP = cbb.m_dwIP;
 					cbb.m_dwIP = dwSenderIP;
-					m_aaRecords[nPart].Add(CCBBRecord(nTmpStartPos1, nTmpEndPos1, dwOldIP));
-					m_aaRecords[nPart].Add(CCBBRecord(nTmpStartPos2, nTmpEndPos2, dwOldIP));
+					m_aaRecords[nPart].push_back(CCBBRecord(nTmpStartPos1, nTmpEndPos1, dwOldIP));
+					m_aaRecords[nPart].push_back(CCBBRecord(nTmpStartPos2, nTmpEndPos2, dwOldIP));
 					// and are done then
 				}
 				DEBUG_ONLY(AddDebugLogLine(DLP_DEFAULT, false, _T("CorruptionBlackBox: Debug: %i bytes were rewritten and records replaced with new stats (1)"), (nRelEndPos - nRelStartPos) + 1));
@@ -162,7 +161,7 @@ void CCorruptionBlackBox::TransferredData(uint64 nStartPos, uint64 nEndPos, cons
 	if (posMerge >= 0)
 		VERIFY(m_aaRecords[nPart][posMerge].Merge(nRelStartPos, nRelEndPos, dwSenderIP, BBR_NONE));
 	else
-		m_aaRecords[nPart].Add(CCBBRecord(nRelStartPos, nRelEndPos, dwSenderIP, BBR_NONE));
+		m_aaRecords[nPart].push_back(CCBBRecord(nRelStartPos, nRelEndPos, dwSenderIP, BBR_NONE));
 
 	if (ndbgRewritten > 0)
 		DEBUG_ONLY(AddDebugLogLine(DLP_DEFAULT, false, _T("CorruptionBlackBox: Debug: %i bytes were rewritten and records replaced with new stats (2)"), ndbgRewritten));
@@ -182,16 +181,16 @@ void CCorruptionBlackBox::VerifiedData(uint64 nStartPos, uint64 nEndPos)
 		ASSERT(0);
 		return;
 	}
-	if ((INT_PTR)nPart >= m_aaRecords.GetCount()) {
+	if ((INT_PTR)nPart >= m_aaRecords.size()) {
 		//ASSERT( false );
-		m_aaRecords.SetSize(nPart + 1);
+		m_aaRecords.resize(static_cast<size_t>(nPart + 1));
 	}
 #ifdef _DEBUG
 	uint64 nDbgVerifiedBytes = 0;
 	//uint32 nDbgOldEntries = m_aaRecords[nPart].GetCount();
 	CMap<int, int, int, int> mapDebug;
 #endif
-	for (INT_PTR i = 0; i < m_aaRecords[nPart].GetCount(); ++i) {
+	for (INT_PTR i = 0; i < m_aaRecords[nPart].size(); ++i) {
 		CCBBRecord &cbb = m_aaRecords[nPart][i];
 		if (cbb.m_BBRStatus == BBR_NONE || cbb.m_BBRStatus == BBR_VERIFIED) {
 			if (cbb.m_nStartPos >= nRelStartPos && cbb.m_nEndPos <= nRelEndPos)
@@ -204,20 +203,20 @@ void CCorruptionBlackBox::VerifiedData(uint64 nStartPos, uint64 nEndPos)
 				uint64 nTmpEndPos2 = nRelStartPos - 1;
 				cbb.m_nStartPos = nRelStartPos;
 				cbb.m_nEndPos = nRelEndPos;
-				m_aaRecords[nPart].Add(CCBBRecord(nTmpStartPos1, nTmpEndPos1, cbb.m_dwIP, cbb.m_BBRStatus));
-				m_aaRecords[nPart].Add(CCBBRecord(nTmpStartPos2, nTmpEndPos2, cbb.m_dwIP, cbb.m_BBRStatus));
+				m_aaRecords[nPart].push_back(CCBBRecord(nTmpStartPos1, nTmpEndPos1, cbb.m_dwIP, cbb.m_BBRStatus));
+				m_aaRecords[nPart].push_back(CCBBRecord(nTmpStartPos2, nTmpEndPos2, cbb.m_dwIP, cbb.m_BBRStatus));
 			} else if (cbb.m_nStartPos >= nRelStartPos && cbb.m_nStartPos <= nRelEndPos) {
 				// need to split it
 				uint64 nTmpStartPos = nRelEndPos + 1;
 				uint64 nTmpEndPos = cbb.m_nEndPos;
 				cbb.m_nEndPos = nRelEndPos;
-				m_aaRecords[nPart].Add(CCBBRecord(nTmpStartPos, nTmpEndPos, cbb.m_dwIP, cbb.m_BBRStatus));
+				m_aaRecords[nPart].push_back(CCBBRecord(nTmpStartPos, nTmpEndPos, cbb.m_dwIP, cbb.m_BBRStatus));
 			} else if (cbb.m_nEndPos >= nRelStartPos && cbb.m_nEndPos <= nRelEndPos) {
 				// need to split it
 				uint64 nTmpStartPos = cbb.m_nStartPos;
 				uint64 nTmpEndPos = nRelStartPos - 1;
 				cbb.m_nStartPos = nRelStartPos;
-				m_aaRecords[nPart].Add(CCBBRecord(nTmpStartPos, nTmpEndPos, cbb.m_dwIP, cbb.m_BBRStatus));
+				m_aaRecords[nPart].push_back(CCBBRecord(nTmpStartPos, nTmpEndPos, cbb.m_dwIP, cbb.m_BBRStatus));
 			} else
 				continue;
 			cbb.m_BBRStatus = BBR_VERIFIED;
@@ -249,12 +248,12 @@ void CCorruptionBlackBox::CorruptedData(uint64 nStartPos, uint64 nEndPos)
 		ASSERT(0);
 		return;
 	}
-	if ((INT_PTR)nPart >= m_aaRecords.GetCount()) {
+	if ((INT_PTR)nPart >= m_aaRecords.size()) {
 		//ASSERT( false );
-		m_aaRecords.SetSize(nPart + 1);
+		m_aaRecords.resize(static_cast<size_t>(nPart + 1));
 	}
 	uint64 nDbgVerifiedBytes = 0;
-	for (INT_PTR i = 0; i < m_aaRecords[nPart].GetCount(); ++i) {
+	for (INT_PTR i = 0; i < m_aaRecords[nPart].size(); ++i) {
 		CCBBRecord &cbb = m_aaRecords[nPart][i];
 		if (cbb.m_BBRStatus == BBR_NONE) {
 			if (cbb.m_nStartPos >= nRelStartPos && cbb.m_nEndPos <= nRelEndPos)
@@ -267,20 +266,20 @@ void CCorruptionBlackBox::CorruptedData(uint64 nStartPos, uint64 nEndPos)
 				uint64 nTmpEndPos2 = nRelStartPos - 1;
 				cbb.m_nStartPos = nRelStartPos;
 				cbb.m_nEndPos = nRelEndPos;
-				m_aaRecords[nPart].Add(CCBBRecord(nTmpStartPos1, nTmpEndPos1, cbb.m_dwIP, cbb.m_BBRStatus));
-				m_aaRecords[nPart].Add(CCBBRecord(nTmpStartPos2, nTmpEndPos2, cbb.m_dwIP, cbb.m_BBRStatus));
+				m_aaRecords[nPart].push_back(CCBBRecord(nTmpStartPos1, nTmpEndPos1, cbb.m_dwIP, cbb.m_BBRStatus));
+				m_aaRecords[nPart].push_back(CCBBRecord(nTmpStartPos2, nTmpEndPos2, cbb.m_dwIP, cbb.m_BBRStatus));
 			} else if (cbb.m_nStartPos >= nRelStartPos && cbb.m_nStartPos <= nRelEndPos) {
 				// need to split it
 				uint64 nTmpStartPos = nRelEndPos + 1;
 				uint64 nTmpEndPos = cbb.m_nEndPos;
 				cbb.m_nEndPos = nRelEndPos;
-				m_aaRecords[nPart].Add(CCBBRecord(nTmpStartPos, nTmpEndPos, cbb.m_dwIP, cbb.m_BBRStatus));
+				m_aaRecords[nPart].push_back(CCBBRecord(nTmpStartPos, nTmpEndPos, cbb.m_dwIP, cbb.m_BBRStatus));
 			} else if (cbb.m_nEndPos >= nRelStartPos && cbb.m_nEndPos <= nRelEndPos) {
 				// need to split it
 				uint64 nTmpStartPos = cbb.m_nStartPos;
 				uint64 nTmpEndPos = nRelStartPos - 1;
 				cbb.m_nStartPos = nRelStartPos;
-				m_aaRecords[nPart].Add(CCBBRecord(nTmpStartPos, nTmpEndPos, cbb.m_dwIP, cbb.m_BBRStatus));
+				m_aaRecords[nPart].push_back(CCBBRecord(nTmpStartPos, nTmpEndPos, cbb.m_dwIP, cbb.m_BBRStatus));
 			} else
 				continue;
 			cbb.m_BBRStatus = BBR_CORRUPTED;
@@ -293,7 +292,7 @@ void CCorruptionBlackBox::CorruptedData(uint64 nStartPos, uint64 nEndPos)
 void CCorruptionBlackBox::EvaluateData(uint16 nPart)
 {
 	CArray<uint32, uint32> aGuiltyClients;
-	for (INT_PTR i = 0; i < m_aaRecords[nPart].GetCount(); ++i)
+	for (INT_PTR i = 0; i < m_aaRecords[nPart].size(); ++i)
 		if (m_aaRecords[nPart][i].m_BBRStatus == BBR_CORRUPTED)
 			aGuiltyClients.Add(m_aaRecords[nPart][i].m_dwIP);
 
@@ -322,8 +321,8 @@ void CCorruptionBlackBox::EvaluateData(uint16 nPart)
 	memset(&aDataVerified[0], 0, aGuiltyClients.GetCount() * sizeof aDataVerified[0]);
 
 	// now the parsing
-	for (INT_PTR iPart = 0; iPart < m_aaRecords.GetCount(); ++iPart)
-		for (INT_PTR i = 0; i < m_aaRecords[iPart].GetCount(); ++i)
+	for (INT_PTR iPart = 0; iPart < m_aaRecords.size(); ++iPart)
+		for (INT_PTR i = 0; i < m_aaRecords[iPart].size(); ++i)
 			for (INT_PTR k = 0; k < aGuiltyClients.GetCount(); ++k) {
 				const CCBBRecord &cbb = m_aaRecords[iPart][i];
 				if (cbb.m_dwIP == aGuiltyClients[k])
